@@ -1,0 +1,7 @@
+# Dependencias de ejecución del proyecto Python.
+# Todavía no se han definido dependencias externas.
+# Agregar los paquetes necesarios con su versión exacta (paquete==X.Y.Z)
+# cuando se defina la funcionalidad y se incorporen al código.
+# Instalar con: python -m pip install -r requirements.txt
+# La versión de Python y cualquier herramienta externa deberán documentarse
+# al definir el entorno del proyecto; no se instalan desde este archivo.

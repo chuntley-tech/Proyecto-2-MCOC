@@ -1,0 +1,70 @@
+# Ambientes virtuales de Python
+.venv/
+venv/
+env/
+ENV/
+__pypackages__/
+
+# Cachés y archivos generados por Python y herramientas de pruebas
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/
+
+# Variables de entorno y configuración privada
+.env
+.env.*
+!.env.example
+!.env.template
+.streamlit/secrets.toml
+secrets/
+credentials/
+config/local.*
+config/secrets.*
+*credentials*.json
+*service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+.aws/
+.ssh/
+
+# Datos personales, privados o confidenciales: guardar en estas carpetas
+private/
+personal/
+confidential/
+data/private/
+data/personal/
+data/confidential/
+
+# Bases de datos locales y registros (pueden contener datos sensibles)
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# Archivos temporales, del editor y del sistema operativo
+.idea/
+.vscode/
+*.swp
+*.swo
+*.tmp
+*.bak
+~$*
+.DS_Store
+Thumbs.db
+Desktop.ini
