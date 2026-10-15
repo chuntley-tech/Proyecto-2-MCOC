@@ -1,0 +1,31 @@
+{
+  "schema": "IFC4",
+  "length_unit_scale_to_m": 1.0,
+  "validation_errors": 0,
+  "footings": [
+    {
+      "guid": "1RQ_0uDozVPxcN9FfkiyDy",
+      "class": "IfcFooting",
+      "name": "Base provisional 18 x 18 x 3.30 m",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "dimensions_m": [
+        18.0,
+        18.0,
+        3.3
+      ],
+      "volume_m3": 1069.1999999999998,
+      "properties": {
+        "MCOC_InitialModel": {
+          "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
+          "Length_m": 18.0,
+          "Width_m": 18.0,
+          "Height_m": 3.3,
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
+          "id": 36
+        }
+      }
+    }
+  ]
+}

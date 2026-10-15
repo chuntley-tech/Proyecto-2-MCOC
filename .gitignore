@@ -9,6 +9,7 @@ __pypackages__/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.matplotlib/
 .mypy_cache/
 .ruff_cache/
 .tox/

@@ -1,0 +1,33 @@
+{
+  "site": {
+    "group": "G8",
+    "name": "Parque Eólico Cuatro Vientos",
+    "municipality": "Llanquihue",
+    "region": "Los Lagos",
+    "latitude": -41.222539,
+    "longitude": -73.295603,
+    "coordinate_role": "Punto meteorológico docente; no es la ubicación exacta de una fundación real"
+  },
+  "geometry": {
+    "length_m": 18.0,
+    "width_m": 18.0,
+    "height_m": 3.3,
+    "status": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas"
+  },
+  "thermal": {
+    "length_m": 3.3,
+    "nodes": 67,
+    "conductivity_w_mk": 2.2,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 900.0,
+    "dt_s": 600.0,
+    "duration_s": 1209600.0,
+    "bottom_c": 20.0,
+    "top_c": 20.0
+  },
+  "verification": {
+    "amplitude_c": 20.0,
+    "data_status": "Propiedades y temperaturas sintéticas para verificación matemática. No son mediciones ni calibración del G8.",
+    "boundary_status": "Dirichlet constante en ambos extremos, sin clima, hidratación ni vertidas"
+  }
+}

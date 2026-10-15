@@ -1,0 +1,38 @@
+{
+  "case": "Verificación sintética de difusión pura 1D",
+  "site": {
+    "group": "G8",
+    "name": "Parque Eólico Cuatro Vientos",
+    "municipality": "Llanquihue",
+    "region": "Los Lagos",
+    "latitude": -41.222539,
+    "longitude": -73.295603,
+    "coordinate_role": "Punto meteorológico docente; no es la ubicación exacta de una fundación real"
+  },
+  "parameters": {
+    "length_m": 3.3,
+    "nodes": 67,
+    "conductivity_w_mk": 2.2,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 900.0,
+    "dt_s": 600.0,
+    "duration_s": 1209600.0,
+    "bottom_c": 20.0,
+    "top_c": 20.0
+  },
+  "assumptions": {
+    "amplitude_c": 20.0,
+    "data_status": "Propiedades y temperaturas sintéticas para verificación matemática. No son mediciones ni calibración del G8.",
+    "boundary_status": "Dirichlet constante en ambos extremos, sin clima, hidratación ni vertidas"
+  },
+  "alpha_m2_s": 1.0185185185185185e-06,
+  "dx_m": 0.049999999999999996,
+  "fourier": 0.24444444444444446,
+  "steps": 2016,
+  "final_time_s": 1209600.0,
+  "max_abs_error_all_times_c": 0.0006483546198410295,
+  "final_max_abs_error_c": 0.0006442746366168706,
+  "final_rmse_c": 0.0004521583998639642,
+  "final_center_temperature_c": 26.54742977098037,
+  "note": "No evalúa cumplimiento térmico de una fundación real ni reproduce el paper"
+}
