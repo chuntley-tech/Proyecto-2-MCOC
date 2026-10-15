@@ -167,6 +167,3 @@ results/                 Evidencia reproducible del ejemplo
 - [Documentación oficial de IfcOpenShell](https://docs.ifcopenshell.org/ifcopenshell-python/geometry_creation.html).
 - [Documentación oficial de Bonsai](https://docs.bonsaibim.org/).
 
-El repositorio excluye el ambiente virtual y archivos privados. Nunca colocar
-credenciales ni datos personales en los inputs o resultados publicados. Para la
-entrega, registrar la URL del repositorio y el SHA que muestra `git rev-parse HEAD`.
