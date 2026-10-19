@@ -124,23 +124,40 @@ temporal de E03.
 
 BIM organiza geometría, identidad y propiedades. IFC es un formato abierto de
 intercambio de esa información. El modelo `models/g8_base.ifc` usa IFC4 y contiene
-la jerarquía proyecto–sitio–edificio–nivel, una fundación `IfcFooting`, su GUID,
-material y propiedades de la simplificación. La geometría es un prisma extruido
-en metros. Los scripts usan IfcOpenShell para generarlo, leerlo y validarlo.
+la jerarquía proyecto–sitio–edificio–nivel y tres objetos físicos `IfcFooting`,
+cada uno con nombre, identificador, GUID, material y propiedades propios.
+Los scripts usan IfcOpenShell para generarlos, leerlos y validarlos.
+
+La base se subdivide en tres prismas de 18 × 18 × 1,10 m, manteniendo la
+envolvente de 18 × 18 × 3,30 m y el volumen total de 1069,2 m³:
+
+| Identificador | Objeto | Intervalo vertical z |
+|---|---|---|
+| `G8-BASE-01` | Capa inferior | 0–1,10 m |
+| `G8-BASE-02` | Capa intermedia | 1,10–2,20 m |
+| `G8-BASE-03` | Capa superior | 2,20–3,30 m |
+
+Esta subdivisión es didáctica para disponer de tres sólidos identificables en
+E02. No constituye un plan de vertidas aprobado y no cambia el solver 1D.
 
 La inspección comprueba el esquema y reglas EXPRESS, triangula el sólido y mide
 sus dimensiones y volumen. La prueba automatizada compara estos valores con la
 geometría configurada.
 
-**Revisión visual completada el 19 de octubre de 2026** en Blender 5.2.2 LTS
-con Bonsai 0.9.0.post1, sobre el archivo `g8_base.ifc` abierto en la aplicación:
+**Revisión visual del modelo anterior de un solo bloque, completada el 19 de
+octubre de 2026** en Blender 5.2.2 LTS con Bonsai 0.9.0.post1, sobre el archivo
+`g8_base.ifc` abierto en la aplicación:
 
 - El bloque carga y se visualiza correctamente, con dimensiones de 18 × 18 × 3,30 m.
 - El elemento está clasificado como `IfcFooting`, con `PredefinedType = PAD_FOOTING`.
 - Tiene asignado el material «Hormigón - propiedades pendientes de validación».
 - El conjunto de propiedades `MCOC_InitialModel` está presente.
 
-Esta revisión confirma la representación y los datos del IFC inicial. La
+La versión actual de tres objetos se comprueba mediante validación IFC y pruebas
+de geometría, identidad, posición y volumen total. Su apertura visual en Bonsai
+queda pendiente; se debe volver a abrir el IFC actualizado desde disco.
+
+La revisión anterior confirma la representación y los datos del IFC inicial. La
 geometría definitiva y las cotas del cilindro superior siguen pendientes de
 validación. La revisión visual del IFC no sustituye la verificación numérica
 del solver ni el estudio formal de convergencia espacial y temporal.

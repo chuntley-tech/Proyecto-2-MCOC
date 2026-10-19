@@ -29,8 +29,11 @@ def inspect_model(path: Path):
         material = ifcopenshell.util.element.get_material(element)
         elements.append({
             "guid": element.GlobalId, "class": element.is_a(), "name": element.Name,
+            "tag": element.Tag,
             "material": material.Name if material else None,
             "dimensions_m": (vertices.max(axis=0) - vertices.min(axis=0)).tolist(),
+            "bounds_min_m": vertices.min(axis=0).tolist(),
+            "bounds_max_m": vertices.max(axis=0).tolist(),
             "volume_m3": ifcopenshell.util.shape.get_volume(shape.geometry),
             "properties": ifcopenshell.util.element.get_psets(element)
         })

@@ -4,26 +4,116 @@
   "validation_errors": 0,
   "footings": [
     {
-      "guid": "1RQ_0uDozVPxcN9FfkiyDy",
+      "guid": "10GUR6gGrSUA8u9fRdJlr3",
       "class": "IfcFooting",
-      "name": "Base provisional 18 x 18 x 3.30 m",
+      "name": "G8-BASE-01 - Capa inferior",
+      "tag": "G8-BASE-01",
       "material": "Hormigón - propiedades pendientes de validación",
       "dimensions_m": [
         18.0,
         18.0,
-        3.3
+        1.0999999999999999
       ],
-      "volume_m3": 1069.1999999999998,
+      "bounds_min_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bounds_max_m": [
+        18.0,
+        18.0,
+        1.0999999999999999
+      ],
+      "volume_m3": 356.4,
       "properties": {
         "MCOC_InitialModel": {
           "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
           "Length_m": 18.0,
           "Width_m": 18.0,
-          "Height_m": 3.3,
+          "Height_m": 1.0999999999999999,
+          "BaseElevation_m": 0.0,
+          "ObjectID": "G8-BASE-01",
+          "SubdivisionStatus": "Tres capas iguales para E02; no es un plan de vertidas aprobado",
           "SolverAxis": "z vertical; solver independiente configurado en JSON",
           "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
           "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
           "id": 36
+        }
+      }
+    },
+    {
+      "guid": "2Ih9QXco1MJOb4nOQe9V6R",
+      "class": "IfcFooting",
+      "name": "G8-BASE-02 - Capa intermedia",
+      "tag": "G8-BASE-02",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "dimensions_m": [
+        18.0,
+        18.0,
+        1.0999999999999999
+      ],
+      "bounds_min_m": [
+        0.0,
+        0.0,
+        1.0999999999999999
+      ],
+      "bounds_max_m": [
+        18.0,
+        18.0,
+        2.1999999999999997
+      ],
+      "volume_m3": 356.4,
+      "properties": {
+        "MCOC_InitialModel": {
+          "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
+          "Length_m": 18.0,
+          "Width_m": 18.0,
+          "Height_m": 1.0999999999999999,
+          "BaseElevation_m": 1.0999999999999999,
+          "ObjectID": "G8-BASE-02",
+          "SubdivisionStatus": "Tres capas iguales para E02; no es un plan de vertidas aprobado",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
+          "id": 63
+        }
+      }
+    },
+    {
+      "guid": "3t6jGNjkDNQOzGyO0dljDW",
+      "class": "IfcFooting",
+      "name": "G8-BASE-03 - Capa superior",
+      "tag": "G8-BASE-03",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "dimensions_m": [
+        18.0,
+        18.0,
+        1.1
+      ],
+      "bounds_min_m": [
+        0.0,
+        0.0,
+        2.1999999999999997
+      ],
+      "bounds_max_m": [
+        18.0,
+        18.0,
+        3.3
+      ],
+      "volume_m3": 356.4000000000001,
+      "properties": {
+        "MCOC_InitialModel": {
+          "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
+          "Length_m": 18.0,
+          "Width_m": 18.0,
+          "Height_m": 1.0999999999999999,
+          "BaseElevation_m": 2.1999999999999997,
+          "ObjectID": "G8-BASE-03",
+          "SubdivisionStatus": "Tres capas iguales para E02; no es un plan de vertidas aprobado",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
+          "id": 90
         }
       }
     }
