@@ -130,9 +130,20 @@ en metros. Los scripts usan IfcOpenShell para generarlo, leerlo y validarlo.
 
 La inspección comprueba el esquema y reglas EXPRESS, triangula el sólido y mide
 sus dimensiones y volumen. La prueba automatizada compara estos valores con la
-geometría configurada. En Bonsai, cargar el IFC y revisar el elemento, dimensiones,
-material y propiedades. **La apertura visual en Bonsai está pendiente**: no se
-encontró Blender/Bonsai en las ubicaciones habituales del equipo.
+geometría configurada.
+
+**Revisión visual completada el 19 de octubre de 2026** en Blender 5.2.2 LTS
+con Bonsai 0.9.0.post1, sobre el archivo `g8_base.ifc` abierto en la aplicación:
+
+- El bloque carga y se visualiza correctamente, con dimensiones de 18 × 18 × 3,30 m.
+- El elemento está clasificado como `IfcFooting`, con `PredefinedType = PAD_FOOTING`.
+- Tiene asignado el material «Hormigón - propiedades pendientes de validación».
+- El conjunto de propiedades `MCOC_InitialModel` está presente.
+
+Esta revisión confirma la representación y los datos del IFC inicial. La
+geometría definitiva y las cotas del cilindro superior siguen pendientes de
+validación. La revisión visual del IFC no sustituye la verificación numérica
+del solver ni el estudio formal de convergencia espacial y temporal.
 
 ## Límites y próximos pasos
 
@@ -166,4 +177,3 @@ results/                 Evidencia reproducible del ejemplo
 - Ju y Lei (2019), [Actual Temperature Evolution of Thick Raft Concrete Foundations and Cracking Risk Analysis](https://doi.org/10.1155/2019/7029671): referencia del curso para geometría aproximada. Este avance no reproduce su modelo FE ni sus mediciones.
 - [Documentación oficial de IfcOpenShell](https://docs.ifcopenshell.org/ifcopenshell-python/geometry_creation.html).
 - [Documentación oficial de Bonsai](https://docs.bonsaibim.org/).
-
