@@ -1,0 +1,41 @@
+{
+  "case": {
+    "name": "Plantilla: columna de hormigón de 3,30 m",
+    "description": "Punto de partida para resolver un problema pedido en clase. Cambie bordes, condición inicial, fuente y duración en este archivo o con --set.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, sección 31 (parámetros que la guía atribuye a Ju y Lei, 2019)",
+    "data_status": "Propiedades tomadas de la tabla de la guía; temperaturas, h y duración ilustrativos, sin calibración para G8",
+    "provenance_note": "Valores contrastados con la guía: k=2.22 W/(m K), cp=970 J/(kg K), rho=2400 kg/m3. No es comprobación independiente del paper."
+  },
+  "thermal": {
+    "length_m": 3.3,
+    "nodes": 67,
+    "conductivity_w_mk": 2.22,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 970.0,
+    "dt_s": 600.0,
+    "duration_s": 604800.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 30.0
+  },
+  "bottom": {
+    "type": "neumann",
+    "flux_in_w_m2": 0.0
+  },
+  "top": {
+    "type": "robin",
+    "h_w_m2k": 10.0,
+    "ambient_c": 10.0
+  },
+  "source_w_m3": 0.0,
+  "output": {
+    "snapshots": 6,
+    "probes_m": [
+      0.0,
+      1.65,
+      3.275,
+      3.3
+    ]
+  }
+}

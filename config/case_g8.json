@@ -1,4 +1,10 @@
 {
+  "case": {
+    "name": "Verificación 1D G8",
+    "description": "Perfil seno sobre 20 °C con ambos extremos a 20 °C; tiene solución exacta conocida.",
+    "data_status": "Propiedades y temperaturas sintéticas para verificación matemática. No son mediciones ni calibración del G8.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, secciones 7 y 8; parámetros sintéticos adaptados para la verificación G8"
+  },
   "site": {
     "group": "G8",
     "name": "Parque Eólico Cuatro Vientos",
@@ -12,7 +18,15 @@
     "length_m": 18.0,
     "width_m": 18.0,
     "height_m": 3.3,
-    "status": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas"
+    "octagon_axis_half_m": 9.0,
+    "octagon_corner_coordinate_m": 3.728,
+    "base_height_m": 1.1,
+    "transition_height_m": 1.1,
+    "cylinder_height_m": 1.1,
+    "cylinder_diameter_m": 7.0,
+    "transition_edge_segments": 16,
+    "status": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+    "transition_assumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición"
   },
   "thermal": {
     "length_m": 3.3,
@@ -21,13 +35,34 @@
     "density_kg_m3": 2400.0,
     "specific_heat_j_kgk": 900.0,
     "dt_s": 600.0,
-    "duration_s": 1209600.0,
-    "bottom_c": 20.0,
-    "top_c": 20.0
+    "duration_s": 1209600.0
   },
+  "initial": {
+    "type": "sine",
+    "amplitude_c": 20.0
+  },
+  "bottom": {
+    "type": "dirichlet",
+    "temperature_c": 20.0
+  },
+  "top": {
+    "type": "dirichlet",
+    "temperature_c": 20.0
+  },
+  "source_w_m3": 0.0,
   "verification": {
+    "type": "sine",
     "amplitude_c": 20.0,
     "data_status": "Propiedades y temperaturas sintéticas para verificación matemática. No son mediciones ni calibración del G8.",
     "boundary_status": "Dirichlet constante en ambos extremos, sin clima, hidratación ni vertidas"
+  },
+  "output": {
+    "snapshots": 5,
+    "probes_m": [
+      0.0,
+      0.8,
+      1.65,
+      3.3
+    ]
   }
 }

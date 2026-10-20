@@ -1,19 +1,20 @@
 {
+  "file": "g8_base.ifc",
   "schema": "IFC4",
   "length_unit_scale_to_m": 1.0,
   "validation_errors": 0,
-  "footings": [
+  "validation_messages": [],
+  "element_count": 3,
+  "total_volume_m3": 487.3501983462544,
+  "elements": [
     {
+      "name": "G8-BASE-01 - Zócalo octagonal",
       "guid": "10GUR6gGrSUA8u9fRdJlr3",
       "class": "IfcFooting",
-      "name": "G8-BASE-01 - Capa inferior",
       "tag": "G8-BASE-01",
+      "predefined_type": "PAD_FOOTING",
+      "container": "Base",
       "material": "Hormigón - propiedades pendientes de validación",
-      "dimensions_m": [
-        18.0,
-        18.0,
-        1.0999999999999999
-      ],
       "bounds_min_m": [
         0.0,
         0.0,
@@ -22,100 +23,242 @@
       "bounds_max_m": [
         18.0,
         18.0,
-        1.0999999999999999
+        1.1
       ],
-      "volume_m3": 356.4,
-      "properties": {
-        "MCOC_InitialModel": {
-          "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
-          "Length_m": 18.0,
-          "Width_m": 18.0,
-          "Height_m": 1.0999999999999999,
-          "BaseElevation_m": 0.0,
-          "ObjectID": "G8-BASE-01",
-          "SubdivisionStatus": "Tres capas iguales para E02; no es un plan de vertidas aprobado",
-          "SolverAxis": "z vertical; solver independiente configurado en JSON",
-          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
-          "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
-          "id": 36
-        }
-      }
-    },
-    {
-      "guid": "2Ih9QXco1MJOb4nOQe9V6R",
-      "class": "IfcFooting",
-      "name": "G8-BASE-02 - Capa intermedia",
-      "tag": "G8-BASE-02",
-      "material": "Hormigón - propiedades pendientes de validación",
-      "dimensions_m": [
-        18.0,
-        18.0,
-        1.0999999999999999
-      ],
-      "bounds_min_m": [
-        0.0,
-        0.0,
-        1.0999999999999999
-      ],
-      "bounds_max_m": [
-        18.0,
-        18.0,
-        2.1999999999999997
-      ],
-      "volume_m3": 356.4,
-      "properties": {
-        "MCOC_InitialModel": {
-          "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
-          "Length_m": 18.0,
-          "Width_m": 18.0,
-          "Height_m": 1.0999999999999999,
-          "BaseElevation_m": 1.0999999999999999,
-          "ObjectID": "G8-BASE-02",
-          "SubdivisionStatus": "Tres capas iguales para E02; no es un plan de vertidas aprobado",
-          "SolverAxis": "z vertical; solver independiente configurado en JSON",
-          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
-          "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
-          "id": 63
-        }
-      }
-    },
-    {
-      "guid": "3t6jGNjkDNQOzGyO0dljDW",
-      "class": "IfcFooting",
-      "name": "G8-BASE-03 - Capa superior",
-      "tag": "G8-BASE-03",
-      "material": "Hormigón - propiedades pendientes de validación",
       "dimensions_m": [
         18.0,
         18.0,
         1.1
       ],
+      "volume_m3": 295.2532352,
+      "properties": {
+        "MCOC_InitialModel": {
+          "BaseElevation_m": 0.0,
+          "Component": "Zócalo octagonal",
+          "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+          "Height_m": 1.1,
+          "ObjectID": "G8-BASE-01",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
+          "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        }
+      }
+    },
+    {
+      "name": "G8-BASE-02 - Transición inclinada",
+      "guid": "2Ih9QXco1MJOb4nOQe9V6R",
+      "class": "IfcFooting",
+      "tag": "G8-BASE-02",
+      "predefined_type": "PAD_FOOTING",
+      "container": "Base",
+      "material": "Hormigón - propiedades pendientes de validación",
       "bounds_min_m": [
         0.0,
         0.0,
-        2.1999999999999997
+        1.1
       ],
       "bounds_max_m": [
         18.0,
         18.0,
-        3.3
+        2.2
       ],
-      "volume_m3": 356.4000000000001,
+      "dimensions_m": [
+        18.0,
+        18.0,
+        1.1
+      ],
+      "volume_m3": 149.77205289143967,
       "properties": {
         "MCOC_InitialModel": {
-          "GeometryStatus": "Bloque provisional basado en dimensiones aproximadas proporcionadas por el curso; cilindro superior pendiente de cotas",
-          "Length_m": 18.0,
-          "Width_m": 18.0,
-          "Height_m": 1.0999999999999999,
-          "BaseElevation_m": 2.1999999999999997,
-          "ObjectID": "G8-BASE-03",
-          "SubdivisionStatus": "Tres capas iguales para E02; no es un plan de vertidas aprobado",
+          "BaseElevation_m": 1.1,
+          "Component": "Transición inclinada",
+          "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+          "Height_m": 1.1,
+          "ObjectID": "G8-BASE-02",
           "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
           "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
-          "UpperCylinderStatus": "Omitido: altura y relación con espesor pendientes de validación",
-          "id": 90
+          "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
+          "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        }
+      }
+    },
+    {
+      "name": "G8-BASE-03 - Cilindro superior Ø7 m",
+      "guid": "3t6jGNjkDNQOzGyO0dljDW",
+      "class": "IfcFooting",
+      "tag": "G8-BASE-03",
+      "predefined_type": "PAD_FOOTING",
+      "container": "Base",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "bounds_min_m": [
+        5.5,
+        5.500499231041015,
+        2.2
+      ],
+      "bounds_max_m": [
+        12.5,
+        12.499500768958985,
+        3.3000000000000003
+      ],
+      "dimensions_m": [
+        7.0,
+        6.9990015379179695,
+        1.1
+      ],
+      "volume_m3": 42.32491025481473,
+      "properties": {
+        "MCOC_InitialModel": {
+          "BaseElevation_m": 2.2,
+          "Component": "Cilindro superior Ø7 m",
+          "Diameter_m": 7.0,
+          "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+          "Height_m": 1.1,
+          "ObjectID": "G8-BASE-03",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
+          "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
         }
       }
     }
+  ],
+  "footings": [
+    {
+      "name": "G8-BASE-01 - Zócalo octagonal",
+      "guid": "10GUR6gGrSUA8u9fRdJlr3",
+      "class": "IfcFooting",
+      "tag": "G8-BASE-01",
+      "predefined_type": "PAD_FOOTING",
+      "container": "Base",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "bounds_min_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bounds_max_m": [
+        18.0,
+        18.0,
+        1.1
+      ],
+      "dimensions_m": [
+        18.0,
+        18.0,
+        1.1
+      ],
+      "volume_m3": 295.2532352,
+      "properties": {
+        "MCOC_InitialModel": {
+          "BaseElevation_m": 0.0,
+          "Component": "Zócalo octagonal",
+          "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+          "Height_m": 1.1,
+          "ObjectID": "G8-BASE-01",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
+          "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        }
+      }
+    },
+    {
+      "name": "G8-BASE-02 - Transición inclinada",
+      "guid": "2Ih9QXco1MJOb4nOQe9V6R",
+      "class": "IfcFooting",
+      "tag": "G8-BASE-02",
+      "predefined_type": "PAD_FOOTING",
+      "container": "Base",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "bounds_min_m": [
+        0.0,
+        0.0,
+        1.1
+      ],
+      "bounds_max_m": [
+        18.0,
+        18.0,
+        2.2
+      ],
+      "dimensions_m": [
+        18.0,
+        18.0,
+        1.1
+      ],
+      "volume_m3": 149.77205289143967,
+      "properties": {
+        "MCOC_InitialModel": {
+          "BaseElevation_m": 1.1,
+          "Component": "Transición inclinada",
+          "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+          "Height_m": 1.1,
+          "ObjectID": "G8-BASE-02",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
+          "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        }
+      }
+    },
+    {
+      "name": "G8-BASE-03 - Cilindro superior Ø7 m",
+      "guid": "3t6jGNjkDNQOzGyO0dljDW",
+      "class": "IfcFooting",
+      "tag": "G8-BASE-03",
+      "predefined_type": "PAD_FOOTING",
+      "container": "Base",
+      "material": "Hormigón - propiedades pendientes de validación",
+      "bounds_min_m": [
+        5.5,
+        5.500499231041015,
+        2.2
+      ],
+      "bounds_max_m": [
+        12.5,
+        12.499500768958985,
+        3.3000000000000003
+      ],
+      "dimensions_m": [
+        7.0,
+        6.9990015379179695,
+        1.1
+      ],
+      "volume_m3": 42.32491025481473,
+      "properties": {
+        "MCOC_InitialModel": {
+          "BaseElevation_m": 2.2,
+          "Component": "Cilindro superior Ø7 m",
+          "Diameter_m": 7.0,
+          "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
+          "Height_m": 1.1,
+          "ObjectID": "G8-BASE-03",
+          "SolverAxis": "z vertical; solver independiente configurado en JSON",
+          "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
+          "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
+          "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
+          "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        }
+      }
+    }
+  ],
+  "bounds_min_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "bounds_max_m": [
+    18.0,
+    18.0,
+    3.3000000000000003
+  ],
+  "dimensions_m": [
+    18.0,
+    18.0,
+    3.3000000000000003
   ]
 }

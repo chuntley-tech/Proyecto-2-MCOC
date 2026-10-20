@@ -10,6 +10,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .matplotlib/
+results/lab*/
 .mypy_cache/
 .ruff_cache/
 .tox/

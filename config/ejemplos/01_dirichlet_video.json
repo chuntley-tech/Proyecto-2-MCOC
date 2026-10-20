@@ -1,0 +1,41 @@
+{
+  "case": {
+    "name": "Video 01: extremos a distinta temperatura",
+    "description": "Barra de 1 m a 20 °C cuyos extremos pasan a 0 °C (abajo) y 10 °C (arriba). Tiende al perfil lineal 0–10 °C.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, sección 9.1 (Dirichlet); caso con extremos distintos adaptado del ZIP",
+    "data_status": "Caso sintético: solo se fija alpha=k/(rho cp)=1e-4 m2/s; no son propiedades de hormigón medidas",
+    "provenance_note": "Adaptación ilustrativa; no coincide con el caso seno de la sección 7."
+  },
+  "thermal": {
+    "length_m": 1.0,
+    "nodes": 101,
+    "conductivity_w_mk": 0.0001,
+    "density_kg_m3": 1.0,
+    "specific_heat_j_kgk": 1.0,
+    "dt_s": 0.45,
+    "duration_s": 4500.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 20.0
+  },
+  "bottom": {
+    "type": "dirichlet",
+    "temperature_c": 0.0
+  },
+  "top": {
+    "type": "dirichlet",
+    "temperature_c": 10.0
+  },
+  "source_w_m3": 0.0,
+  "output": {
+    "snapshots": 6,
+    "probes_m": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ]
+  }
+}

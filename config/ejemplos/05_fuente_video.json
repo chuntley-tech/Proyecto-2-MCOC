@@ -1,0 +1,41 @@
+{
+  "case": {
+    "name": "Video 05: calor interno uniforme",
+    "description": "Barra de 1 m a 0 °C con extremos fijos a 0 °C y una fuente de calor uniforme. Tiende a la parábola T = q̇ z (L − z) / (2k).",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, secciones 5 y 21 (fuente volumétrica)",
+    "data_status": "Caso sintético: qdot=8.333333e-4 W/m3, con extremos fríos y propiedades normalizadas",
+    "provenance_note": "Adaptación: la sección 21 demuestra calentamiento adiabático, distinto de este caso con extremos fríos."
+  },
+  "thermal": {
+    "length_m": 1.0,
+    "nodes": 101,
+    "conductivity_w_mk": 0.0001,
+    "density_kg_m3": 1.0,
+    "specific_heat_j_kgk": 1.0,
+    "dt_s": 0.45,
+    "duration_s": 4500.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 0.0
+  },
+  "bottom": {
+    "type": "dirichlet",
+    "temperature_c": 0.0
+  },
+  "top": {
+    "type": "dirichlet",
+    "temperature_c": 0.0
+  },
+  "source_w_m3": 0.0008333333333333334,
+  "output": {
+    "snapshots": 6,
+    "probes_m": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ]
+  }
+}

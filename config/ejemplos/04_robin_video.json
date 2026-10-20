@@ -1,0 +1,47 @@
+{
+  "case": {
+    "name": "Video 04: convección con aire oscilante",
+    "description": "Losa de 1 m a 20 °C con convección en ambas caras (h = 12 W/m²K). El aire de abajo oscila entre 10 y 30 °C con período de 12 h; el de arriba se mantiene en 20 °C.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, secciones 11 y 12 (convección)",
+    "data_status": "Ambiente sinusoidal ilustrativo; no representa clima medido de Llanquihue",
+    "provenance_note": "Extensión del ZIP: la guía usa ambiente constante, no sinusoidal."
+  },
+  "thermal": {
+    "length_m": 1.0,
+    "nodes": 81,
+    "conductivity_w_mk": 2.0,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 900.0,
+    "dt_s": 67.5,
+    "duration_s": 172800.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 20.0
+  },
+  "bottom": {
+    "type": "robin",
+    "h_w_m2k": 12.0,
+    "ambient_c": {
+      "mean_c": 20.0,
+      "amplitude_c": 10.0,
+      "period_h": 12.0,
+      "phase_h": 0.0
+    }
+  },
+  "top": {
+    "type": "robin",
+    "h_w_m2k": 12.0,
+    "ambient_c": 20.0
+  },
+  "source_w_m3": 0.0,
+  "output": {
+    "snapshots": 6,
+    "probes_m": [
+      0.0,
+      0.1,
+      0.5,
+      1.0
+    ]
+  }
+}

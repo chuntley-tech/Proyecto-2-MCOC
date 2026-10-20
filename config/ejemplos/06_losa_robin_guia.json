@@ -1,0 +1,41 @@
+{
+  "case": {
+    "name": "Guía §12: losa caliente que se enfría por convección",
+    "description": "Losa de 1 m inicialmente a 70 °C, expuesta por ambas caras a aire a 20 °C (h = 12 W/m²K). La superficie responde antes que el centro y aparece un diferencial centro-superficie.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, sección 12 (losa a 70 C con aire a 20 C)",
+    "data_status": "Ejemplo pedagógico de la guía; no es una simulación del clima G8",
+    "provenance_note": "Parámetros y condiciones contrastados con la sección 12 de la guía entregada."
+  },
+  "thermal": {
+    "length_m": 1.0,
+    "nodes": 81,
+    "conductivity_w_mk": 2.0,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 900.0,
+    "dt_s": 67.5,
+    "duration_s": 172800.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 70.0
+  },
+  "bottom": {
+    "type": "robin",
+    "h_w_m2k": 12.0,
+    "ambient_c": 20.0
+  },
+  "top": {
+    "type": "robin",
+    "h_w_m2k": 12.0,
+    "ambient_c": 20.0
+  },
+  "source_w_m3": 0.0,
+  "output": {
+    "snapshots": 6,
+    "probes_m": [
+      0.0,
+      0.25,
+      0.5
+    ]
+  }
+}

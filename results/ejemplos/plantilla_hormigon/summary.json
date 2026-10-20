@@ -1,0 +1,62 @@
+{
+  "case": {
+    "name": "Plantilla: columna de hormigón de 3,30 m",
+    "description": "Punto de partida para resolver un problema pedido en clase. Cambie bordes, condición inicial, fuente y duración en este archivo o con --set.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, sección 31 (parámetros que la guía atribuye a Ju y Lei, 2019)",
+    "data_status": "Propiedades tomadas de la tabla de la guía; temperaturas, h y duración ilustrativos, sin calibración para G8",
+    "provenance_note": "Valores contrastados con la guía: k=2.22 W/(m K), cp=970 J/(kg K), rho=2400 kg/m3. No es comprobación independiente del paper."
+  },
+  "parameters": {
+    "length_m": 3.3,
+    "nodes": 67,
+    "conductivity_w_mk": 2.22,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 970.0,
+    "dt_s": 600.0,
+    "duration_s": 604800.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 30.0
+  },
+  "bottom": {
+    "type": "neumann",
+    "flux_in_w_m2": 0.0
+  },
+  "top": {
+    "type": "robin",
+    "h_w_m2k": 10.0,
+    "ambient_c": 10.0
+  },
+  "source_w_m3": 0.0,
+  "overrides": [],
+  "alpha_m2_s": 9.536082474226805e-07,
+  "dx_m": 0.049999999999999996,
+  "fourier": 0.22886597938144335,
+  "max_stable_fourier": 0.4080882352941177,
+  "biot_numbers": [
+    0.0,
+    0.22522522522522517
+  ],
+  "steps": 1008,
+  "final_time_s": 604800.0,
+  "max_temperature_c": 30.0,
+  "max_temperature_at": {
+    "z_m": 0.0,
+    "time_s": 0.0
+  },
+  "min_temperature_c": 13.170965495717645,
+  "final_center_temperature_c": 28.261541784470396,
+  "final_profile_at_probes_c": {
+    "0.0000": 29.950636871911776,
+    "1.6500": 28.261541784470396,
+    "3.3000": 13.170965495717645
+  },
+  "max_center_minus_boundary_c": 15.440576930504923,
+  "max_center_minus_boundary_time_s": 390600.0,
+  "energy_change_j_m2": -31216133.406553954,
+  "unstable_step": false,
+  "metric_scope": "Extremos y errores evaluados en los instantes guardados",
+  "saved_instants": 1009,
+  "data_status": "Propiedades tomadas de la tabla de la guía; temperaturas, h y duración ilustrativos, sin calibración para G8"
+}

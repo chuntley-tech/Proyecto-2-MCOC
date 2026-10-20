@@ -1,0 +1,63 @@
+{
+  "case": {
+    "name": "Video 01: extremos a distinta temperatura",
+    "description": "Barra de 1 m a 20 °C cuyos extremos pasan a 0 °C (abajo) y 10 °C (arriba). Tiende al perfil lineal 0–10 °C.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, sección 9.1 (Dirichlet); caso con extremos distintos adaptado del ZIP",
+    "data_status": "Caso sintético: solo se fija alpha=k/(rho cp)=1e-4 m2/s; no son propiedades de hormigón medidas",
+    "provenance_note": "Adaptación ilustrativa; no coincide con el caso seno de la sección 7."
+  },
+  "parameters": {
+    "length_m": 1.0,
+    "nodes": 101,
+    "conductivity_w_mk": 0.0001,
+    "density_kg_m3": 1.0,
+    "specific_heat_j_kgk": 1.0,
+    "dt_s": 0.45,
+    "duration_s": 4500.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 20.0
+  },
+  "bottom": {
+    "type": "dirichlet",
+    "temperature_c": 0.0
+  },
+  "top": {
+    "type": "dirichlet",
+    "temperature_c": 10.0
+  },
+  "source_w_m3": 0.0,
+  "overrides": [],
+  "alpha_m2_s": 0.0001,
+  "dx_m": 0.01,
+  "fourier": 0.45,
+  "max_stable_fourier": 0.5,
+  "biot_numbers": [
+    0.0,
+    0.0
+  ],
+  "steps": 10000,
+  "final_time_s": 4500.0,
+  "max_temperature_c": 20.0,
+  "max_temperature_at": {
+    "z_m": 0.01,
+    "time_s": 0.0
+  },
+  "min_temperature_c": 0.0,
+  "final_center_temperature_c": 5.224830008443627,
+  "final_profile_at_probes_c": {
+    "0.0000": 0.0,
+    "0.2500": 2.6589788842613866,
+    "0.5000": 5.224830008443627,
+    "0.7500": 7.658978762908051,
+    "1.0000": 10.0
+  },
+  "max_center_minus_boundary_c": 20.0,
+  "max_center_minus_boundary_time_s": 0.0,
+  "energy_change_j_m2": -14.706880543468571,
+  "unstable_step": false,
+  "metric_scope": "Extremos y errores evaluados en los instantes guardados",
+  "saved_instants": 5001,
+  "data_status": "Caso sintético: solo se fija alpha=k/(rho cp)=1e-4 m2/s; no son propiedades de hormigón medidas"
+}

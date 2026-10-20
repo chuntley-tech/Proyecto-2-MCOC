@@ -1,0 +1,35 @@
+{
+  "case": {
+    "name": "Verificación 1D G8",
+    "description": "Perfil seno sobre 20 °C con ambos extremos a 20 °C; tiene solución exacta conocida.",
+    "data_status": "Propiedades y temperaturas sintéticas para verificación matemática. No son mediciones ni calibración del G8.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, secciones 7 y 8; parámetros sintéticos adaptados para la verificación G8"
+  },
+  "spatial": {
+    "nodes": [
+      11,
+      21,
+      41,
+      81,
+      161
+    ],
+    "fourier": 0.02,
+    "slope": 2.0007827361283628,
+    "expected": 2
+  },
+  "temporal": {
+    "nodes": 41,
+    "fourier": [
+      0.5,
+      0.25,
+      0.125,
+      0.0625,
+      0.03125
+    ],
+    "slope": 1.0003875010940004,
+    "expected": 1,
+    "spatial_error_floor_c": 0.00375863357038142
+  },
+  "metric": "Error máximo absoluto en los nodos al final (14 días)",
+  "note": "Verificación matemática con datos sintéticos; no evalúa la fundación real"
+}

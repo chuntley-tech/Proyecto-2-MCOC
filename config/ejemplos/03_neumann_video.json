@@ -1,0 +1,41 @@
+{
+  "case": {
+    "name": "Video 03: borde fijo y borde adiabático",
+    "description": "Barra de 1 m a 20 °C; abajo se impone 60 °C y arriba no pasa calor (Neumann q = 0). Toda la barra tiende a 60 °C.",
+    "source": "docs/guias/DIFUSION_DE_CALOR_1D_2D_3D.md, sección 10 (borde fijo y extremo adiabático)",
+    "data_status": "Caso sintético con alpha=1e-4 m2/s; duración de 18000 s elegida en el ZIP",
+    "provenance_note": "Adaptación: la guía usa 6000 s e impone el extremo fijo desde la primera actualización; aquí se impone desde t=0."
+  },
+  "thermal": {
+    "length_m": 1.0,
+    "nodes": 101,
+    "conductivity_w_mk": 0.0001,
+    "density_kg_m3": 1.0,
+    "specific_heat_j_kgk": 1.0,
+    "dt_s": 0.45,
+    "duration_s": 18000.0
+  },
+  "initial": {
+    "type": "uniform",
+    "temperature_c": 20.0
+  },
+  "bottom": {
+    "type": "dirichlet",
+    "temperature_c": 60.0
+  },
+  "top": {
+    "type": "neumann",
+    "flux_in_w_m2": 0.0
+  },
+  "source_w_m3": 0.0,
+  "output": {
+    "snapshots": 6,
+    "probes_m": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ]
+  }
+}
