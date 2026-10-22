@@ -44,6 +44,7 @@ class Case:
     x_m: np.ndarray
     initial_c: np.ndarray
     config: dict
+    ifc_input: dict | None = None
 
 
 def ambient_from_spec(spec):
@@ -129,7 +130,7 @@ def apply_override(config: dict, assignment: str) -> dict:
     return updated
 
 
-def case_from_config(config: dict) -> Case:
+def case_from_config(config: dict, *, ifc_input=None) -> Case:
     thermal = config["thermal"]
     missing = [key for key in THERMAL_KEYS if key not in thermal]
     if missing:
@@ -144,11 +145,15 @@ def case_from_config(config: dict) -> Case:
     x = np.linspace(0, p.length_m, p.nodes)
     info = config.get("case", {})
     return Case(info.get("name", "caso"), info.get("description", ""), p, x,
-                initial_from_spec(config["initial"], p, x), config)
+                initial_from_spec(config["initial"], p, x), config, ifc_input)
 
 
-def load_case(path, overrides=()) -> Case:
+def load_case(path, overrides=(), *, ifc_path=None, use_ifc=True) -> Case:
     config = json.loads(Path(path).read_text(encoding="utf-8"))
     for assignment in overrides:
         config = apply_override(config, assignment)
-    return case_from_config(config)
+    metadata = None
+    if use_ifc and (config.get("ifc") or ifc_path is not None):
+        from .ifc_input import resolve_ifc_inputs
+        config, metadata = resolve_ifc_inputs(config, Path(path).resolve().parent, ifc_path)
+    return case_from_config(config, ifc_input=metadata)

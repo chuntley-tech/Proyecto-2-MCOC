@@ -51,8 +51,8 @@ def describe_boundary(spec):
     return f"Robin: h = {spec['h_w_m2k']:g} W/m²K, aire {ambient_text}"
 
 
-def run(config_path: Path, output: Path, overrides=()):
-    case = load_case(config_path, overrides)
+def run(config_path: Path, output: Path, overrides=(), *, ifc_path=None, use_ifc=True):
+    case = load_case(config_path, overrides, ifc_path=ifc_path, use_ifc=use_ifc)
     p = case.params
     steps = math.ceil(p.duration_s / p.dt_s)
     unstable = p.fourier > p.max_fourier + 1e-12
@@ -149,6 +149,8 @@ def run(config_path: Path, output: Path, overrides=()):
     }
     if "site" in case.config:
         summary["site"] = case.config["site"]
+    if case.ifc_input is not None:
+        summary["ifc_input"] = case.ifc_input
     if exact is not None:
         summary.update({
             "max_abs_error_all_times_c": float(np.max(np.abs(error))),
@@ -160,6 +162,9 @@ def run(config_path: Path, output: Path, overrides=()):
                                          encoding="utf-8")
 
     print(f"Caso: {case.name}")
+    if case.ifc_input is not None:
+        print(f"  IFC: {case.ifc_input['file']} · altura leída = {p.length_m:g} m")
+        print(f"  Material 1D: k={p.conductivity_w_mk:g}, rho={p.density_kg_m3:g}, cp={p.specific_heat_j_kgk:g} (SI)")
     print(f"  Abajo: {describe_boundary(case.config['bottom'])}")
     print(f"  Arriba: {describe_boundary(case.config['top'])}")
     print(f"  Fo = {p.fourier:.4f} (máximo estable {p.max_fourier:.4f}); {steps} pasos de {p.dt_s:g} s")
@@ -182,6 +187,9 @@ def main(argv=None):
                         metavar="RUTA=VALOR", help="cambia un dato del JSON, p. ej. top.h_w_m2k=20")
     parser.add_argument("--allow-unstable", action="store_true",
                         help="permite un Δt inestable para demostrar la inestabilidad")
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--ifc", type=Path, help="lee otro IFC guardado, conservando los GUID configurados")
+    source.add_argument("--no-ifc", action="store_true", help="usa solo los parámetros del JSON, sin leer IFC")
     args = parser.parse_args(argv)
     if args.allow_unstable:
         args.overrides.append("check_stability=false")
@@ -189,7 +197,7 @@ def main(argv=None):
     if output is None:
         output = (Path("results/example_1d") if args.config.name == "case_g8.json"
                   else Path("results/ejemplos") / args.config.stem)
-    return run(args.config, output, args.overrides)
+    return run(args.config, output, args.overrides, ifc_path=args.ifc, use_ifc=not args.no_ifc)
 
 
 if __name__ == "__main__":

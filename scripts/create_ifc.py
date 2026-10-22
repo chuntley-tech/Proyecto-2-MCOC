@@ -10,6 +10,7 @@ import ifcopenshell.api
 import numpy as np
 
 from scripts.foundation_geometry import geometry_parts
+from thermal1d.ifc_input import THERMAL_PROPERTIES, THERMAL_PSET
 
 
 def create_model(config_path: Path, output: Path):
@@ -84,6 +85,11 @@ def create_model(config_path: Path, output: Path):
         "Latitude": config["site"]["latitude"], "Longitude": config["site"]["longitude"],
         "CoordinateRole": config["site"]["coordinate_role"], "Group": "G8"
     })
+    controller = next(e for e in model.by_type("IfcFooting") if e.Tag == "G8-BASE-03")
+    thermal_pset = api("pset.add_pset", product=controller, name=THERMAL_PSET)
+    thermal_properties = {name: float(config["thermal"][field]) for field, name in THERMAL_PROPERTIES.items()}
+    thermal_properties["DataStatus"] = "Valores sintéticos de verificación; propiedades homogéneas para todo el dominio 1D, no mediciones G8"
+    api("pset.edit_pset", pset=thermal_pset, properties=thermal_properties)
     # Identidad estable al regenerar la misma estructura del ejemplo.
     for entity in model.by_type("IfcRoot"):
         key = f"Proyecto2MCOC/G8/{entity.is_a()}/{entity.Name}/{entity.id()}"

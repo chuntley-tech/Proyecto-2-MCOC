@@ -46,6 +46,17 @@ Copy-Item models/g8_base.ifc results/lab/edited.ifc
    La comparación con archivos guardados está probada automáticamente; la edición
    manual de esta versión en Bonsai debe demostrarse durante la práctica.
 
+Para que el solver use también el IFC editado:
+
+```cmd
+.venv\Scripts\python.exe -m scripts.run_case --ifc results/lab/edited.ifc --output results/lab_ifc_editado
+```
+
+El caso principal toma L de la geometría y k, ρ, cp de `MCOC_Thermal1D` en el
+cilindro. Una modificación de texto como `GeometryStatus` se detecta en la
+comparación, pero no cambia temperaturas. Para la demo térmica puede editarse
+`Conductivity_W_mK`. Véase [IFC → solver](IFC_SOLVER_1D.md).
+
 ## 2. Solver 1D: resolver lo que pida el ayudante
 
 Parte de la plantilla y cambia los datos con `--set`, sin editar código:

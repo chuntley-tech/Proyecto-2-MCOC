@@ -45,8 +45,15 @@ para revisar las cotas y los supuestos.
 
 El solver representa un perfil vertical de 3,30 m con sección constante y
 temperatura uniforme en cada plano horizontal. Desprecia los flujos laterales.
-La geometría IFC y los parámetros térmicos se mantienen separados: el solver
-lee el JSON, **todavía no extrae automáticamente su dominio del IFC**.
+El caso principal **lee automáticamente la altura guardada en el IFC** y las
+propiedades térmicas comunes de `MCOC_Thermal1D`, en el cilindro `G8-BASE-03`.
+El adaptador prepara los valores y el solver sigue siendo Python independiente
+de Blender. El JSON conserva bordes, condición inicial, malla y tiempo.
+
+La conexión usa los GUID configurados: los nombres se pueden modificar. La
+altura se calcula desde la geometría en coordenadas globales, no desde la
+propiedad informativa `Height_m`. El origen del perfil térmico es relativo a la
+base de la envolvente. No se incorporan secciones variables ni pérdidas laterales.
 
 ## Instalación reproducible
 
@@ -97,6 +104,41 @@ Para probar otros bordes y modificar parámetros sin editar el archivo:
 demostración que desactiva el rechazo de pasos inestables; sus resultados se
 marcan como inválidos para interpretación física. Las carpetas `results/lab*`
 se excluyen de Git para preservar las demostraciones como archivos locales.
+
+### Del IFC guardado al solver, automáticamente
+
+Tras editar y guardar el IFC desde Bonsai, ejecutar normalmente:
+
+```cmd
+.venv\Scripts\python.exe -m scripts.run_case --output results/lab_ifc
+```
+
+Para una copia editada, indicar ese archivo:
+
+```cmd
+.venv\Scripts\python.exe -m scripts.run_case --ifc results/lab/edited.ifc --output results/lab_ifc_editado
+```
+
+En el caso principal, el IFC tiene prioridad sobre `thermal.length_m`,
+`conductivity_w_mk`, `density_kg_m3` y `specific_heat_j_kgk` del JSON o `--set`.
+Los valores efectivos, GUID y SHA-256 del archivo quedan en `summary.json`.
+El lector no modifica el JSON ni el IFC. Si no encuentra datos válidos,
+interrumpe la ejecución; no usa silenciosamente los valores anteriores.
+
+Para trabajar exclusivamente con el JSON, por ejemplo un ensayo de longitud:
+
+```cmd
+.venv\Scripts\python.exe -m scripts.run_case --no-ifc --set thermal.length_m=4 --output results/lab_json
+```
+
+Los casos de `config/ejemplos` siguen usando solo JSON salvo que se indique un IFC.
+Las rutas `ifc.path` del JSON son relativas a ese archivo; `--ifc` es relativa al
+directorio actual. La importación se limita a sólidos apilados sin huecos ni
+solapamientos verticales y con una zona XY común en sus envolventes.
+
+No ejecutar `scripts.create_ifc` para simular un archivo editado: ese comando
+**regenera** la geometría nominal y puede reemplazar la edición. Véase
+[el procedimiento y los campos de Bonsai](docs/IFC_SOLVER_1D.md).
 
 ## Física y método
 
@@ -265,6 +307,7 @@ config/case_g8.json       Parámetros, procedencia y punto meteorológico
 thermal1d/solver.py       Método numérico, bordes y balance de energía
 thermal1d/reference.py    Soluciones exactas continuas y semidiscretas
 thermal1d/case.py         Lectura de casos JSON y modificaciones --set
+thermal1d/ifc_input.py    Lectura de altura y propiedades térmicas desde IFC
 scripts/run_case.py      Ejecución y exportación de resultados
 scripts/create_ifc.py    Generación reproducible del modelo inicial
 scripts/foundation_geometry.py  Octágono y transición geométrica aproximada

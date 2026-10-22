@@ -5,7 +5,7 @@
   "validation_errors": 0,
   "validation_messages": [],
   "element_count": 3,
-  "total_volume_m3": 487.3501983462544,
+  "total_volume_m3": 487.35019926362224,
   "elements": [
     {
       "name": "G8-BASE-01 - Zócalo octagonal",
@@ -101,27 +101,33 @@
       "bounds_max_m": [
         12.5,
         12.499500768958985,
-        3.3000000000000003
+        3.300000023841858
       ],
       "dimensions_m": [
         7.0,
         6.9990015379179695,
-        1.1
+        1.100000023841858
       ],
-      "volume_m3": 42.32491025481473,
+      "volume_m3": 42.324911172182595,
       "properties": {
         "MCOC_InitialModel": {
-          "BaseElevation_m": 2.2,
+          "BaseElevation_m": 2.200000047683716,
           "Component": "Cilindro superior Ø7 m",
           "Diameter_m": 7.0,
           "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
-          "Height_m": 1.1,
+          "Height_m": 1.100000023841858,
           "ObjectID": "G8-BASE-03",
           "SolverAxis": "z vertical; solver independiente configurado en JSON",
           "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
           "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
           "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
           "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        },
+        "MCOC_Thermal1D": {
+          "Conductivity_W_mK": 2.2,
+          "DataStatus": "Valores sintéticos de verificación; propiedades homogéneas para todo el dominio 1D, no mediciones G8",
+          "Density_kg_m3": 2400.0,
+          "SpecificHeat_J_kgK": 900.0
         }
       }
     }
@@ -221,27 +227,33 @@
       "bounds_max_m": [
         12.5,
         12.499500768958985,
-        3.3000000000000003
+        3.300000023841858
       ],
       "dimensions_m": [
         7.0,
         6.9990015379179695,
-        1.1
+        1.100000023841858
       ],
-      "volume_m3": 42.32491025481473,
+      "volume_m3": 42.324911172182595,
       "properties": {
         "MCOC_InitialModel": {
-          "BaseElevation_m": 2.2,
+          "BaseElevation_m": 2.200000047683716,
           "Component": "Cilindro superior Ø7 m",
           "Diameter_m": 7.0,
           "GeometryStatus": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
-          "Height_m": 1.1,
+          "Height_m": 1.100000023841858,
           "ObjectID": "G8-BASE-03",
           "SolverAxis": "z vertical; solver independiente configurado en JSON",
           "SubdivisionStatus": "Tres componentes geométricos para E02; no es un plan de vertidas aprobado",
           "ThermalDataStatus": "Valores sintéticos en config/case_g8.json; no material calibrado",
           "TransitionAssumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición",
           "UpperCylinderStatus": "Incluido: diámetro 7 m y altura 1.10 m; altura total 3.30 m"
+        },
+        "MCOC_Thermal1D": {
+          "Conductivity_W_mK": 2.2,
+          "DataStatus": "Valores sintéticos de verificación; propiedades homogéneas para todo el dominio 1D, no mediciones G8",
+          "Density_kg_m3": 2400.0,
+          "SpecificHeat_J_kgK": 900.0
         }
       }
     }
@@ -254,11 +266,11 @@
   "bounds_max_m": [
     18.0,
     18.0,
-    3.3000000000000003
+    3.300000023841858
   ],
   "dimensions_m": [
     18.0,
     18.0,
-    3.3000000000000003
+    3.300000023841858
   ]
 }

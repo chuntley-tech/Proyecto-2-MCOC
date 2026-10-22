@@ -28,6 +28,11 @@
     "status": "Reconstrucción docente según imagen acotada aportada por el usuario: cotas en mm convertidas a m; diámetro 7 m confirmado por el usuario",
     "transition_assumption": "Interpolación radial triangulada entre octágono inferior y círculo superior; la imagen no define por completo la superficie 3D de transición"
   },
+  "ifc": {
+    "path": "../models/g8_base.ifc",
+    "element_guids": ["10GUR6gGrSUA8u9fRdJlr3", "2Ih9QXco1MJOb4nOQe9V6R", "3t6jGNjkDNQOzGyO0dljDW"],
+    "thermal_property_guid": "3t6jGNjkDNQOzGyO0dljDW"
+  },
   "thermal": {
     "length_m": 3.3,
     "nodes": 67,

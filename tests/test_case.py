@@ -18,7 +18,7 @@ def test_published_g8_case_is_reproducible():
     assert case.config["site"]["latitude"] == -41.222539
     assert case.config["site"]["longitude"] == -73.295603
     # Mantener el dominio térmico consistente con la fundación de 3,30 m.
-    assert case.params.length_m == case.config["geometry"]["height_m"]
+    assert case.params.length_m == pytest.approx(case.config["geometry"]["height_m"])
     result = solve(case.params, case.initial_c)
     exact = sine_reference(case.params, case.x_m, case.params.duration_s, 20.)
     assert result.time_s[-1] == 14 * 86400

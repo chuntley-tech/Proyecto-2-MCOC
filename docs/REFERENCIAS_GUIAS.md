@@ -8,7 +8,7 @@ entregadas posteriormente en `guias.zip`. Los originales están en [guias](guias
 
 | Tema del proyecto | Referencia comprobada | Aplicación |
 |---|---|---|
-| Separación BIM, solver y visualizador | [G00](guias/G00_MAPA_CONCEPTUAL.md) y [G08](guias/G08_ARQUITECTURA_DEL_PROYECTO.md) | El solver usa Python externo y entradas JSON |
+| Separación BIM, solver y visualizador | [G00](guias/G00_MAPA_CONCEPTUAL.md) y [G08](guias/G08_ARQUITECTURA_DEL_PROYECTO.md) | Un adaptador prepara altura y propiedades del IFC; el solver usa Python externo y entradas numéricas |
 | IFC abierto e interoperabilidad | [G01](guias/G01_BIM_IFC_REVIT_OPENBIM.md) | Archivo IFC4 y validación de unidades, clases y propiedades |
 | Blender, Bonsai y tres objetos | [G02](guias/G02_BLENDER_BONSAI.md) | Tres componentes identificables y procedimiento de edición/guardado |
 | Geometría y GUID desde Python | [G03](guias/G03_IFCOPENSHELL_PYTHON.md) | Inspección con IfcOpenShell y comparación por GUID |
