@@ -1,7 +1,7 @@
 ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION(('ViewDefinition [CoordinationView]'),'2;1');
-FILE_NAME('g8_base.ifc','2026-10-21T22:39:08-03:00',('G8'),('Proyecto docente MCOC'),'IfcOpenShell 0.9.0.post1','Bonsai 0.9.0-post1','Modelo docente provisional');
+FILE_NAME('g8_base.ifc','2026-10-22T11:59:59-03:00',('G8'),('Proyecto docente MCOC'),'IfcOpenShell 0.9.0.post1','Bonsai 0.9.0-post1','Modelo docente provisional');
 FILE_SCHEMA(('IFC4'));
 ENDSEC;
 DATA;

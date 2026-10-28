@@ -1,0 +1,109 @@
+{
+  "source": {
+    "file": "g8_base.ifc",
+    "sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+    "geometry_source": "IFC guardado, triangulado con IfcOpenShell; coordenadas globales SI"
+  },
+  "rows": [
+    {
+      "requested_dx_m": 0.5,
+      "dx_m": 0.5,
+      "dz_m": 0.550000003973643,
+      "active_cells": 3528,
+      "ifc_volume_m3": 487.35019926362224,
+      "voxel_volume_m3": 485.10000350475315,
+      "relative_volume_error": 0.0046172049632258365
+    },
+    {
+      "requested_dx_m": 0.25,
+      "dx_m": 0.25,
+      "dz_m": 0.2750000019868215,
+      "active_cells": 28184,
+      "ifc_volume_m3": 487.35019926362224,
+      "voxel_volume_m3": 484.4125034997861,
+      "relative_volume_error": 0.006027894865488799
+    },
+    {
+      "requested_dx_m": 0.125,
+      "dx_m": 0.125,
+      "dz_m": 0.1320000009536743,
+      "active_cells": 235980,
+      "ifc_volume_m3": 487.35019926362224,
+      "voxel_volume_m3": 486.708753516376,
+      "relative_volume_error": 0.0013161905919304776
+    },
+    {
+      "requested_dx_m": 0.0625,
+      "dx_m": 0.0625,
+      "dz_m": 0.06734693926207874,
+      "active_cells": 1851940,
+      "ifc_volume_m3": 487.35019926362224,
+      "voxel_volume_m3": 487.19722928521134,
+      "relative_volume_error": 0.0003138810215775913
+    }
+  ],
+  "saved_grid": {
+    "ifc_input": {
+      "file": "g8_base.ifc",
+      "sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+      "geometry_source": "IFC guardado, triangulado con IfcOpenShell; coordenadas globales SI"
+    },
+    "origin_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "lengths_m": [
+      18.0,
+      18.0,
+      3.300000023841858
+    ],
+    "requested_spacing_m": [
+      0.25,
+      0.25,
+      0.275
+    ],
+    "spacing_m": [
+      0.25,
+      0.25,
+      0.2750000019868215
+    ],
+    "shape": [
+      72,
+      72,
+      12
+    ],
+    "active_cells": 28184,
+    "ifc_volume_m3": 487.35019926362224,
+    "voxel_volume_m3": 484.4125034997861,
+    "relative_volume_error": 0.006027894865488799,
+    "components": [
+      {
+        "component": 1,
+        "guid": "10GUR6gGrSUA8u9fRdJlr3",
+        "name": "G8-BASE-01 - Zócalo octagonal",
+        "ifc_volume_m3": 295.2532352,
+        "voxel_volume_m3": 292.8750021159649,
+        "relative_volume_error": 0.008054892548168482
+      },
+      {
+        "component": 2,
+        "guid": "2Ih9QXco1MJOb4nOQe9V6R",
+        "name": "G8-BASE-02 - Transición inclinada",
+        "ifc_volume_m3": 149.77205289143967,
+        "voxel_volume_m3": 149.18750107785067,
+        "relative_volume_error": 0.0039029431880239136
+      },
+      {
+        "component": 3,
+        "guid": "3t6jGNjkDNQOzGyO0dljDW",
+        "name": "G8-BASE-03 - Cilindro superior Ø7 m",
+        "ifc_volume_m3": 42.324911172182595,
+        "voxel_volume_m3": 42.35000030597051,
+        "relative_volume_error": 0.000592774635387889
+      }
+    ],
+    "scope": "Clasificación por centros; componentes geométricos, no plan de vertidas. Referencia volumétrica: triangulación IFC."
+  },
+  "scope": "Error de volumen contra la triangulación IFC. No se presupone convergencia monótona ni se certifica error térmico."
+}

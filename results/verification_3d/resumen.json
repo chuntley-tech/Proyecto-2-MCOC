@@ -1,0 +1,274 @@
+{
+  "data_status": "Todos los datos son sintéticos de verificación; no mediciones ni predicción G8.",
+  "units": "SI: m, s, W, J; temperatura en °C relativa a 0 °C para energía",
+  "reference_2d": [
+    {
+      "dimension": 2,
+      "n": 10,
+      "dx_m": 0.1,
+      "dt_s": 0.0005,
+      "steps": 40,
+      "fourier_per_axis": 0.04999999999999999,
+      "max_error_c": 0.0008599209158989263
+    },
+    {
+      "dimension": 2,
+      "n": 20,
+      "dx_m": 0.05,
+      "dt_s": 0.000125,
+      "steps": 160,
+      "fourier_per_axis": 0.04999999999999999,
+      "max_error_c": 0.0002178353846400416
+    },
+    {
+      "dimension": 2,
+      "n": 40,
+      "dx_m": 0.025,
+      "dt_s": 3.125e-05,
+      "steps": 640,
+      "fourier_per_axis": 0.04999999999999999,
+      "max_error_c": 5.4637641523025415e-05
+    }
+  ],
+  "convergence_2d": {
+    "rows": [
+      {
+        "dimension": 2,
+        "n": 10,
+        "dx_m": 0.1,
+        "dt_s": 0.0001,
+        "steps": 200,
+        "fourier_per_axis": 0.009999999999999998,
+        "max_error_c": 0.0018777476165713347
+      },
+      {
+        "dimension": 2,
+        "n": 20,
+        "dx_m": 0.05,
+        "dt_s": 2.5e-05,
+        "steps": 800,
+        "fourier_per_axis": 0.009999999999999998,
+        "max_error_c": 0.0004783432406970656
+      },
+      {
+        "dimension": 2,
+        "n": 40,
+        "dx_m": 0.025,
+        "dt_s": 6.25e-06,
+        "steps": 3200,
+        "fourier_per_axis": 0.009999999999999998,
+        "max_error_c": 0.00012014666759196935
+      }
+    ],
+    "orders": [
+      1.972885049594379,
+      1.9932495780384032
+    ]
+  },
+  "convergence_3d": {
+    "rows": [
+      {
+        "dimension": 3,
+        "n": 10,
+        "dx_m": 0.1,
+        "dt_s": 0.0001,
+        "steps": 200,
+        "fourier_per_axis": 0.009999999999999998,
+        "max_error_c": 0.002130905342308087
+      },
+      {
+        "dimension": 3,
+        "n": 20,
+        "dx_m": 0.05,
+        "dt_s": 2.5e-05,
+        "steps": 800,
+        "fourier_per_axis": 0.009999999999999998,
+        "max_error_c": 0.0005473281839876165
+      },
+      {
+        "dimension": 3,
+        "n": 40,
+        "dx_m": 0.025,
+        "dt_s": 6.25e-06,
+        "steps": 3200,
+        "fourier_per_axis": 0.009999999999999998,
+        "max_error_c": 0.0001377561985234088
+      }
+    ],
+    "orders": [
+      1.9609884547158047,
+      1.9902889120147176
+    ]
+  },
+  "energy": {
+    "relative_energy_error": 1.7748176844504935e-16,
+    "inactive_max_change_c": 0.0,
+    "active_cells": 504
+  },
+  "source_constant": {
+    "max_relative_increment_error": 5.3502524048547844e-14,
+    "expected_increment_c": 0.0095,
+    "max_absolute_error_c": 5.082739784612045e-16,
+    "steps": 7,
+    "last_dt_s": 0.0009999999999999974,
+    "final_time_s": 0.019
+  },
+  "source_variable": {
+    "max_relative_increment_error": 3.0369808753095375e-16,
+    "expected_increment_c": 0.00017849999999999992,
+    "max_absolute_error_c": 5.421010862427522e-20,
+    "steps": 7,
+    "last_dt_s": 0.0009999999999999974,
+    "final_time_s": 0.019
+  },
+  "neumann": {
+    "faces": [
+      {
+        "face": "x-",
+        "area_m2": 3.6,
+        "expected_energy_j": 0.34199999999999997,
+        "relative_energy_error": 4.220146000037145e-15
+      },
+      {
+        "face": "y+",
+        "area_m2": 1.9200000000000002,
+        "expected_energy_j": 0.18240000000000003,
+        "relative_energy_error": 8.064942476032523e-15
+      },
+      {
+        "face": "z-",
+        "area_m2": 1.2000000000000002,
+        "expected_energy_j": 0.11400000000000002,
+        "relative_energy_error": 6.573688961596321e-15
+      }
+    ],
+    "max_relative_energy_error": 8.064942476032523e-15
+  },
+  "robin": {
+    "rows": [
+      {
+        "nz": 16,
+        "dz_m": 0.0625,
+        "dt_s": 0.0011718750000000002,
+        "max_error_c": 0.0006344219996261558,
+        "reference_difference_c": 2.3123979686623386e-07,
+        "lateral_spread_c": 0.0
+      },
+      {
+        "nz": 32,
+        "dz_m": 0.03125,
+        "dt_s": 0.00029296875000000004,
+        "max_error_c": 0.00017288441133722632,
+        "reference_difference_c": 2.517087726028322e-07,
+        "lateral_spread_c": 0.0
+      },
+      {
+        "nz": 64,
+        "dz_m": 0.015625,
+        "dt_s": 7.324218750000001e-05,
+        "max_error_c": 4.470140943091394e-05,
+        "reference_difference_c": 2.6006518161203473e-07,
+        "lateral_spread_c": 0.0
+      }
+    ],
+    "orders": [
+      1.8756350099909105,
+      1.9514155644745328
+    ],
+    "reference_nodes": [
+      1025,
+      2049
+    ],
+    "reference_saved_states": [
+      2,
+      2
+    ],
+    "elapsed_s": 1.772426399998949
+  },
+  "robin_time": {
+    "expected_temperature_c": 2.009375,
+    "absolute_error_c": 0.0
+  },
+  "mask": {
+    "relative_energy_error": 2.1907925034832773e-16,
+    "inactive_max_change_c": 0.0,
+    "active_cells": 408
+  },
+  "anisotropy": {
+    "max_discrete_1d_error_c": 6.661338147750939e-16,
+    "max_continuous_1d_error_c": 0.0003543015150810902,
+    "changed_xz_max_difference_c": 5.551115123125783e-17,
+    "spacings_m": [
+      [
+        0.35,
+        0.1,
+        0.6
+      ],
+      [
+        1.0,
+        0.1,
+        0.3
+      ]
+    ]
+  },
+  "nonperiodic": {
+    "heated_first_layer_c": 0.09800000000000002,
+    "max_change_distant_c": 0.0,
+    "opposite_face_max_change_c": 0.0
+  },
+  "stability": {
+    "cases": [
+      {
+        "criterion": "general",
+        "limit_dt_s": 0.010416666666666666,
+        "below_accepted": true,
+        "above_rejected": true,
+        "message": "Estabilidad general: suma Fo=0.500000005 > 0.5; dt=0.0104166667708 s, límite=0.0104166666667 s"
+      },
+      {
+        "criterion": "local",
+        "limit_dt_s": 0.006944481481382717,
+        "below_accepted": true,
+        "above_rejected": true,
+        "message": "Estabilidad local: dt=0.00694448155083 s > C/suma(G)=0.00694448148138 s"
+      }
+    ]
+  },
+  "save_every": {
+    "saved_states": 4,
+    "times_s": [
+      0.0,
+      0.009000000000000001,
+      0.018000000000000002,
+      0.019
+    ],
+    "expected_times_s": [
+      0.0,
+      0.009,
+      0.018,
+      0.019
+    ]
+  },
+  "battery_elapsed_s": 3.9564367000020866,
+  "peak_process_memory_mb": 75.272192,
+  "checks": {
+    "reference_2d": true,
+    "sine_2d": true,
+    "sine_3d": true,
+    "orders_2d_3d": true,
+    "energy": true,
+    "source_constant": true,
+    "source_variable": true,
+    "neumann": true,
+    "robin": true,
+    "robin_time": true,
+    "mask": true,
+    "anisotropy": true,
+    "nonperiodic": true,
+    "stability": true,
+    "save_every": true,
+    "resources": true
+  },
+  "script_elapsed_s": 4.221302899997681,
+  "script_under_120_s": true
+}

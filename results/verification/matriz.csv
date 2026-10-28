@@ -1,0 +1,5 @@
+test,metric,unit,passed
+Dos materiales y capacidades variables,0.0,°C,True
+Superficies expuestas y balance completo,2.934969162236151e-16,relativo,True
+Orden temporal 2D,1.0010075348757306,orden,True
+Orden temporal 3D,1.0013816491234904,orden,True

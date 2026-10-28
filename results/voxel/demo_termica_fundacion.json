@@ -1,0 +1,100 @@
+{
+  "data_status": "Demostración SINTÉTICA: sin hidratación, clima real ni suelo. No es predicción G8.",
+  "options": {
+    "dx_m": 0.25,
+    "dz_m": 0.275,
+    "initial_c": 30.0,
+    "air_c": 10.0,
+    "h_w_m2k": 10.0,
+    "insulation_resistance_m2k_w": 0.0,
+    "duration_s": 604800.0
+  },
+  "effective_h_w_m2k": 10.0,
+  "voxel": {
+    "ifc_input": {
+      "file": "g8_base.ifc",
+      "sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+      "geometry_source": "IFC guardado, triangulado con IfcOpenShell; coordenadas globales SI"
+    },
+    "origin_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "lengths_m": [
+      18.0,
+      18.0,
+      3.300000023841858
+    ],
+    "requested_spacing_m": [
+      0.25,
+      0.25,
+      0.275
+    ],
+    "spacing_m": [
+      0.25,
+      0.25,
+      0.2750000019868215
+    ],
+    "shape": [
+      72,
+      72,
+      12
+    ],
+    "active_cells": 28184,
+    "ifc_volume_m3": 487.35019926362224,
+    "voxel_volume_m3": 484.4125034997861,
+    "relative_volume_error": 0.006027894865488799,
+    "components": [
+      {
+        "component": 1,
+        "guid": "10GUR6gGrSUA8u9fRdJlr3",
+        "name": "G8-BASE-01 - Zócalo octagonal",
+        "ifc_volume_m3": 295.2532352,
+        "voxel_volume_m3": 292.8750021159649,
+        "relative_volume_error": 0.008054892548168482
+      },
+      {
+        "component": 2,
+        "guid": "2Ih9QXco1MJOb4nOQe9V6R",
+        "name": "G8-BASE-02 - Transición inclinada",
+        "ifc_volume_m3": 149.77205289143967,
+        "voxel_volume_m3": 149.18750107785067,
+        "relative_volume_error": 0.0039029431880239136
+      },
+      {
+        "component": 3,
+        "guid": "3t6jGNjkDNQOzGyO0dljDW",
+        "name": "G8-BASE-03 - Cilindro superior Ø7 m",
+        "ifc_volume_m3": 42.324911172182595,
+        "voxel_volume_m3": 42.35000030597051,
+        "relative_volume_error": 0.000592774635387889
+      }
+    ],
+    "scope": "Clasificación por centros; componentes geométricos, no plan de vertidas. Referencia volumétrica: triangulación IFC."
+  },
+  "material": {
+    "conductivity_w_mk": 2.2,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 900.0
+  },
+  "dt_s": 8684.21056300686,
+  "steps": 70,
+  "saved_states": 25,
+  "final_time_s": 604800.0,
+  "final_center_temperature_c": 27.462812176219007,
+  "probe_index": [
+    36,
+    36,
+    6
+  ],
+  "probe_global_m": [
+    9.125,
+    9.125,
+    1.78750001291434
+  ],
+  "max_energy_balance_relative_error": 7.291568801965257e-16,
+  "boundary_heat_in_j": -9716210516.145258,
+  "source_heat_in_j": 0.0,
+  "energy_change_j": -9716210516.145245
+}
