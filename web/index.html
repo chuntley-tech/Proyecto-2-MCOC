@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#142c47">
+  <title>MCOC · Laboratorio térmico</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Inicio del laboratorio"><span class="brand-mark">∿</span><span>MCOC <span class="brand-light">/ Laboratorio térmico</span></span></a>
+    <div class="top-meta"><button id="portable-download" class="nav-download">↓ HTML portátil</button><span class="online-dot"></span><span id="connection">Conectando</span><span class="top-divider"></span><span>G8 · Llanquihue</span></div>
+  </header>
+
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="sidebar-heading"><span class="eyebrow">CONFIGURACIÓN DEL ENSAYO</span><span class="tag">Sintético</span></div>
+      <form id="parameters">
+        <fieldset id="controls">
+          <label class="field-label" for="mode">Caso a explorar</label>
+          <select id="mode" name="mode">
+            <option value="fundacion">Fundación G8 · IFC → 3D</option><option value="2d">Caja 2D · centros de celda</option>
+            <option value="3d">Caja 3D · centros de celda</option><option value="1d">Perfil 1D · nodos</option>
+          </select>
+          <p id="case-note" class="hint">La geometría se obtiene del IFC guardado.</p>
+
+          <section class="form-section">
+            <h2><span>01</span> Temperatura y tiempo</h2>
+            <div class="form-grid">
+              <label>Inicial <span>°C</span><input id="initial_c" name="initial_c" type="number" min="-50" max="150" step="0.5" value="30" required></label>
+              <label>Duración <span>días</span><input id="duration_days" name="duration_days" type="number" min="0.001" max="30" step="0.001" value="7" required></label>
+            </div>
+            <label class="stacked">Perfil inicial<select id="profile" name="profile"><option value="uniforme">Temperatura uniforme</option><option value="seno">Base + amplitud sinusoidal</option></select></label>
+            <label id="amplitude-field" class="stacked hidden">Amplitud del seno <span>°C</span><input id="amplitude_c" name="amplitude_c" type="number" min="0" max="100" step="0.5" value="0" required></label>
+          </section>
+
+          <section class="form-section">
+            <h2><span>02</span> Condiciones de borde</h2>
+            <label class="stacked">Laterales, cara superior y superficies expuestas<select id="boundary_type" name="boundary_type"><option value="robin">Robin · intercambio con el aire</option><option value="dirichlet">Dirichlet · temperatura de cara</option><option value="neumann">Neumann · flujo entrante</option></select></label>
+            <div id="main-temperature" class="form-grid">
+              <label><span id="boundary-c-label">Aire</span> <span>°C</span><input id="boundary_c" name="boundary_c" type="number" min="-50" max="150" step="0.5" value="10" required></label>
+              <label id="main-h">h <span>W/(m²·K)</span><input id="h_w_m2k" name="h_w_m2k" type="number" min="0" max="1000" step="1" value="10" required></label>
+            </div>
+            <label id="main-flux" class="stacked hidden">Flujo entrante <span>W/m²</span><input id="flux_in_w_m2" name="flux_in_w_m2" type="number" min="-5000" max="5000" value="0" required></label>
+            <label id="resistance-field" class="stacked">Resistencia de aislación <span>m²·K/W</span><input id="resistance_m2k_w" name="resistance_m2k_w" type="number" min="0" max="5" step="0.05" value="0" required></label>
+            <details class="details"><summary>Condición en la base</summary>
+              <label class="stacked">Tipo<select id="bottom_type" name="bottom_type"><option value="neumann">Neumann · flujo / adiabático</option><option value="dirichlet">Dirichlet · temperatura de cara</option><option value="robin">Robin · intercambio</option></select></label>
+              <div class="form-grid" id="bottom-temperature">
+                <label>Temperatura <span>°C</span><input id="bottom_c" name="bottom_c" type="number" min="-50" max="150" step="0.5" value="20" required></label>
+                <label id="bottom-h">h <span>W/(m²·K)</span><input id="bottom_h_w_m2k" name="bottom_h_w_m2k" type="number" min="0" max="1000" value="10" required></label>
+              </div>
+              <label id="bottom-flux" class="stacked">Flujo entrante <span>W/m²</span><input id="bottom_flux_in_w_m2" name="bottom_flux_in_w_m2" type="number" min="-5000" max="5000" value="0" required></label>
+              <p class="hint">Un flujo igual a cero representa una base adiabática.</p>
+            </details>
+          </section>
+
+          <details class="form-section"><summary>03 · Material, fuente y malla</summary>
+            <div class="form-grid">
+              <label>k <span>W/(m·K)</span><input name="conductivity_w_mk" id="conductivity_w_mk" type="number" min="0.05" max="10" step="0.05" value="2.2" required></label>
+              <label>ρ <span>kg/m³</span><input name="density_kg_m3" id="density_kg_m3" type="number" min="100" max="5000" step="10" value="2400" required></label>
+            </div>
+            <label class="stacked">Calor específico cp <span>J/(kg·K)</span><input name="specific_heat_j_kgk" id="specific_heat_j_kgk" type="number" min="100" max="5000" step="10" value="900" required></label>
+            <label class="stacked">Fuente volumétrica uniforme <span>W/m³</span><input name="source_w_m3" id="source_w_m3" type="number" min="-2000" max="5000" step="10" value="0" required></label>
+            <label class="stacked" id="resolution-field">Resolución de la fundación<select name="resolution_m" id="resolution_m"><option value="0.5">Rápida · Δx solicitado 0.50 m</option><option value="0.25" selected>Equilibrada · Δx solicitado 0.25 m</option><option value="0.2">Detallada · Δx solicitado 0.20 m</option></select></label>
+            <label class="stacked hidden" id="nodes-field"><span id="nodes-label">Celdas por eje</span><input name="nodes" id="nodes" type="number" min="8" max="48" step="1" value="32" required></label>
+            <div class="form-grid hidden" id="box-lengths">
+              <label>Lx <span>m</span><input id="length_x_m" name="length_x_m" type="number" min="0.1" max="20" step="0.1" value="1" required></label>
+              <label>Ly <span>m</span><input id="length_y_m" name="length_y_m" type="number" min="0.1" max="20" step="0.1" value="1" required></label>
+              <label id="lz-field">Lz <span>m</span><input id="length_z_m" name="length_z_m" type="number" min="0.1" max="20" step="0.1" value="1" required></label>
+            </div>
+            <label class="stacked">Paso temporal Δt <span>s</span><input name="dt_s" id="dt_s" type="number" min="0.000001" step="any" placeholder="Automático y estable"></label>
+            <p class="hint">Los valores se aplican al cálculo actual. El IFC y el JSON permanecen intactos.</p>
+          </details>
+          <button class="calculate" id="calculate" type="submit"><span id="calculate-icon">↻</span><span id="calculate-label">Calcular temperaturas</span></button>
+          <button class="reset" id="reset" type="button">Restablecer este caso</button>
+        </fieldset>
+      </form>
+      <div class="sidebar-footer"><span class="tiny-square"></span>Solver propio · Euler explícito<br><span>Unidades SI · Resultados de ensayo</span></div>
+    </aside>
+
+    <main>
+      <div class="page-heading"><div><div class="eyebrow">EXPLORACIÓN INTERACTIVA</div><h1>Temperatura, celda a celda.</h1><p>Calcula un caso y observa cómo evoluciona el calor.</p></div><button id="download" class="secondary" disabled>↓ Exportar resultados</button></div>
+      <div id="error" role="alert" class="error hidden"></div>
+      <div class="result-state"><span id="state-dot" class="state-dot"></span><span id="state">Preparando el laboratorio…</span><span id="source-label" class="source-label">Modelo G8</span></div>
+      <section class="metrics" aria-label="Temperaturas del instante seleccionado">
+        <article><span class="metric-label"><i class="metric-dot orange"></i>Máxima</span><strong id="max-value">—<small> °C</small></strong><span>En celdas activas</span></article>
+        <article><span class="metric-label"><i class="metric-dot blue"></i>Sonda central</span><strong id="center-value">—<small> °C</small></strong><span id="probe-caption">Punto del campo calculado</span></article>
+        <article><span class="metric-label"><i class="metric-dot purple"></i>Media</span><strong id="mean-value">—<small> °C</small></strong><span>Del dominio térmico activo</span></article>
+        <article><span class="metric-label">Tiempo observado</span><strong id="time-value">—<small> días</small></strong><span id="frame-caption">Sin cálculo todavía</span></article>
+      </section>
+
+      <section class="card model-card">
+        <div class="card-heading"><div><h2 id="model-title">Fundación · campo térmico 3D</h2><p id="model-subtitle">Geometría del IFC guardado</p></div><div class="view-tools"><select id="view-mode" aria-label="Tipo de vista"><option value="full">Modelo completo</option><option value="x">Abrir corte vertical</option><option value="z">Abrir corte horizontal</option></select><button id="camera-reset" class="icon-button" aria-label="Restablecer cámara" title="Restablecer cámara">⌖</button></div></div>
+        <div class="model-stage" id="model-stage"><canvas id="model-canvas" aria-label="Modelo 3D interactivo coloreado por temperatura"></canvas><canvas id="flat-canvas" class="hidden" aria-label="Campo de temperatura"></canvas>
+          <div id="stage-placeholder" class="stage-placeholder"><span class="loader"></span><p>Preparando geometría y temperaturas</p></div>
+          <div class="model-hint" id="model-hint">Arrastra para girar · rueda para acercar</div><div class="model-chip" id="geometry-chip">IFC · 3 componentes</div>
+          <div class="temperature-legend"><div class="legend-title">TEMPERATURA <span>°C</span></div><div class="legend-bar"></div><div class="legend-labels"><span id="legend-low">—</span><span id="legend-high">—</span></div></div>
+        </div>
+        <div id="clip-control" class="clip-control hidden"><label for="clip-slider">Posición del corte 3D</label><input id="clip-slider" type="range" min="0" max="100" value="50"><span id="clip-caption">50 %</span></div>
+        <div class="timeline"><button id="play" class="play" disabled aria-label="Reproducir evolución">▶</button><div class="timeline-body"><div class="timeline-labels"><span>Recorrer el cálculo</span><strong id="timeline-time">—</strong></div><input id="time-slider" type="range" min="0" max="0" value="0" disabled aria-label="Instante guardado"><div class="timeline-ends"><span>Inicio</span><span id="duration-label">Fin</span></div></div></div>
+      </section>
+
+      <section class="charts">
+        <article class="card"><div class="card-heading"><div><h2 id="slice-title">Corte de temperatura</h2><p id="slice-caption">Valores de las celdas calculadas</p></div><select id="slice-plane" aria-label="Plano de corte"><option value="xz">Plano XZ</option><option value="xy">Plano XY</option><option value="yz">Plano YZ</option></select></div><div class="chart-stage"><canvas id="slice-canvas" aria-label="Mapa o perfil de temperatura del corte"></canvas><div id="slice-tooltip" class="tooltip hidden"></div></div><div class="slice-control"><label for="slice-slider">Posición</label><input id="slice-slider" type="range" min="0" max="0" value="0"><span id="slice-position">—</span></div></article>
+        <article class="card"><div class="card-heading"><div><h2>Evolución de temperaturas</h2><p>Historia de los estados guardados</p></div><span class="mini-tag">°C</span></div><div class="chart-stage"><canvas id="history-canvas" aria-label="Gráfico de evolución temporal"></canvas></div><div class="chart-legend"><span><i class="blue"></i>Central</span><span><i class="orange"></i>Máxima</span><span><i class="purple"></i>Media</span></div></article>
+      </section>
+
+      <section class="card calculation-info"><div><span class="eyebrow">BORDES UTILIZADOS</span><p id="boundary-used">—</p><p id="bottom-used">—</p></div><div><span class="eyebrow">CÁLCULO</span><p id="calculation-used">—</p><p id="balance-used">—</p></div></section>
+      <footer>G8 · Métodos Computacionales <span>Ensayo sintético · Los colores representan temperaturas calculadas.</span></footer>
+    </main>
+  </div>
+</body>
+</html>

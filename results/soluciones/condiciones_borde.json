@@ -1,0 +1,51 @@
+{
+  "data_status": "Ensayos sintéticos; las caras son datos impuestos y los centros son resultados calculados.",
+  "2D": {
+    "boundary_type": "Dirichlet",
+    "faces": [
+      "x-",
+      "x+",
+      "y-",
+      "y+"
+    ],
+    "boundary_temperature_c": 20.0,
+    "spacing_m": [
+      0.025,
+      0.025
+    ],
+    "first_center_x_m": 0.0125,
+    "last_center_x_m": 0.9875,
+    "transverse_indices": [
+      20
+    ],
+    "first_center_final_c": 20.508258025674806,
+    "last_center_final_c": 20.508258025674806,
+    "duration_s": 21600.0
+  },
+  "3D": {
+    "boundary_type": "Dirichlet",
+    "faces": [
+      "x-",
+      "x+",
+      "y-",
+      "y+",
+      "z-",
+      "z+"
+    ],
+    "boundary_temperature_c": 20.0,
+    "spacing_m": [
+      0.041666666666666664,
+      0.041666666666666664,
+      0.041666666666666664
+    ],
+    "first_center_x_m": 0.020833333333333332,
+    "last_center_x_m": 0.9791666666666666,
+    "transverse_indices": [
+      12,
+      12
+    ],
+    "first_center_final_c": 20.67906511947461,
+    "last_center_final_c": 20.679065119474615,
+    "duration_s": 21600.0
+  }
+}

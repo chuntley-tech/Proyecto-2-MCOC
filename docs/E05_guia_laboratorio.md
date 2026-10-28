@@ -64,6 +64,34 @@ rechazos y `save_every`, usar los tests y la API `thermal3d.Parameters`.
 
 ## Qué explicar
 
+Para observar los campos de temperatura calculados, con ventanas giratorias:
+
+```cmd
+.venv\Scripts\python.exe -m scripts.view_solutions --show
+.venv\Scripts\python.exe -m scripts.view_solutions --case fundacion --show
+```
+
+El primer comando resuelve ensayos sintéticos 2D/3D en cajas y muestra los
+campos, no los errores. El segundo dibuja la solución 3D guardada de la
+fundación: cortes interiores y temperatura de las celdas superficiales.
+Arrastrar con el ratón permite girar la vista 3D. Sin `--show`, se exportan
+PNG en `results/soluciones/`; los ensayos guardan también los arrays NPZ.
+Los cortes del volumen 3D no son una simulación independiente de la fundación
+en 2D. El campo de la fundación debe generarse primero con `foundation_3d_demo`.
+
+En los ensayos del visor se impone **Dirichlet de 20 °C en las cuatro caras
+2D y las seis caras 3D**. El contorno cian indica esas caras físicas. El gráfico
+`results/soluciones/condiciones_borde_perfiles.png` distingue los cuadrados de
+temperatura impuesta en x=0 y x=L de las temperaturas calculadas en los centros,
+que están a Δx/2 del contorno y no se fijan a 20 °C. Los valores se exportan
+también en `condiciones_borde.json`. No se altera el campo para simular nodos
+de borde que este solver centrado en celdas no tiene.
+
+La demo de la fundación utiliza otro caso: Robin en superficies al aire y
+Neumann adiabático en la base. El aire nominal a 10 °C no impone esa temperatura
+a las superficies. El visor rotula h efectivo y temperatura ambiente desde el
+resumen asociado al campo, verificando su procedencia antes de mostrarlos.
+
 Fuente volumétrica y flujo superficial tienen unidades y áreas de actuación
 distintas. Refinar exige reducir el paso explícito. La convergencia del volumen
 no garantiza convergencia térmica. Un campo bonito no sustituye un balance

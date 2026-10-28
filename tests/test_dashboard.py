@@ -1,0 +1,76 @@
+"""Controles del HTML conectados al solver: cambios reales, máscaras y límites."""
+
+import json
+from types import SimpleNamespace
+
+import numpy as np
+import pytest
+
+from scripts.serve_dashboard import Handler
+from thermal3d.dashboard import run_simulation, validate_options
+
+
+def equilibrium(mode):
+    return {"mode": mode, "nodes": 8, "duration_days": 0.01, "initial_c": 20.0,
+            "boundary_type": "dirichlet", "boundary_c": 20.0,
+            "bottom_type": "dirichlet", "bottom_c": 20.0}
+
+
+@pytest.mark.parametrize("mode", ["1d", "2d", "3d"])
+def test_equilibrium_and_saved_time(mode):
+    result = run_simulation(equilibrium(mode))
+    values = np.asarray(result["frames_c"])
+    np.testing.assert_array_equal(values, 20.0)
+    assert result["time_s"][-1] == 864.0
+    assert len(result["time_s"]) == len(values) <= 26
+    assert result["stats"]["dt_s"] <= result["stats"]["limit_dt_s"]
+    json.dumps(result, allow_nan=False)
+
+
+def test_boundary_control_changes_temperatures():
+    cold = equilibrium("2d")
+    hot = {**cold, "boundary_c": 40.0}
+    assert run_simulation(hot)["history"]["max_c"][-1] > run_simulation(cold)["history"]["max_c"][-1]
+
+
+def test_source_control_obeys_uniform_energy_balance():
+    q, duration = 200.0, 0.01
+    result = run_simulation({**equilibrium("3d"), "boundary_type": "neumann", "bottom_type": "neumann",
+                             "source_w_m3": q, "duration_days": duration})
+    expected = 20+q*duration*86400/(2400*900)
+    # El campo visual se redondea explícitamente a 5 decimales; el oráculo vale 20.08 exacto.
+    np.testing.assert_allclose(result["frames_c"][-1], expected, rtol=0, atol=1e-14)
+    assert result["stats"]["balance_relative_error"] < 1e-14
+
+
+def test_foundation_comes_from_ifc_and_controls_change_solution():
+    options = {"resolution_m": 0.5, "duration_days": 0.1}
+    first = run_simulation(options)
+    second = run_simulation({**options, "boundary_c": -10.0, "h_w_m2k": 20.0})
+    assert len(first["ifc"]["sha256"]) == 64
+    assert first["shape"] == [36, 36, 6]
+    assert first["stats"]["cells"] == 3528
+    assert second["history"]["mean_c"][-1] < first["history"]["mean_c"][-1]
+    assert len(first["positions_m"]) == first["stats"]["cells"]
+
+
+@pytest.mark.parametrize("change", [{"mode":"inventado"}, {"unknown":1}, {"nodes":8.5},
+    {"duration_days":float("inf")}, {"conductivity_w_mk":-1}, {"dt_s":-1}, {"initial_c":True}])
+def test_invalid_controls_rejected(change):
+    with pytest.raises(ValueError):
+        validate_options(change)
+
+
+def test_unstable_time_step_rejected():
+    with pytest.raises(ValueError, match="inestable|Estabilidad"):
+        run_simulation({**equilibrium("3d"), "dt_s":1000000})
+
+
+def test_local_server_rejects_foreign_host_and_origin():
+    server = SimpleNamespace(server_port=8765)
+    valid = SimpleNamespace(server=server, headers={"Host":"127.0.0.1:8765", "Origin":"http://127.0.0.1:8765"})
+    assert Handler._local_request(valid)
+    foreign = SimpleNamespace(server=server, headers={"Host":"127.0.0.1:8765", "Origin":"https://externo.invalid"})
+    assert not Handler._local_request(foreign)
+    other = SimpleNamespace(server=server, headers={"Host":"externo.invalid"})
+    assert not Handler._local_request(other)
