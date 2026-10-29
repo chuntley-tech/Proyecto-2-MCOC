@@ -7,7 +7,20 @@ import numpy as np
 import pytest
 
 from scripts.serve_dashboard import Handler
-from thermal3d.dashboard import run_simulation, validate_options
+from thermal3d.dashboard import run_simulation, validate_options, source_value
+
+
+def test_pulse_definition_units_peak_and_cutoff():
+    o=validate_options({"source_type":"cosine","qmax_w_m3":1000,"source_duration_days":2})
+    assert source_value(o,0) == 0
+    assert source_value(o,86400) == 1000
+    assert source_value(o,172800) == source_value(o,259200) == 0
+    assert source_value(o,43200) == pytest.approx(500,abs=1e-12)
+    # El paso automático no debe saltarse el pulso por una malla muy gruesa.
+    result=run_simulation({"mode":"3d","nodes":8,"length_x_m":20,
+        "length_y_m":20,"length_z_m":20,"source_type":"cosine",
+        "source_duration_days":0.02,"duration_days":0.04})
+    assert result["stats"]["dt_s"] <= 0.02*86400/100
 
 
 def equilibrium(mode):

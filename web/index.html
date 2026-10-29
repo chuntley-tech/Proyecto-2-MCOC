@@ -22,9 +22,20 @@
           <label class="field-label" for="mode">Caso a explorar</label>
           <select id="mode" name="mode">
             <option value="fundacion">Fundación G8 · IFC → 3D</option><option value="2d">Caja 2D · centros de celda</option>
-            <option value="3d">Caja 3D · centros de celda</option><option value="1d">Perfil 1D · nodos</option>
+            <option value="3d">Cubo / bloque 3D · dimensiones editables</option><option value="1d">Perfil 1D · nodos</option>
           </select>
           <p id="case-note" class="hint">La geometría se obtiene del IFC guardado.</p>
+
+          <section id="box-geometry" class="form-section hidden">
+            <h2>Geometría del ensayo</h2>
+            <label id="box-shape-field" class="stacked">Forma del bloque<select id="box-shape"><option value="cube">Cubo · lados iguales</option><option value="custom">Bloque · dimensiones independientes</option></select></label>
+            <div class="form-grid" id="box-lengths">
+              <label><span id="lx-label">Lado del cubo</span> <span>m</span><input id="length_x_m" name="length_x_m" type="number" min="0.1" max="20" step="any" value="1" required></label>
+              <label id="ly-field">Ly <span>m</span><input id="length_y_m" name="length_y_m" type="number" min="0.1" max="20" step="any" value="1" required></label>
+              <label id="lz-field">Lz <span>m</span><input id="length_z_m" name="length_z_m" type="number" min="0.1" max="20" step="any" value="1" required></label>
+            </div>
+            <p class="hint">Dimensiones entre 0.1 y 20 m. Todos los controles térmicos se aplican a este bloque. Pulsa Calcular para actualizar geometría y temperaturas.</p>
+          </section>
 
           <section class="form-section">
             <h2><span>01</span> Temperatura y tiempo</h2>
@@ -56,20 +67,25 @@
             </details>
           </section>
 
-          <details class="form-section"><summary>03 · Material, fuente y malla</summary>
+          <section class="form-section">
+            <h2><span>03</span> Generación de calor Q(t)</h2>
+            <label class="stacked">Tipo de fuente<select name="source_type" id="source_type"><option value="constant">Constante · W/m³</option><option value="cosine">Pulso de la foto · Qmax y duración</option></select></label>
+            <label id="constant-source-field" class="stacked">Fuente volumétrica uniforme <span>W/m³</span><input name="source_w_m3" id="source_w_m3" type="number" min="-2000" max="5000" step="any" value="0" required></label>
+            <div id="pulse-source-fields" class="hidden">
+              <label class="stacked">Qmax · generación máxima fija <span>W/m³</span><input name="qmax_w_m3" id="qmax_w_m3" type="number" min="1300" max="1300" step="any" value="1300" readonly required></label>
+              <label class="stacked">Duración del pulso τ <span>días</span><input name="source_duration_days" id="source_duration_days" type="number" min="0.001" max="30" step="any" value="2" required></label>
+              <p class="hint">Q(t) = Qmax/2 · [1 − cos(2πt/τ)] para 0 ≤ t &lt; τ; después Q(t) = 0. El pico ocurre en τ/2.</p>
+              <p class="hint">Qmax = 1300 W/m³, fijo para este ensayo sintético. Es potencia por volumen, no °C. La temperatura máxima se obtiene al resolver.</p>
+            </div>
+          </section>
+          <details class="form-section"><summary>04 · Material y malla</summary>
             <div class="form-grid">
               <label>k <span>W/(m·K)</span><input name="conductivity_w_mk" id="conductivity_w_mk" type="number" min="0.05" max="10" step="0.05" value="2.2" required></label>
               <label>ρ <span>kg/m³</span><input name="density_kg_m3" id="density_kg_m3" type="number" min="100" max="5000" step="10" value="2400" required></label>
             </div>
             <label class="stacked">Calor específico cp <span>J/(kg·K)</span><input name="specific_heat_j_kgk" id="specific_heat_j_kgk" type="number" min="100" max="5000" step="10" value="900" required></label>
-            <label class="stacked">Fuente volumétrica uniforme <span>W/m³</span><input name="source_w_m3" id="source_w_m3" type="number" min="-2000" max="5000" step="10" value="0" required></label>
             <label class="stacked" id="resolution-field">Resolución de la fundación<select name="resolution_m" id="resolution_m"><option value="0.5">Rápida · Δx solicitado 0.50 m</option><option value="0.25" selected>Equilibrada · Δx solicitado 0.25 m</option><option value="0.2">Detallada · Δx solicitado 0.20 m</option></select></label>
             <label class="stacked hidden" id="nodes-field"><span id="nodes-label">Celdas por eje</span><input name="nodes" id="nodes" type="number" min="8" max="48" step="1" value="32" required></label>
-            <div class="form-grid hidden" id="box-lengths">
-              <label>Lx <span>m</span><input id="length_x_m" name="length_x_m" type="number" min="0.1" max="20" step="0.1" value="1" required></label>
-              <label>Ly <span>m</span><input id="length_y_m" name="length_y_m" type="number" min="0.1" max="20" step="0.1" value="1" required></label>
-              <label id="lz-field">Lz <span>m</span><input id="length_z_m" name="length_z_m" type="number" min="0.1" max="20" step="0.1" value="1" required></label>
-            </div>
             <label class="stacked">Paso temporal Δt <span>s</span><input name="dt_s" id="dt_s" type="number" min="0.000001" step="any" placeholder="Automático y estable"></label>
             <p class="hint">Los valores se aplican al cálculo actual. El IFC y el JSON permanecen intactos.</p>
           </details>
@@ -104,9 +120,18 @@
 
       <section class="charts">
         <article class="card"><div class="card-heading"><div><h2 id="slice-title">Corte de temperatura</h2><p id="slice-caption">Valores de las celdas calculadas</p></div><select id="slice-plane" aria-label="Plano de corte"><option value="xz">Plano XZ</option><option value="xy">Plano XY</option><option value="yz">Plano YZ</option></select></div><div class="chart-stage"><canvas id="slice-canvas" aria-label="Mapa o perfil de temperatura del corte"></canvas><div id="slice-tooltip" class="tooltip hidden"></div></div><div class="slice-control"><label for="slice-slider">Posición</label><input id="slice-slider" type="range" min="0" max="0" value="0"><span id="slice-position">—</span></div></article>
-        <article class="card"><div class="card-heading"><div><h2>Evolución de temperaturas</h2><p>Historia de los estados guardados</p></div><span class="mini-tag">°C</span></div><div class="chart-stage"><canvas id="history-canvas" aria-label="Gráfico de evolución temporal"></canvas></div><div class="chart-legend"><span><i class="blue"></i>Central</span><span><i class="orange"></i>Máxima</span><span><i class="purple"></i>Media</span></div></article>
+        <article class="card"><div class="card-heading"><div><h2>Evolución de temperaturas</h2><p id="history-caption">Historia de los estados guardados</p></div><span class="mini-tag">°C</span></div><div class="chart-stage"><canvas id="history-canvas" aria-label="Gráfico de evolución temporal"></canvas></div><div class="chart-legend" id="history-legend"><span><i class="blue"></i>Central</span><span><i class="orange"></i>Máxima</span><span><i class="purple"></i>Media</span></div></article>
       </section>
 
+      <section class="card height-card">
+        <div class="card-heading"><div><h2>Generación de calor Q(t)</h2><p id="source-caption">Potencia térmica volumétrica · no es temperatura</p></div><span class="mini-tag">W/m³</span></div>
+        <div class="chart-stage"><canvas id="source-canvas" aria-label="Fuente volumétrica de calor versus tiempo"></canvas></div>
+      </section>
+      <section class="card height-card">
+        <div class="card-heading"><div><h2>Temperatura según la altura · distintos tiempos</h2><p id="height-caption">Columna central del bloque</p></div><span class="mini-tag">°C / m</span></div>
+        <div class="chart-stage"><canvas id="height-canvas" aria-label="Perfiles de temperatura según altura para varios tiempos"></canvas></div>
+        <div id="height-legend" class="chart-legend"></div>
+      </section>
       <section class="card calculation-info"><div><span class="eyebrow">BORDES UTILIZADOS</span><p id="boundary-used">—</p><p id="bottom-used">—</p></div><div><span class="eyebrow">CÁLCULO</span><p id="calculation-used">—</p><p id="balance-used">—</p></div></section>
       <footer>G8 · Métodos Computacionales <span>Ensayo sintético · Los colores representan temperaturas calculadas.</span></footer>
     </main>

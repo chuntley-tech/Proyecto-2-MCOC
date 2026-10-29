@@ -42,17 +42,31 @@ function updateFields() {
   $('bottom-h').classList.toggle('hidden',base!=='robin');
   $('bottom-flux').classList.toggle('hidden',base!=='neumann');
   $('amplitude-field').classList.toggle('hidden',$('profile').value!=='seno');
+  const pulse=$('source_type').value==='cosine';
+  $('pulse-source-fields').classList.toggle('hidden',!pulse);
+  $('constant-source-field').classList.toggle('hidden',pulse);
   $('resolution-field').classList.toggle('hidden',mode!=='fundacion');
   $('nodes-field').classList.toggle('hidden',mode==='fundacion');
-  $('box-lengths').classList.toggle('hidden',mode==='fundacion'||mode==='1d');
-  $('lz-field').classList.toggle('hidden',mode!=='3d');
+  const cube=mode==='3d'&&$('box-shape').value==='cube';
+  $('box-geometry').classList.toggle('hidden',mode!=='2d'&&mode!=='3d');
+  $('box-shape-field').classList.toggle('hidden',mode!=='3d');
+  $('lx-label').textContent=cube?'Lado del cubo':'Lx';
+  $('ly-field').classList.toggle('hidden',cube);
+  $('lz-field').classList.toggle('hidden',mode!=='3d'||cube);
+  if(cube){$('length_y_m').value=$('length_x_m').value;$('length_z_m').value=$('length_x_m').value;}
   $('nodes-label').textContent=mode==='1d'?'Nodos del perfil':'Celdas por eje';
   $('nodes').max=mode==='1d'?401:48;
   $('case-note').textContent=mode==='fundacion'?(portable?'Geometría IFC incluida en este archivo. Cálculo local sin servidor.':'La geometría se obtiene del IFC guardado.'):mode==='1d'?'Altura del IFC. Borde principal: superior; base: inferior.':'Caja sintética. Base: y− en 2D, z− en 3D.';
 }
-function preset(mode) {
+function casePreset(mode,defaults) {
   const values={...defaults,mode};
   if(mode!=='fundacion')Object.assign(values,{initial_c:20,profile:'seno',amplitude_c:20,duration_days:mode==='1d'?14:0.25,boundary_type:'dirichlet',boundary_c:20,bottom_type:'dirichlet',bottom_c:20,nodes:mode==='1d'?67:32});
+  if(mode==='3d')Object.assign(values,{source_type:'cosine',duration_days:4,source_duration_days:2,profile:'uniforme',amplitude_c:0,bottom_type:'neumann'});
+  return values;
+}
+function preset(mode) {
+  $('box-shape').value='cube';
+  const values=casePreset(mode,defaults);
   for(const [name,value] of Object.entries(values)) {const el=form.elements.namedItem(name);if(el)el.value=value===null?'':value;}
   updateFields();
 }
@@ -95,7 +109,7 @@ async function calculate(event) {
     $('download').disabled=false;$('duration-label').textContent=timeText(data.time_s.at(-1));
     const names={fundacion:'Fundación G8 · campo térmico 3D','1d':'Perfil nodal · solución 1D','2d':'Caja de ensayo · solución 2D','3d':'Caja de ensayo · solución 3D'};
     $('model-title').textContent=names[data.mode];
-    $('model-subtitle').textContent=data.mode==='fundacion'?`${data.ifc.file} · ${data.lengths_m.map(v=>num(v,2)).join(' × ')} m`:'Datos sintéticos · colores de las temperaturas calculadas';
+    $('model-subtitle').textContent=data.mode==='fundacion'?`${data.ifc.file} · ${data.lengths_m.map(v=>num(v,2)).join(' × ')} m`:`Datos sintéticos · ${data.lengths_m.slice(0,data.dimension).map(v=>num(v,2)).join(' × ')} m`;
     $('source-label').textContent=data.ifc?`IFC · ${data.ifc.sha256.slice(0,8)}`:'Caja sintética';
     $('geometry-chip').textContent=data.mode==='fundacion'?`IFC · ${num(data.stats.cells,0)} celdas activas`:`${data.shape.join(' × ')} ${data.dimension===1?'nodos':'celdas'}`;
     $('probe-caption').textContent='Posición: '+data.probe_position_m.slice(0,data.dimension).map(v=>num(v,3)).join(', ')+' m';
@@ -165,13 +179,15 @@ function lineChart(id,series,xs,options={}) {
   const box={x:48,y:20,w:w-67,h:h-57};
   const values=series.flatMap(s=>s.values);let lo=Math.min(...values),hi=Math.max(...values);
   const pad=Math.max(0.5,(hi-lo)*0.12);lo-=pad;hi+=pad;
+  if(options.minY!==undefined)lo=options.minY;
   const end=Math.max(xs.at(-1),1e-9), tx=x=>box.x+x/end*box.w, ty=t=>box.y+(hi-t)/(hi-lo)*box.h;
   ctx.font='10px Segoe UI';
   for(let i=0;i<=4;i++) {const f=i/4,y=box.y+f*box.h;ctx.strokeStyle=dark?'#30465d':'#edf0f5';ctx.beginPath();ctx.moveTo(box.x,y);ctx.lineTo(w-18,y);ctx.stroke();ctx.fillStyle=ink;ctx.textAlign='right';ctx.fillText(num(hi-f*(hi-lo),1),box.x-7,y+3);ctx.textAlign='center';ctx.fillText(num(f*end,options.xDecimals??1),tx(f*end),box.y+box.h+17);}
-  for(const s of series) {ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.beginPath();s.values.forEach((v,i)=>i?ctx.lineTo(tx(xs[i]),ty(v)):ctx.moveTo(tx(xs[i]),ty(v)));ctx.stroke();}
+  for(const s of series) {ctx.strokeStyle=s.color;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dashed?[6,4]:[]);ctx.beginPath();s.values.forEach((v,i)=>i?ctx.lineTo(tx(xs[i]),ty(v)):ctx.moveTo(tx(xs[i]),ty(v)));ctx.stroke();ctx.setLineDash([]);
+    if(options.frame!==undefined){ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(tx(xs[options.frame]),ty(s.values[options.frame]),4,0,2*Math.PI);ctx.fill();}}
   if(options.cursor!==undefined){ctx.setLineDash([3,3]);ctx.strokeStyle=dark?'#c2d1e4':'#98aac1';ctx.beginPath();ctx.moveTo(tx(options.cursor),box.y);ctx.lineTo(tx(options.cursor),box.y+box.h);ctx.stroke();ctx.setLineDash([]);}
   ctx.fillStyle=ink;ctx.textAlign='center';ctx.fillText(options.xLabel||'Tiempo [días]',box.x+box.w/2,h-3);
-  ctx.save();ctx.translate(12,box.y+box.h/2);ctx.rotate(-Math.PI/2);ctx.fillText('Temperatura [°C]',0,0);ctx.restore();
+  ctx.save();ctx.translate(12,box.y+box.h/2);ctx.rotate(-Math.PI/2);ctx.fillText(options.yLabel||'Temperatura [°C]',0,0);ctx.restore();
 }
 function profile(id,dark=false) {
   const nx=data.shape[0], y=data.dimension===2?Math.floor(data.shape[1]/2):0;
@@ -179,6 +195,32 @@ function profile(id,dark=false) {
   const xs=Array.from({length:nx},(_,i)=>data.origin_m[0]+(data.dimension===1?i:i+0.5)*data.spacing_m[0]);
   lineChart(id,[{values,color:dark?'#f3b05b':'#2563eb'}],xs,{dark,xLabel:data.dimension===1?'Altura z [m]':'x [m]',xDecimals:2});
   if(!dark){$('slice-position').textContent=data.dimension===1?'Perfil nodal':`y = ${num((y+0.5)*data.spacing_m[1],3)} m`;$('slice-caption').textContent='Temperatura calculada en los nodos / centros del perfil';}
+}
+function historySeries(result) {
+  const series=Object.entries(colors).map(([key,color])=>({name:{center_c:'Central',max_c:'Máxima',mean_c:'Media'}[key],values:result.history[key],color}));
+  const o=result.parameters;
+  if(o.boundary_type==='dirichlet')series.push({name:`Dirichlet principal: ${o.boundary_c} °C`,values:result.time_s.map(()=>o.boundary_c),color:'#0891b2',dashed:true});
+  if(o.bottom_type==='dirichlet')series.push({name:`Dirichlet base: ${o.bottom_c} °C`,values:result.time_s.map(()=>o.bottom_c),color:'#dc2626',dashed:true});
+  return series;
+}
+function historyFrameAt(times,fraction) {
+  const target=Math.max(0,Math.min(1,fraction))*times.at(-1);
+  return times.reduce((best,t,i)=>Math.abs(t-target)<Math.abs(times[best]-target)?i:best,0);
+}
+function heightProfiles(result,current) {
+  const dim=result.dimension, axis=dim-1, n=result.shape[axis], nodal=dim===1;
+  const mid=result.shape.map(v=>Math.floor(v/2));
+  const index=new Map(result.active_indices.map((id,i)=>[id,i]));
+  const cells=[];
+  for(let j=0;j<n;j++){const at=mid.slice();at[axis]=j;const id=at.reduce((flat,v,a)=>flat*result.shape[a]+v,0);if(index.has(id))cells.push(index.get(id));}
+  const heights=cells.map(i=>result.positions_m[i][axis]);
+  const lower=!nodal&&result.parameters.bottom_type==='dirichlet';
+  const upper=!nodal&&result.parameters.boundary_type==='dirichlet';
+  if(lower)heights.unshift(result.origin_m[axis]);
+  if(upper)heights.push(result.origin_m[axis]+result.lengths_m[axis]);
+  const frames=[...new Set([0,.25,.5,.75,1].map(f=>historyFrameAt(result.time_s,f)).concat(current))].sort((a,b)=>a-b);
+  const shades=['#2563eb','#0891b2','#8b5cf6','#ea580c','#dc2626','#16a34a'];
+  return {heights,series:frames.map((f,i)=>{const values=cells.map(j=>result.frames_c[f][j]);if(lower)values.unshift(result.parameters.bottom_c);if(upper)values.push(result.parameters.boundary_c);return {values,color:shades[i],width:f===current?3.5:1.7,dashed:f!==current,frame:f};})};
 }
 function draw() {
   if(!data)return;
@@ -189,7 +231,19 @@ function draw() {
   if(data.dimension===3)renderer.draw();else if(data.dimension===2)heatmap('flat-canvas',true);else profile('flat-canvas',true);
   if(data.dimension===3)heatmap('slice-canvas');else profile('slice-canvas');
   const unit=days?86400:3600;
-  lineChart('history-canvas',Object.entries(colors).map(([key,color])=>({values:data.history[key],color})),data.time_s.map(t=>t/unit),{cursor:data.time_s[frame]/unit,xLabel:days?'Tiempo [días]':'Tiempo [h]'});
+  const series=historySeries(data);
+  lineChart('history-canvas',series,data.time_s.map(t=>t/unit),{cursor:data.time_s[frame]/unit,frame,xLabel:days?'Tiempo [días]':'Tiempo [h]'});
+  $('history-caption').textContent=`${timeText(data.time_s[frame])} · interior central ${num(data.history.center_c[frame],2)} °C · pulsa el gráfico para recorrer el tiempo`;
+  $('history-legend').replaceChildren(...series.map(s=>{const item=document.createElement('span'),mark=document.createElement('i');mark.style.background=s.color;item.append(mark,document.createTextNode(s.name));return item;}));
+  const profiles=heightProfiles(data,frame);
+  lineChart('height-canvas',profiles.series,profiles.heights,{xLabel:'Altura [m]',xDecimals:2});
+  $('height-caption').textContent=`Columna central · línea gruesa: ${timeText(data.time_s[frame])} · extremos Dirichlet incluidos cuando están prescritos`;
+  $('height-legend').replaceChildren(...profiles.series.map(s=>{const item=document.createElement('span'),mark=document.createElement('i');mark.style.background=s.color;item.append(mark,document.createTextNode(timeText(data.time_s[s.frame])+(s.frame===frame?' · seleccionado':'')));return item;}));
+  const source=data.source_curve;
+  lineChart('source-canvas',[{values:source.rate_w_m3,color:'#ea580c'}],source.time_s.map(t=>t/unit),{cursor:data.time_s[frame]/unit,minY:Math.min(...source.rate_w_m3)>=0?0:undefined,xLabel:days?'Tiempo [días]':'Tiempo [h]',yLabel:'Q(t) [W/m³]'});
+  const peak=Math.max(...data.history.center_c);
+  const zeroSource=source.rate_w_m3.every(q=>q===0);
+  $('source-caption').textContent=(zeroSource?'Sin generación de calor: Q(t) = 0. Selecciona el pulso en Tipo de fuente y pulsa Calcular temperaturas. ':data.parameters.source_type==='cosine'?`Qmax ${num(data.parameters.qmax_w_m3,1)} W/m³ · τ ${num(data.parameters.source_duration_days,2)} días · `:`Fuente constante ${num(data.parameters.source_w_m3,1)} W/m³ · `)+`máximo central guardado: ${num(peak,2)} °C.`;
 }
 
 // Matrices columna mayor; cámara orbital con z vertical, como en el IFC.
@@ -288,6 +342,7 @@ form.addEventListener('input',()=>{updateFields();if(data&&!busy)state('Parámet
 $('mode').addEventListener('change',()=>{preset($('mode').value);state('Caso modificado · pulsa Calcular para resolverlo.','dirty');});
 $('reset').addEventListener('click',()=>{preset($('mode').value);state('Parámetros restablecidos · pulsa Calcular.','dirty');});
 $('time-slider').addEventListener('input',()=>{stop();frame=Number($('time-slider').value);draw();});
+$('history-canvas').addEventListener('click',event=>{if(!data)return;const rect=event.currentTarget.getBoundingClientRect();stop();frame=historyFrameAt(data.time_s,(event.clientX-rect.left-48)/(rect.width-67));$('time-slider').value=frame;draw();});
 $('play').addEventListener('click',()=>{if(timer){stop();return;}if(!data)return;if(frame===data.time_s.length-1)frame=0;$('time-slider').value=frame;$('play').textContent='Ⅱ';$('play').setAttribute('aria-label','Pausar evolución');draw();timer=setInterval(()=>{frame++;if(frame>=data.time_s.length){stop();frame=data.time_s.length-1;} $('time-slider').value=frame;draw();},220);});
 $('slice-plane').addEventListener('change',()=>{if(data){setupSlice();draw();}});$('slice-slider').addEventListener('input',draw);
 $('view-mode').addEventListener('change',updateClip);$('clip-slider').addEventListener('input',updateClip);$('camera-reset').addEventListener('click',()=>renderer.reset());

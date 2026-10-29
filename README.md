@@ -25,6 +25,16 @@ Permite cambiar parámetros, calcular temperaturas, girar el modelo 3D, abrir
 cortes, recorrer el tiempo y consultar gráficos en 1D, 2D y 3D. Los ensayos son
 sintéticos. La geometría incluida corresponde al IFC al generar el HTML.
 
+En **Cubo / bloque 3D · dimensiones editables**, elegir lados iguales o
+dimensiones independientes Lx, Ly y Lz. Los controles de geometría están
+visibles sobre los térmicos; todos los parámetros se aplican al nuevo bloque
+al pulsar **Calcular temperaturas**.
+
+La sección **Generación de calor Q(t)** incorpora el pulso coseno de la pizarra,
+con Qmax fijo en **1300 W/m³** y duración editable. El cubo inicia a 20 °C,
+con Dirichlet a 20 °C y base adiabática. El visor muestra Q(t),
+temperaturas en el tiempo y perfiles por altura; Qmax no es temperatura.
+
 Después de guardar cambios en el IFC, regenerar el archivo para compartirlos:
 
 ```cmd
@@ -246,7 +256,7 @@ Para ensayar otras condiciones de intercambio o resoluciones:
 
 ## Pruebas y resultados reproducibles
 
-**Verificación del 28 de octubre de 2026: 175 pruebas aprobadas en 115.05 s.**
+**Verificación del 29 de octubre de 2026: 185 pruebas aprobadas en 106.18 s.**
 
 ```cmd
 .venv\Scripts\python.exe -m pytest -q

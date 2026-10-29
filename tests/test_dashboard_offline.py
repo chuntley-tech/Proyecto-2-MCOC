@@ -17,6 +17,31 @@ from scripts.build_dashboard import build, build_pack
 from thermal3d.dashboard import ROOT, run_simulation
 
 
+@pytest.mark.parametrize("mode", ["1d", "2d", "3d"])
+def test_cosine_heat_source_matches_python_and_start_of_step_integral(mode, pack):
+    """Pulso sintético adiabático: cada celda sigue la integral discreta en t_n."""
+    options={"mode":mode,"nodes":8,"duration_days":0.051,"initial_c":20,
+             "source_type":"cosine","qmax_w_m3":1400,"source_duration_days":0.02,
+             "boundary_type":"neumann","bottom_type":"neumann","dt_s":100}
+    reference=run_simulation(options)
+    portable=javascript(options,pack)
+    from thermal3d.dashboard import source_value, validate_options
+    o=validate_options(options)
+    duration=o["duration_days"]*86400
+    starts=np.arange(int(np.ceil(duration/100)))*100
+    widths=np.minimum(100,duration-starts)
+    expected=20+sum(source_value(o,float(t))*w for t,w in zip(starts,widths))/(o["density_kg_m3"]*o["specific_heat_j_kgk"])
+    # Sin gradientes, Euler integra exactamente la suma izquierda, salvo redondeo Float64.
+    np.testing.assert_allclose(reference["history"]["center_c"][-1],expected,rtol=1e-13,atol=0)
+    np.testing.assert_allclose(portable["history"]["center_c"],reference["history"]["center_c"],rtol=0,atol=2e-11)
+    np.testing.assert_allclose(portable["frames_c"][-1],np.round(expected,5),rtol=0,atol=1e-5)
+    np.testing.assert_allclose(portable["source_curve"]["rate_w_m3"],reference["source_curve"]["rate_w_m3"],rtol=0,atol=1e-10)
+    assert max(portable["source_curve"]["rate_w_m3"]) == 1400
+    assert portable["source_curve"]["rate_w_m3"][-1] == 0
+    if mode!='1d':
+        assert portable["stats"]["balance_relative_error"] < 1e-12
+
+
 @pytest.fixture(scope="module")
 def pack():
     return build_pack(resolutions=(0.5,0.25))
@@ -70,6 +95,30 @@ def test_nominal_foundation_seven_days_matches_python(pack):
     assert portable["history"]["center_c"][-1] == pytest.approx(27.462812176219007,abs=2e-11)
 
 
+@pytest.mark.parametrize("boundary", ["dirichlet", "neumann", "robin"])
+def test_editable_block_dimensions_and_controls(boundary, pack):
+    """Bloque sintético anisótropo: dimensiones, malla, fuente y bordes reales."""
+    options = {"mode":"3d", "nodes":8, "length_x_m":2.5,
+               "length_y_m":1.25, "length_z_m":0.75, "duration_days":0.01,
+               "initial_c":25, "profile":"seno", "amplitude_c":7,
+               "conductivity_w_mk":3, "density_kg_m3":2300,
+               "specific_heat_j_kgk":950, "source_w_m3":100,
+               "boundary_type":boundary, "boundary_c":20, "h_w_m2k":15,
+               "resistance_m2k_w":0.1, "flux_in_w_m2":10,
+               "bottom_type":"robin", "bottom_c":18, "bottom_h_w_m2k":8,
+               "dt_s":60}
+    reference = run_simulation(options)
+    portable = javascript(options, pack)
+    assert portable["lengths_m"] == [2.5,1.25,0.75]
+    np.testing.assert_allclose(portable["spacing_m"], [2.5/8,1.25/8,0.75/8], rtol=0,atol=0)
+    # Igual discretización Float64; campos exportados redondeados a cinco decimales.
+    np.testing.assert_allclose(portable["frames_c"], reference["frames_c"],rtol=0,atol=1.01e-5)
+    np.testing.assert_allclose(portable["history"]["center_c"],reference["history"]["center_c"],rtol=0,atol=2e-11)
+    assert portable["stats"]["balance_relative_error"] < 1e-12
+    larger = javascript({**options,"length_x_m":5}, pack)
+    assert abs(larger["history"]["center_c"][-1]-portable["history"]["center_c"][-1]) > 1e-4
+
+
 @pytest.mark.parametrize("boundary", ["dirichlet","neumann","robin"])
 def test_portable_nodal_endpoints_match_python(boundary,pack):
     options={"mode":"1d","nodes":67,"duration_days":0.1,"profile":"seno","amplitude_c":20,
@@ -87,6 +136,8 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert '<script src=' not in text and '<link rel="stylesheet"' not in text
     assert 'id="mcoc-pack"' in text and 'id="mcoc-worker"' in text
     assert "connect-src 'none'" in text
+    assert 'value="1300" readonly' in text
+    assert 'source-example' not in text and 'source-activate' not in text
     assert output.stat().st_size < 5_000_000
 
 

@@ -1,6 +1,6 @@
 'use strict';
 /* Núcleo portátil: balances del solver Python adaptados a Float64Array.
- * Solo materiales homogéneos y entradas constantes, como los controles del HTML.
+ * Material homogéneo; fuente constante o pulso coseno temporal sintético.
  * G05: flujo entrante; caras a media celda; Euler explícito; último paso acortado.
  * La geometría IFC se exporta en la construcción del HTML, no se inventa aquí.
  */
@@ -8,6 +8,7 @@ function runOffline(input, pack) {
   const defaults=pack.meta.defaults, o={...defaults,...input};
   if(!input||typeof input!=='object'||Object.keys(input).some(k=>!(k in defaults)))throw Error('Parámetros desconocidos');
   if(!['fundacion','1d','2d','3d'].includes(o.mode)||!['uniforme','seno'].includes(o.profile))throw Error('Caso o perfil desconocido');
+  if(!['constant','cosine'].includes(o.source_type))throw Error('Fuente desconocida');
   for(const name of ['boundary_type','bottom_type'])if(!['dirichlet','neumann','robin'].includes(o[name]))throw Error('Condición de borde desconocida');
   for(const [name,[low,high]] of Object.entries(pack.bounds))if(typeof o[name]!=='number'||!Number.isFinite(o[name])||o[name]<low||o[name]>high)throw Error(`${name}: valor entre ${low} y ${high}`);
   if(!Number.isInteger(o.nodes)||o.nodes<8||o.nodes>(o.mode==='1d'?401:48))throw Error('Cantidad de nodos/celdas no admitida');
@@ -72,7 +73,9 @@ function runOffline(input, pack) {
   const general=0.5/(alpha*delta.slice(0,dim).reduce((s,d)=>s+1/d**2,0));
   let local=Infinity;
   for(const id of indices){if(nodal&&((id===0&&bottom.type==='dirichlet')||(id===nx-1&&main.type==='dirichlet')))continue;if(diagonal[id]>0)local=Math.min(local,C[id]/diagonal[id]);}
-  const limit=Math.min(general,local),dt=o.dt_s??0.8*limit;
+  const tau=o.source_duration_days*86400;
+  const heatSource=t=>o.source_type==='constant'?o.source_w_m3:(t>=0&&t<tau?o.qmax_w_m3/2*(1-Math.cos(2*Math.PI*t/tau)):0);
+  const limit=Math.min(general,local),dt=o.dt_s??Math.min(0.8*limit,o.source_type==='cosine'?tau/100:Infinity);
   if(dt>general)throw Error(`Estabilidad general: Δt=${dt} s; límite=${general} s`);
   if(dt>local)throw Error(`Estabilidad local: Δt=${dt} s; límite=${local} s`);
   const duration=o.duration_days*86400,steps=Math.ceil(duration/dt);
@@ -95,8 +98,9 @@ function runOffline(input, pack) {
   save(0);
   for(let step=0;step<steps;step++) {
     const end=Math.min((step+1)*dt,duration),width=end-time;let boundaryPower=0,sourcePower=0,bcCorrection=0,sourceCorrection=0;
+    const qNow=heatSource(time); // Inicio del paso t_n, también para el último paso acortado.
     for(const id of indices){
-      const b=fixed[id]+flux[id]-bg[id]*T[id],s=o.source_w_m3*C[id]/rhocp;power[id]=b+s;
+      const b=fixed[id]+flux[id]-bg[id]*T[id],s=qNow*C[id]/rhocp;power[id]=b+s;
       const db=b-bcCorrection,newB=boundaryPower+db;bcCorrection=(newB-boundaryPower)-db;boundaryPower=newB;
       const ds=s-sourceCorrection,newS=sourcePower+ds;sourceCorrection=(newS-sourcePower)-ds;sourcePower=newS;
     }
@@ -108,9 +112,13 @@ function runOffline(input, pack) {
     if((step+1)%every===0||step+1===steps)save(time);
   }
   function describe(b){return b.type==='dirichlet'?`Dirichlet · ${b.t} °C`:b.type==='neumann'?(b.q===0?'Adiabático · flujo 0 W/m²':`Neumann · entran ${b.q} W/m²`):`Robin · aire ${b.t} °C · h efectivo ${Number(b.h.toPrecision(6))} W/(m²·K)`;}
+  const curveTimes=new Set([...Array.from({length:201},(_,i)=>i*duration/200),...times]);
+  if(o.source_type==='cosine')for(const t of [tau/2,tau])if(t<=duration)curveTimes.add(t);
+  const sourceTimes=Array.from(curveTimes).sort((a,b)=>a-b);
   return {mode:o.mode,parameters:o,ifc:source,shape,dimension:dim,origin_m:origin,lengths_m:lengths,spacing_m:delta,
     positions_m:positions,active_indices:Array.from(indices),frames_c:frames,time_s:times,temperature_precision_decimals:5,
     history,probe_position_m:positions[probe],boundary_used:{laterales_y_expuestas:describe(main),base:describe(bottom)},
+    source_curve:{time_s:sourceTimes,rate_w_m3:sourceTimes.map(heatSource)},
     stats:{cells:count,steps,dt_s:dt,limit_dt_s:limit,alpha_m2_s:alpha,balance_relative_error:nodal?null:maxBalance,energy_unit:nodal?'J/m²':'J'},
     data_status:'Ensayo sintético portátil. Geometría IFC incluida al exportar; cálculo Float64 en este navegador.',
     calculation_engine:'JavaScript Float64 · contraste automatizado con el solver Python'};

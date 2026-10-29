@@ -30,14 +30,16 @@ DEFAULTS = {"mode": "fundacion", "initial_c": 30.0, "profile": "uniforme", "ampl
             "boundary_type": "robin", "boundary_c": 10.0, "h_w_m2k": 10.0,
             "flux_in_w_m2": 0.0, "resistance_m2k_w": 0.0,
             "bottom_type": "neumann", "bottom_c": 20.0, "bottom_h_w_m2k": 10.0,
-            "bottom_flux_in_w_m2": 0.0, "source_w_m3": 0.0, "dt_s": None}
+            "bottom_flux_in_w_m2": 0.0, "source_w_m3": 0.0, "source_type": "constant",
+            "qmax_w_m3": 1300.0, "source_duration_days": 2.0, "dt_s": None}
 BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.001, 30),
           "conductivity_w_mk": (0.05, 10), "density_kg_m3": (100, 5000),
           "specific_heat_j_kgk": (100, 5000), "resolution_m": (0.2, 1.0),
           "length_x_m": (0.1, 20), "length_y_m": (0.1, 20), "length_z_m": (0.1, 20),
           "boundary_c": (-50, 150), "h_w_m2k": (0, 1000), "flux_in_w_m2": (-5000, 5000),
           "resistance_m2k_w": (0, 5), "bottom_c": (-50, 150), "bottom_h_w_m2k": (0, 1000),
-          "bottom_flux_in_w_m2": (-5000, 5000), "source_w_m3": (-2000, 5000)}
+          "bottom_flux_in_w_m2": (-5000, 5000), "source_w_m3": (-2000, 5000),
+          "qmax_w_m3": (0, 10000), "source_duration_days": (0.001, 30)}
 
 
 def validate_options(data):
@@ -49,6 +51,8 @@ def validate_options(data):
         raise ValueError("Caso desconocido")
     if options["profile"] not in ("uniforme", "seno"):
         raise ValueError("Perfil inicial desconocido")
+    if options["source_type"] not in ("constant", "cosine"):
+        raise ValueError("Fuente desconocida")
     if options["boundary_type"] not in ("dirichlet", "neumann", "robin") or options["bottom_type"] not in ("dirichlet", "neumann", "robin"):
         raise ValueError("Condición de borde desconocida")
     for name, (low, high) in BOUNDS.items():
@@ -64,6 +68,26 @@ def validate_options(data):
     if dt is not None and (isinstance(dt, bool) or not isinstance(dt, (float, int)) or not math.isfinite(dt) or dt <= 0):
         raise ValueError("Δt debe ser positivo o automático")
     return options
+
+
+def source_value(options, time_s):
+    """Fuente volumétrica sintética de la pizarra [W/m³], evaluada en t_n [s].
+
+    Qmax es potencia por volumen, no temperatura ni energía acumulada.
+    El pulso tiene integral Qmax*tau/2 y alcanza Qmax en tau/2.
+    """
+    if options["source_type"] == "constant":
+        return options["source_w_m3"]
+    tau = options["source_duration_days"]*86400
+    return options["qmax_w_m3"]*0.5*(1-math.cos(2*math.pi*time_s/tau)) if 0 <= time_s < tau else 0.0
+
+
+def _dashboard_dt(options, limit):
+    """El paso automático resuelve el pulso con al menos cien pasos por período."""
+    automatic = 0.8*limit
+    if options["source_type"] == "cosine":
+        automatic = min(automatic, options["source_duration_days"]*86400/100)
+    return options["dt_s"] or automatic
 
 
 @lru_cache(maxsize=3)
@@ -140,6 +164,7 @@ def run_simulation(data):
     common = _boundary(o["boundary_type"], o["boundary_c"], o["h_w_m2k"], o["flux_in_w_m2"], o["resistance_m2k_w"])
     bottom = _boundary(o["bottom_type"], o["bottom_c"], o["bottom_h_w_m2k"], o["bottom_flux_in_w_m2"])
     duration = o["duration_days"]*86400
+    heat_source = (lambda t: source_value(o, t)) if o["source_type"] == "cosine" else o["source_w_m3"]
     source = None
     origin = np.zeros(3)
     k, rho, cp = o["conductivity_w_mk"], o["density_kg_m3"], o["specific_heat_j_kgk"]
@@ -148,9 +173,9 @@ def run_simulation(data):
         path, fingerprint = _identity()
         meshes, source = _meshes(path, fingerprint)
         length = max(m.vertices[:, 2].max() for m in meshes)-min(m.vertices[:, 2].min() for m in meshes)
-        p = Parameters1D(float(length), o["nodes"], k, rho, cp, 1e-9, duration, bottom, common, o["source_w_m3"])
+        p = Parameters1D(float(length), o["nodes"], k, rho, cp, 1e-9, duration, bottom, common, heat_source)
         limit = p.max_stable_dt_s
-        p = replace(p, dt_s=o["dt_s"] or 0.8*limit)
+        p = replace(p, dt_s=_dashboard_dt(o, limit))
         shape = (p.nodes,)
         active = np.ones(shape, dtype=bool)
         coordinates = np.arange(p.nodes)*p.dx_m
@@ -181,10 +206,10 @@ def run_simulation(data):
         faces = {name: common for name in ("x-", "x+", "y-", "y+", "z-", "z+")[:2*dim]}
         faces["y-" if dim == 2 else "z-"] = bottom
         p = Parameters(shape, tuple(lengths), k, rho, cp, 1e-9, duration, faces,
-                       active=active, source_w_m3=o["source_w_m3"], exposed=common if mode == "fundacion" else None)
+                       active=active, source_w_m3=heat_source, exposed=common if mode == "fundacion" else None)
         c = prepare(p)
         limit = min(c.general_dt_s, c.local_dt_s)
-        p = replace(p, dt_s=o["dt_s"] or 0.8*limit)
+        p = replace(p, dt_s=_dashboard_dt(o, limit))
         steps = math.ceil(duration/p.dt_s)
         _check_budget(steps)
         wave = sine_initial(p) if o["profile"] == "seno" else np.zeros(shape)
@@ -213,6 +238,11 @@ def run_simulation(data):
         weights[[0, -1]] = 0.5
         mean = temperatures@weights/weights.sum()
     boundary_used = {"laterales_y_expuestas": _description(common), "base": _description(bottom)}
+    curve_times = set((np.arange(201)*duration/200).tolist()+result.time_s.tolist())
+    if o["source_type"] == "cosine":
+        tau = o["source_duration_days"]*86400
+        curve_times.update(t for t in (tau/2,tau) if t <= duration)
+    curve_times = sorted(curve_times)
     return {"mode": mode, "parameters": o, "ifc": source, "shape": list(shape),
             "dimension": len(shape), "origin_m": origin.tolist(), "lengths_m": lengths.tolist(),
             "spacing_m": spacing.tolist(), "positions_m": np.round(positions, 8).tolist(),
@@ -221,6 +251,7 @@ def run_simulation(data):
             "history": {"center_c": temperatures[:, probe].tolist(), "min_c": temperatures.min(axis=1).tolist(),
                         "max_c": temperatures.max(axis=1).tolist(), "mean_c": mean.tolist(), "energy": energy.tolist()},
             "probe_position_m": positions[probe].tolist(), "boundary_used": boundary_used,
+            "source_curve": {"time_s": curve_times, "rate_w_m3": [source_value(o,t) for t in curve_times]},
             "stats": {"cells": int(active.sum()), "steps": steps, "dt_s": p.dt_s, "limit_dt_s": limit,
                       "alpha_m2_s": alpha, "balance_relative_error": balance_error,
                       "energy_unit": "J/m²" if mode == "1d" else "J"},
