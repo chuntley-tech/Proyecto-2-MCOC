@@ -9,6 +9,8 @@ function runOffline(input, pack) {
   if(!input||typeof input!=='object'||Object.keys(input).some(k=>!(k in defaults)))throw Error('Parámetros desconocidos');
   if(!['fundacion','1d','2d','3d'].includes(o.mode)||!['uniforme','seno'].includes(o.profile))throw Error('Caso o perfil desconocido');
   if(!['constant','cosine'].includes(o.source_type))throw Error('Fuente desconocida');
+  if(!['ifc','scaled'].includes(o.foundation_geometry))throw Error('Geometría de fundación desconocida');
+  if(!Number.isInteger(o.pour_count)||o.pour_count<1||o.pour_count>12)throw Error('Cantidad de vertidas: entero entre 1 y 12');
   for(const name of ['boundary_type','bottom_type'])if(!['dirichlet','neumann','robin'].includes(o[name]))throw Error('Condición de borde desconocida');
   for(const [name,[low,high]] of Object.entries(pack.bounds))if(typeof o[name]!=='number'||!Number.isFinite(o[name])||o[name]<low||o[name]>high)throw Error(`${name}: valor entre ${low} y ${high}`);
   if(!Number.isInteger(o.nodes)||o.nodes<8||o.nodes>(o.mode==='1d'?401:48))throw Error('Cantidad de nodos/celdas no admitida');
@@ -18,6 +20,10 @@ function runOffline(input, pack) {
   if(o.mode==='fundacion') {
     const g=pack.grids[String(o.resolution_m)];if(!g)throw Error('Resolución no incluida en este HTML; elige 0.50, 0.25 o 0.20 m');
     shape=g.shape;origin=g.origin_m;lengths=g.lengths_m;delta=g.spacing_m;indices=g.active_indices;source={...pack.meta.ifc,offline_snapshot:true};
+    if(o.pour_count>shape[2])throw Error('Hay vertidas sin celdas: use una malla más fina o reduzca la cantidad de vertidas');
+    const reference=Array.from(lengths);
+    if(o.foundation_geometry==='scaled'){lengths=[o.foundation_x_m,o.foundation_y_m,o.foundation_height_m];delta=lengths.map((v,a)=>v/shape[a]);}
+    source.geometry_transform={type:o.foundation_geometry,scale_xyz:lengths.map((v,a)=>v/reference[a]),reference_lengths_m:reference};
   } else if(nodal) {
     lengths=[pack.meta.ifc.lengths_m[2],0,0];shape=[o.nodes];delta=[lengths[0]/(o.nodes-1),0,0];indices=Array.from({length:o.nodes},(_,i)=>i);source={...pack.meta.ifc,offline_snapshot:true};
   } else {
@@ -115,10 +121,19 @@ function runOffline(input, pack) {
   const curveTimes=new Set([...Array.from({length:201},(_,i)=>i*duration/200),...times]);
   if(o.source_type==='cosine')for(const t of [tau/2,tau])if(t<=duration)curveTimes.add(t);
   const sourceTimes=Array.from(curveTimes).sort((a,b)=>a-b);
+  let pourPlan=null;
+  if(o.mode==='fundacion'){
+    const ids=indices.map(id=>1+Math.floor((id%nz+0.5)*o.pour_count/nz));
+    const layers=Array.from({length:o.pour_count},(_,i)=>({id:i+1,z_min_m:origin[2]+lengths[2]*i/o.pour_count,z_max_m:origin[2]+lengths[2]*(i+1)/o.pour_count,cells:0,voxel_volume_m3:0}));
+    for(const id of ids)layers[id-1].cells++;
+    for(const row of layers){if(!row.cells)throw Error('Hay vertidas sin celdas: use una malla más fina o reduzca la cantidad de vertidas');row.voxel_volume_m3=row.cells*volume;}
+    pourPlan={type:'Capas horizontales de igual altura; sin cronograma de colocación',simultaneous:true,cell_pour_id:Array.from(ids),layers};
+  }
   return {mode:o.mode,parameters:o,ifc:source,shape,dimension:dim,origin_m:origin,lengths_m:lengths,spacing_m:delta,
     positions_m:positions,active_indices:Array.from(indices),frames_c:frames,time_s:times,temperature_precision_decimals:5,
     history,probe_position_m:positions[probe],boundary_used:{laterales_y_expuestas:describe(main),base:describe(bottom)},
     source_curve:{time_s:sourceTimes,rate_w_m3:sourceTimes.map(heatSource)},
+    pour_plan:pourPlan,
     stats:{cells:count,steps,dt_s:dt,limit_dt_s:limit,alpha_m2_s:alpha,balance_relative_error:nodal?null:maxBalance,energy_unit:nodal?'J/m²':'J'},
     data_status:'Ensayo sintético portátil. Geometría IFC incluida al exportar; cálculo Float64 en este navegador.',
     calculation_engine:'JavaScript Float64 · contraste automatizado con el solver Python'};

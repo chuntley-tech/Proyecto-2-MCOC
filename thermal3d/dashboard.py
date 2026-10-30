@@ -32,6 +32,8 @@ DEFAULTS = {"mode": "fundacion", "initial_c": 30.0, "profile": "uniforme", "ampl
             "bottom_type": "neumann", "bottom_c": 20.0, "bottom_h_w_m2k": 10.0,
             "bottom_flux_in_w_m2": 0.0, "source_w_m3": 0.0, "source_type": "constant",
             "qmax_w_m3": 1300.0, "source_duration_days": 2.0, "dt_s": None}
+DEFAULTS.update({"foundation_geometry": "ifc", "foundation_x_m": 18.0,
+                 "foundation_y_m": 18.0, "foundation_height_m": 3.3, "pour_count": 3})
 BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.001, 30),
           "conductivity_w_mk": (0.05, 10), "density_kg_m3": (100, 5000),
           "specific_heat_j_kgk": (100, 5000), "resolution_m": (0.2, 1.0),
@@ -40,6 +42,8 @@ BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.
           "resistance_m2k_w": (0, 5), "bottom_c": (-50, 150), "bottom_h_w_m2k": (0, 1000),
           "bottom_flux_in_w_m2": (-5000, 5000), "source_w_m3": (-2000, 5000),
           "qmax_w_m3": (0, 10000), "source_duration_days": (0.001, 30)}
+BOUNDS.update({"foundation_x_m": (4, 40), "foundation_y_m": (4, 40),
+               "foundation_height_m": (0.6, 12)})
 
 
 def validate_options(data):
@@ -53,6 +57,10 @@ def validate_options(data):
         raise ValueError("Perfil inicial desconocido")
     if options["source_type"] not in ("constant", "cosine"):
         raise ValueError("Fuente desconocida")
+    if options["foundation_geometry"] not in ("ifc", "scaled"):
+        raise ValueError("Geometría de fundación desconocida")
+    if isinstance(options["pour_count"],bool) or not isinstance(options["pour_count"],int) or not 1 <= options["pour_count"] <= 12:
+        raise ValueError("Cantidad de vertidas: entero entre 1 y 12")
     if options["boundary_type"] not in ("dirichlet", "neumann", "robin") or options["bottom_type"] not in ("dirichlet", "neumann", "robin"):
         raise ValueError("Condición de borde desconocida")
     for name, (low, high) in BOUNDS.items():
@@ -131,9 +139,10 @@ def metadata():
     psets = ifcopenshell.util.element.get_psets(model.by_guid(config["ifc"]["thermal_property_guid"]))
     material = {field: psets[THERMAL_PSET][name] for field, name in THERMAL_PROPERTIES.items()}
     defaults = {**DEFAULTS, **material}
-    validate_options(defaults)
     low = np.min([m.vertices.min(axis=0) for m in meshes], axis=0)
     high = np.max([m.vertices.max(axis=0) for m in meshes], axis=0)
+    defaults.update(dict(zip(("foundation_x_m","foundation_y_m","foundation_height_m"),(high-low).tolist())))
+    validate_options(defaults)
     return {"defaults": defaults, "ifc": {**source, "lengths_m": (high-low).tolist(), "components": len(meshes)},
             "data_status": "Ensayos sintéticos para exploración térmica.", "max_steps": 8000}
 
@@ -158,7 +167,8 @@ def run_simulation(data):
     """Resuelve con el código del proyecto y entrega campos, historia y cortes.
 
     Los controles prevalecen en esta ejecución; no escriben al IFC ni al JSON.
-    La geometría de la fundación siempre procede del archivo guardado.
+    La geometría procede del IFC, con escalado opcional explícito. Las vertidas
+    son una partición geométrica; todas las celdas están presentes desde t=0.
     """
     o = validate_options(data)
     common = _boundary(o["boundary_type"], o["boundary_c"], o["h_w_m2k"], o["flux_in_w_m2"], o["resistance_m2k_w"])
@@ -196,9 +206,17 @@ def run_simulation(data):
             path, fingerprint = _identity()
             grid = _grid(path, fingerprint, o["resolution_m"])
             shape, active = grid.component.shape, grid.active
+            if o["pour_count"] > shape[2]:
+                raise ValueError("Hay vertidas sin celdas: use una malla más fina o reduzca la cantidad de vertidas")
             lengths = grid.lengths_m
             origin = grid.origin_m
             source = grid.report["ifc_input"]
+            scale = np.ones(3)
+            if o["foundation_geometry"] == "scaled":
+                lengths = np.array([o["foundation_x_m"],o["foundation_y_m"],o["foundation_height_m"]])
+                scale = lengths/grid.lengths_m
+            source = {**source,"geometry_transform":{"type":o["foundation_geometry"],"scale_xyz":scale.tolist(),
+                      "reference_lengths_m":grid.lengths_m.tolist()}}
         else:
             shape = (o["nodes"],)*dim
             lengths = np.array([o["length_x_m"], o["length_y_m"], o["length_z_m"]][:dim])
@@ -238,6 +256,18 @@ def run_simulation(data):
         weights[[0, -1]] = 0.5
         mean = temperatures@weights/weights.sum()
     boundary_used = {"laterales_y_expuestas": _description(common), "base": _description(bottom)}
+    pour_plan = None
+    if mode == "fundacion":
+        ids = np.floor((local_indices[:,2]+0.5)*o["pour_count"]/shape[2]).astype(int)
+        counts = np.bincount(ids,minlength=o["pour_count"])
+        if np.any(counts == 0):
+            raise ValueError("Hay vertidas sin celdas: use una malla más fina o reduzca la cantidad de vertidas")
+        pour_plan = {"type":"Capas horizontales de igual altura; sin cronograma de colocación",
+                     "simultaneous":True,"cell_pour_id":(ids+1).tolist(),"layers":[
+            {"id":i+1,"z_min_m":float(origin[2]+lengths[2]*i/o["pour_count"]),
+             "z_max_m":float(origin[2]+lengths[2]*(i+1)/o["pour_count"]),
+             "cells":int(counts[i]),"voxel_volume_m3":float(counts[i]*np.prod(p.spacing_m))}
+             for i in range(o["pour_count"])]}
     curve_times = set((np.arange(201)*duration/200).tolist()+result.time_s.tolist())
     if o["source_type"] == "cosine":
         tau = o["source_duration_days"]*86400
@@ -251,6 +281,7 @@ def run_simulation(data):
             "history": {"center_c": temperatures[:, probe].tolist(), "min_c": temperatures.min(axis=1).tolist(),
                         "max_c": temperatures.max(axis=1).tolist(), "mean_c": mean.tolist(), "energy": energy.tolist()},
             "probe_position_m": positions[probe].tolist(), "boundary_used": boundary_used,
+            "pour_plan": pour_plan,
             "source_curve": {"time_s": curve_times, "rate_w_m3": [source_value(o,t) for t in curve_times]},
             "stats": {"cells": int(active.sum()), "steps": steps, "dt_s": p.dt_s, "limit_dt_s": limit,
                       "alpha_m2_s": alpha, "balance_relative_error": balance_error,

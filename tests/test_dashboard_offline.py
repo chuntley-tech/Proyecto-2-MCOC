@@ -5,10 +5,12 @@ el HTML entregado necesita solo un navegador, sin Node ni Python.
 """
 
 from html.parser import HTMLParser
+import base64
 import json
 from pathlib import Path
 import shutil
 import subprocess
+import re
 
 import numpy as np
 import pytest
@@ -95,6 +97,25 @@ def test_nominal_foundation_seven_days_matches_python(pack):
     assert portable["history"]["center_c"][-1] == pytest.approx(27.462812176219007,abs=2e-11)
 
 
+@pytest.mark.parametrize("count",[1,4,5])
+def test_scaled_foundation_and_pour_plan_match_python(count,pack):
+    options={"mode":"fundacion","resolution_m":0.5,"duration_days":0.1,
+        "foundation_geometry":"scaled","foundation_x_m":21.6,
+        "foundation_y_m":14.4,"foundation_height_m":4.95,"pour_count":count,
+        "source_type":"cosine","source_duration_days":0.05}
+    reference=run_simulation(options)
+    portable=javascript(options,pack)
+    assert portable["active_indices"] == reference["active_indices"]
+    assert portable["pour_plan"]["cell_pour_id"] == reference["pour_plan"]["cell_pour_id"]
+    np.testing.assert_allclose(portable["positions_m"],reference["positions_m"],rtol=0,atol=5.1e-9)
+    # Estadísticas Float64; campos exportados con cinco decimales.
+    np.testing.assert_allclose(portable["frames_c"],reference["frames_c"],rtol=0,atol=1.01e-5)
+    np.testing.assert_allclose(portable["history"]["mean_c"],reference["history"]["mean_c"],rtol=0,atol=2e-11)
+    for actual,expected in zip(portable["pour_plan"]["layers"],reference["pour_plan"]["layers"]):
+        assert actual["cells"] == expected["cells"]
+        assert actual["voxel_volume_m3"] == pytest.approx(expected["voxel_volume_m3"],rel=1e-14)
+
+
 @pytest.mark.parametrize("boundary", ["dirichlet", "neumann", "robin"])
 def test_editable_block_dimensions_and_controls(boundary, pack):
     """Bloque sintético anisótropo: dimensiones, malla, fuente y bordes reales."""
@@ -138,6 +159,14 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert "connect-src 'none'" in text
     assert 'value="1300" readonly' in text
     assert 'source-example' not in text and 'source-activate' not in text
+    assert 'id="tab-project"' in text and 'id="panel-project"' in text
+    assert 'id="foundation_geometry"' in text and 'id="pour_count"' in text
+    # La fuente de Google Fonts y su licencia viajan dentro del único HTML.
+    embedded_font=re.search(r'data:font/ttf;base64,([A-Za-z0-9+/=]+)',text)
+    assert embedded_font is not None
+    assert base64.b64decode(embedded_font.group(1)) == (ROOT/"web/fonts/Inter-Variable.ttf").read_bytes()
+    assert 'id="mcoc-font-license"' in text and 'SIL OPEN FONT LICENSE' in text
+    assert "font-src data:" in text
     assert output.stat().st_size < 5_000_000
 
 

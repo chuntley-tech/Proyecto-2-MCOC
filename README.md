@@ -21,6 +21,10 @@ Abrir [visor_termico.html](visor_termico.html) con doble clic en un navegador
 moderno. Para compartirlo, basta copiar ese archivo: incluye la geometría y el
 cálculo local, sin instalar Python ni usar un servidor o Internet.
 
+El diseño conserva la distribución de controles y gráficos. La tipografía
+Inter de Google Fonts y su licencia están incluidas en el archivo portátil,
+por lo que tampoco necesitan conexión a Internet.
+
 Permite cambiar parámetros, calcular temperaturas, girar el modelo 3D, abrir
 cortes, recorrer el tiempo y consultar gráficos en 1D, 2D y 3D. Los ensayos son
 sintéticos. La geometría incluida corresponde al IFC al generar el HTML.
@@ -34,6 +38,14 @@ La sección **Generación de calor Q(t)** incorpora el pulso coseno de la pizarr
 con Qmax fijo en **1300 W/m³** y duración editable. El cubo inicia a 20 °C,
 con Dirichlet a 20 °C y base adiabática. El visor muestra Q(t),
 temperaturas en el tiempo y perfiles por altura; Qmax no es temperatura.
+
+En **Fundación G8** se pueden editar largo, ancho y altura escalando el IFC
+de referencia, y dividirlo en vertidas horizontales de igual altura. La vista
+3D muestra colores por temperatura o por vertida y una tabla de volúmenes
+voxelizados. Esta división es geométrica: todas las capas están presentes
+desde t = 0; aún no representa una secuencia de colocación en días distintos.
+La pestaña **Información del proyecto** reúne propósito, caso G8, física,
+referencias y alcance del simulador.
 
 Después de guardar cambios en el IFC, regenerar el archivo para compartirlos:
 
@@ -256,7 +268,7 @@ Para ensayar otras condiciones de intercambio o resoluciones:
 
 ## Pruebas y resultados reproducibles
 
-**Verificación del 29 de octubre de 2026: 185 pruebas aprobadas en 106.18 s.**
+**Verificación del 30 de octubre de 2026: 194 pruebas aprobadas en 82.94 s.**
 
 ```cmd
 .venv\Scripts\python.exe -m pytest -q

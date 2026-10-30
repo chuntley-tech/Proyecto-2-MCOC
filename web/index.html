@@ -3,18 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#142c47">
+  <meta name="theme-color" content="#315cf2">
   <title>MCOC · Laboratorio térmico</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Inicio del laboratorio"><span class="brand-mark">∿</span><span>MCOC <span class="brand-light">/ Laboratorio térmico</span></span></a>
+    <a class="brand" href="/" aria-label="Inicio del laboratorio"><span class="brand-mark"><svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="m4 10 10-5 10 5-10 5-10-5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m4 14 10 5 10-5M4 18l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>MCOC <span class="brand-light">/ Laboratorio térmico</span></span></a>
     <div class="top-meta"><button id="portable-download" class="nav-download">↓ HTML portátil</button><span class="online-dot"></span><span id="connection">Conectando</span><span class="top-divider"></span><span>G8 · Llanquihue</span></div>
   </header>
 
-  <div class="workspace">
+  <nav class="page-tabs" role="tablist" aria-label="Secciones del proyecto">
+    <button id="tab-laboratory" role="tab" aria-selected="true" aria-controls="panel-laboratory" type="button">Simulador térmico</button>
+    <button id="tab-project" role="tab" aria-selected="false" aria-controls="panel-project" tabindex="-1" type="button">Información del proyecto</button>
+  </nav>
+  <div class="workspace" id="panel-laboratory" role="tabpanel" aria-labelledby="tab-laboratory">
     <aside class="sidebar">
       <div class="sidebar-heading"><span class="eyebrow">CONFIGURACIÓN DEL ENSAYO</span><span class="tag">Sintético</span></div>
       <form id="parameters">
@@ -25,6 +29,19 @@
             <option value="3d">Cubo / bloque 3D · dimensiones editables</option><option value="1d">Perfil 1D · nodos</option>
           </select>
           <p id="case-note" class="hint">La geometría se obtiene del IFC guardado.</p>
+
+          <section id="foundation-geometry" class="form-section">
+            <h2>Fundación · dimensiones y vertidas</h2>
+            <label class="stacked">Geometría<select id="foundation_geometry" name="foundation_geometry"><option value="ifc">IFC de referencia · dimensiones originales</option><option value="scaled">Dimensiones editables · escalar el IFC</option></select></label>
+            <div class="form-grid">
+              <label>Largo X <span>m</span><input id="foundation_x_m" name="foundation_x_m" type="number" min="4" max="40" step="any" value="18" required></label>
+              <label>Ancho Y <span>m</span><input id="foundation_y_m" name="foundation_y_m" type="number" min="4" max="40" step="any" value="18" required></label>
+            </div>
+            <label class="stacked">Altura total <span>m</span><input id="foundation_height_m" name="foundation_height_m" type="number" min="0.6" max="12" step="any" value="3.3" required></label>
+            <label class="stacked">Cantidad de vertidas planificadas<input id="pour_count" name="pour_count" type="number" min="1" max="12" step="1" value="3" required></label>
+            <p class="hint">Capas horizontales de igual altura. Son una división geométrica: el cálculo considera todas presentes desde t = 0, sin cronograma de colocación.</p>
+            <p class="hint">El escalado conserva las proporciones del zócalo, transición y cilindro. Si largo y ancho difieren, la sección superior se vuelve elíptica. No modifica el IFC guardado.</p>
+          </section>
 
           <section id="box-geometry" class="form-section hidden">
             <h2>Geometría del ensayo</h2>
@@ -108,16 +125,21 @@
       </section>
 
       <section class="card model-card">
-        <div class="card-heading"><div><h2 id="model-title">Fundación · campo térmico 3D</h2><p id="model-subtitle">Geometría del IFC guardado</p></div><div class="view-tools"><select id="view-mode" aria-label="Tipo de vista"><option value="full">Modelo completo</option><option value="x">Abrir corte vertical</option><option value="z">Abrir corte horizontal</option></select><button id="camera-reset" class="icon-button" aria-label="Restablecer cámara" title="Restablecer cámara">⌖</button></div></div>
+        <div class="card-heading"><div><h2 id="model-title">Fundación · campo térmico 3D</h2><p id="model-subtitle">Geometría del IFC guardado</p></div><div class="view-tools"><select id="model-color" aria-label="Colorear modelo"><option value="temperature">Temperatura</option><option value="pours">Vertidas planificadas</option></select><select id="view-mode" aria-label="Tipo de vista"><option value="full">Modelo completo</option><option value="x">Abrir corte vertical</option><option value="z">Abrir corte horizontal</option></select><button id="camera-reset" class="icon-button" aria-label="Restablecer cámara" title="Restablecer cámara">⌖</button></div></div>
         <div class="model-stage" id="model-stage"><canvas id="model-canvas" aria-label="Modelo 3D interactivo coloreado por temperatura"></canvas><canvas id="flat-canvas" class="hidden" aria-label="Campo de temperatura"></canvas>
           <div id="stage-placeholder" class="stage-placeholder"><span class="loader"></span><p>Preparando geometría y temperaturas</p></div>
           <div class="model-hint" id="model-hint">Arrastra para girar · rueda para acercar</div><div class="model-chip" id="geometry-chip">IFC · 3 componentes</div>
-          <div class="temperature-legend"><div class="legend-title">TEMPERATURA <span>°C</span></div><div class="legend-bar"></div><div class="legend-labels"><span id="legend-low">—</span><span id="legend-high">—</span></div></div>
+          <div class="temperature-legend"><div class="legend-title" id="model-legend-title">TEMPERATURA °C</div><div class="legend-bar"></div><div class="legend-labels"><span id="legend-low">—</span><span id="legend-high">—</span></div></div>
         </div>
         <div id="clip-control" class="clip-control hidden"><label for="clip-slider">Posición del corte 3D</label><input id="clip-slider" type="range" min="0" max="100" value="50"><span id="clip-caption">50 %</span></div>
         <div class="timeline"><button id="play" class="play" disabled aria-label="Reproducir evolución">▶</button><div class="timeline-body"><div class="timeline-labels"><span>Recorrer el cálculo</span><strong id="timeline-time">—</strong></div><input id="time-slider" type="range" min="0" max="0" value="0" disabled aria-label="Instante guardado"><div class="timeline-ends"><span>Inicio</span><span id="duration-label">Fin</span></div></div></div>
       </section>
 
+      <section id="pour-plan" class="card height-card hidden">
+        <div class="card-heading"><div><h2>Distribución de vertidas</h2><p id="pour-summary">Volúmenes calculados sobre la grilla</p></div></div>
+        <div class="table-scroll"><table class="project-table"><thead><tr><th>Vertida</th><th>Desde z [m]</th><th>Hasta z [m]</th><th>Celdas</th><th>Volumen voxelizado [m³]</th></tr></thead><tbody id="pour-rows"></tbody></table></div>
+        <p class="scope-note">Las interfaces entre vertidas conducen calor como el mismo material. Cambiar solo su cantidad no altera el resultado térmico: todavía no se simula su colocación en momentos distintos.</p>
+      </section>
       <section class="charts">
         <article class="card"><div class="card-heading"><div><h2 id="slice-title">Corte de temperatura</h2><p id="slice-caption">Valores de las celdas calculadas</p></div><select id="slice-plane" aria-label="Plano de corte"><option value="xz">Plano XZ</option><option value="xy">Plano XY</option><option value="yz">Plano YZ</option></select></div><div class="chart-stage"><canvas id="slice-canvas" aria-label="Mapa o perfil de temperatura del corte"></canvas><div id="slice-tooltip" class="tooltip hidden"></div></div><div class="slice-control"><label for="slice-slider">Posición</label><input id="slice-slider" type="range" min="0" max="0" value="0"><span id="slice-position">—</span></div></article>
         <article class="card"><div class="card-heading"><div><h2>Evolución de temperaturas</h2><p id="history-caption">Historia de los estados guardados</p></div><span class="mini-tag">°C</span></div><div class="chart-stage"><canvas id="history-canvas" aria-label="Gráfico de evolución temporal"></canvas></div><div class="chart-legend" id="history-legend"><span><i class="blue"></i>Central</span><span><i class="orange"></i>Máxima</span><span><i class="purple"></i>Media</span></div></article>
@@ -136,5 +158,18 @@
       <footer>G8 · Métodos Computacionales <span>Ensayo sintético · Los colores representan temperaturas calculadas.</span></footer>
     </main>
   </div>
+  <section id="panel-project" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-project">
+    <div class="eyebrow">GRUPO 8 · MÉTODOS COMPUTACIONALES</div>
+    <h1>Fundación de hormigón masivo · Cuatro Vientos</h1>
+    <p class="project-intro">Proyecto universitario de la Universidad de los Andes: diseñar, justificar y defender un plan de construcción por vertidas para una fundación de aerogenerador.</p>
+    <div class="project-grid">
+      <article class="card info-card"><h2>Caso docente G8</h2><p>Llanquihue, Región de Los Lagos. Caso húmedo y frío del sur: el enfriamiento superficial y la diferencia núcleo–superficie son relevantes.</p><p>Punto meteorológico oficial: latitud −41.222539°, longitud −73.295603°. Es un punto docente representativo; no se presenta como la ubicación exacta de una fundación real.</p><p>Los cálculos del visor son ensayos sintéticos; no incorporan observaciones meteorológicas reales.</p></article>
+      <article class="card info-card"><h2>Modelo BIM de referencia</h2><p>Envolvente nominal de 18 × 18 m y altura de 3,30 m. Tres objetos IFC identificables: zócalo octagonal, transición inclinada y cilindro superior de diámetro 7 m; cada tramo tiene 1,10 m nominal.</p><p>Los tres componentes BIM no equivalen automáticamente a tres vertidas constructivas. El visor permite definir otra cantidad de capas.</p><p id="project-ifc">Geometría IFC incluida al generar este archivo.</p></article>
+      <article class="card info-card"><h2>Flujo del proyecto</h2><p>Bonsai / Blender → IFC → IfcOpenShell → voxelización → solver térmico propio en grilla cartesiana → visualización.</p><p>El solver Python es independiente de Blender. El HTML portátil incluye una captura voxelizada del IFC y un núcleo numérico JavaScript contrastado con Python.</p><p>Monte Carlo, HPC y decisión constructiva forman parte del objetivo general; este visor se centra en explorar geometría y difusión térmica.</p></article>
+      <article class="card info-card"><h2>Física y parámetros</h2><p>Balance: ρ cₚ ∂T/∂t = ∇·(k∇T) + Q(t). k es conductividad, ρ densidad, cₚ calor específico y α = k/(ρcₚ) difusividad.</p><p>1D nodal; 2D/3D centrado en celdas, Euler explícito y límites de estabilidad general y local. Bordes Dirichlet, Neumann y Robin, con flujo entrante positivo.</p><p>Qmax del visor: 1300 W/m³, supuesto sintético elegido por el usuario. El pulso tiene duración editable; Qmax no es una temperatura.</p></article>
+      <article class="card info-card"><h2>Dimensiones y vertidas</h2><p>El modo original utiliza las dimensiones del IFC. El modo editable escala su geometría en X, Y y Z y recalcula distancias, áreas, volúmenes, estabilidad y temperaturas.</p><p>La malla conserva su cantidad de celdas: al escalar cambian sus tamaños físicos. La resolución elegida corresponde al IFC de referencia.</p><p>Las vertidas son capas de igual altura, no de igual volumen. Se identifican por el centro de cada voxel; sus volúmenes son aproximaciones de la grilla. Todas están presentes desde t = 0, sin secuencia temporal de colocación.</p></article>
+      <article class="card info-card"><h2>Criterios y referencias del curso</h2><p>Criterios docentes: temperatura máxima 70 °C y diferencia núcleo–superficie de 20 °C durante 14 días. El visor no certifica su cumplimiento ni sustituye una evaluación constructiva.</p><p>Referencia geométrica: Ju y Lei (2019), <em>Actual Temperature Evolution of Thick Raft Concrete Foundations and Cracking Risk Analysis</em>, DOI 10.1155/2019/7029671. Referencia chilena: ICH, <em>Especificación para Hormigón Masivo Estructural</em> (julio de 2019), Anexo 4 sobre el método de Schmidt.</p><p>Las guías G00–G08 y difusión térmica están en el repositorio. Los parámetros de ensayo no representan una mezcla de hormigón calibrada.</p></article>
+    </div>
+  </section>
 </body>
 </html>

@@ -6,6 +6,7 @@ Internet ni bibliotecas externas. Regenerarlo incorpora un IFC modificado.
 """
 
 import argparse
+import base64
 import json
 from pathlib import Path
 
@@ -37,19 +38,24 @@ def build(output):
     web = ROOT/"web"
     pack = json.dumps(build_pack(), ensure_ascii=False, separators=(",", ":"), allow_nan=False).replace("<", "\\u003c")
     html = (web/"index.html").read_text(encoding="utf-8")
-    html = html.replace('<link rel="stylesheet" href="/styles.css">', '<style>\n'+(web/"styles.css").read_text(encoding="utf-8")+'\n</style>')
+    css = (web/"styles.css").read_text(encoding="utf-8")
+    font = base64.b64encode((web/"fonts/Inter-Variable.ttf").read_bytes()).decode("ascii")
+    css = css.replace("/fonts/Inter-Variable.ttf", "data:font/ttf;base64,"+font)
+    html = html.replace('<link rel="stylesheet" href="/styles.css">', '<style>\n'+css+'\n</style>')
     html = html.replace('<script src="/app.js" defer></script>', '')
-    policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; connect-src 'none'; base-uri 'none'; object-src 'none'"
+    policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; font-src data:; connect-src 'none'; base-uri 'none'; object-src 'none'"
     html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="'+policy+'">')
     html = html.replace('href="/"', 'href="#"')
     worker = (web/"solver_worker.js").read_text(encoding="utf-8").replace('</script', '<\\/script')
     app = (web/"app.js").read_text(encoding="utf-8").replace('</script', '<\\/script')
     embedded = ('<script id="mcoc-pack" type="application/json">'+pack+'</script>\n'
                 '<script id="mcoc-worker" type="text/plain">'+worker+'</script>\n<script>\n'+app+'\n</script>')
+    license_text = (web/"fonts/OFL.txt").read_text(encoding="utf-8").replace("<", "\\u003c")
+    embedded += '\n<script id="mcoc-font-license" type="text/plain">'+license_text+'</script>'
     html = html.replace('</body>', embedded+'\n</body>')
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(html, encoding="utf-8")
+    output.write_text("\n".join(line.rstrip() for line in html.splitlines())+"\n", encoding="utf-8")
     print(f"HTML portátil generado: {output} ({output.stat().st_size/1_000_000:.2f} MB)")
     return output
 

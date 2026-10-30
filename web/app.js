@@ -10,8 +10,8 @@ const num = (v, n = 1) => Number(v).toLocaleString('es-CL', { maximumFractionDig
 const palette = [[40,16,78],[101,53,117],[178,73,115],[240,145,73],[246,232,121]];
 const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3' };
 
-function temperatureColor(t) {
-  const x = Math.max(0, Math.min(0.999999, (t-data.colorLow)/(data.colorHigh-data.colorLow)))*4;
+function temperatureColor(t,low=data.colorLow,high=data.colorHigh) {
+  const x = Math.max(0, Math.min(0.999999, (t-low)/(high-low)))*4;
   const a = Math.floor(x), f = x-a;
   return palette[a].map((v,j) => Math.round(v*(1-f)+palette[a+1][j]*f));
 }
@@ -47,6 +47,12 @@ function updateFields() {
   $('constant-source-field').classList.toggle('hidden',pulse);
   $('resolution-field').classList.toggle('hidden',mode!=='fundacion');
   $('nodes-field').classList.toggle('hidden',mode==='fundacion');
+  $('foundation-geometry').classList.toggle('hidden',mode!=='fundacion');
+  const original=$('foundation_geometry').value==='ifc';
+  ['foundation_x_m','foundation_y_m','foundation_height_m'].forEach((name,i)=>{
+    $(name).readOnly=original;
+    if(original&&meta)$(name).value=Number(meta.ifc.lengths_m[i].toFixed(4));
+  });
   const cube=mode==='3d'&&$('box-shape').value==='cube';
   $('box-geometry').classList.toggle('hidden',mode!=='2d'&&mode!=='3d');
   $('box-shape-field').classList.toggle('hidden',mode!=='3d');
@@ -56,7 +62,7 @@ function updateFields() {
   if(cube){$('length_y_m').value=$('length_x_m').value;$('length_z_m').value=$('length_x_m').value;}
   $('nodes-label').textContent=mode==='1d'?'Nodos del perfil':'Celdas por eje';
   $('nodes').max=mode==='1d'?401:48;
-  $('case-note').textContent=mode==='fundacion'?(portable?'Geometría IFC incluida en este archivo. Cálculo local sin servidor.':'La geometría se obtiene del IFC guardado.'):mode==='1d'?'Altura del IFC. Borde principal: superior; base: inferior.':'Caja sintética. Base: y− en 2D, z− en 3D.';
+  $('case-note').textContent=mode==='fundacion'?(original?'IFC de referencia. Vertidas como capas geométricas, sin cronograma.':'Ensayo con IFC escalado: las nuevas dimensiones sí intervienen en el cálculo térmico.'):mode==='1d'?'Altura del IFC. Borde principal: superior; base: inferior.':'Caja sintética. Base: y− en 2D, z− en 3D.';
 }
 function casePreset(mode,defaults) {
   const values={...defaults,mode};
@@ -110,8 +116,11 @@ async function calculate(event) {
     const names={fundacion:'Fundación G8 · campo térmico 3D','1d':'Perfil nodal · solución 1D','2d':'Caja de ensayo · solución 2D','3d':'Caja de ensayo · solución 3D'};
     $('model-title').textContent=names[data.mode];
     $('model-subtitle').textContent=data.mode==='fundacion'?`${data.ifc.file} · ${data.lengths_m.map(v=>num(v,2)).join(' × ')} m`:`Datos sintéticos · ${data.lengths_m.slice(0,data.dimension).map(v=>num(v,2)).join(' × ')} m`;
-    $('source-label').textContent=data.ifc?`IFC · ${data.ifc.sha256.slice(0,8)}`:'Caja sintética';
-    $('geometry-chip').textContent=data.mode==='fundacion'?`IFC · ${num(data.stats.cells,0)} celdas activas`:`${data.shape.join(' × ')} ${data.dimension===1?'nodos':'celdas'}`;
+    $('source-label').textContent=data.ifc?`IFC${data.parameters.foundation_geometry==='scaled'&&data.mode==='fundacion'?' escalado':''} · ${data.ifc.sha256.slice(0,8)}`:'Caja sintética';
+    $('geometry-chip').textContent=data.mode==='fundacion'?`${data.pour_plan.layers.length} vertidas · ${num(data.stats.cells,0)} celdas activas`:`${data.shape.join(' × ')} ${data.dimension===1?'nodos':'celdas'}`;
+    $('model-color').disabled=!data.pour_plan;
+    if(!data.pour_plan)$('model-color').value='temperature';
+    showPourPlan();
     $('probe-caption').textContent='Posición: '+data.probe_position_m.slice(0,data.dimension).map(v=>num(v,3)).join(', ')+' m';
     $('model-canvas').classList.toggle('hidden',data.dimension!==3);$('flat-canvas').classList.toggle('hidden',data.dimension===3);
     $('view-mode').disabled=data.dimension!==3;$('camera-reset').disabled=data.dimension!==3;
@@ -161,7 +170,7 @@ function heatmap(id,primary=false) {
     im.data.set([...rgb,255],offset);
   }
   pctx.putImageData(im,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(pixels,box.x,box.y,box.w,box.h);
-  const ink=primary?'#a4b4c7':'#8492a3';ctx.font='10px Segoe UI';ctx.fillStyle=ink;
+  const ink=primary?'#a4b4c7':'#62738b';ctx.font='10px Inter, system-ui, sans-serif';ctx.fillStyle=ink;
   ctx.strokeStyle=primary?'#496079':'#d8e0ea';ctx.strokeRect(box.x,box.y,box.w,box.h);
   for(let n=0;n<=4;n++) {
     const f=n/4;
@@ -175,13 +184,13 @@ function heatmap(id,primary=false) {
 }
 
 function lineChart(id,series,xs,options={}) {
-  const {ctx,w,h}=context2d(id), dark=!!options.dark, ink=dark?'#a4b4c7':'#8492a3';
+  const {ctx,w,h}=context2d(id), dark=!!options.dark, ink=dark?'#a4b4c7':'#62738b';
   const box={x:48,y:20,w:w-67,h:h-57};
   const values=series.flatMap(s=>s.values);let lo=Math.min(...values),hi=Math.max(...values);
   const pad=Math.max(0.5,(hi-lo)*0.12);lo-=pad;hi+=pad;
   if(options.minY!==undefined)lo=options.minY;
   const end=Math.max(xs.at(-1),1e-9), tx=x=>box.x+x/end*box.w, ty=t=>box.y+(hi-t)/(hi-lo)*box.h;
-  ctx.font='10px Segoe UI';
+  ctx.font='10px Inter, system-ui, sans-serif';
   for(let i=0;i<=4;i++) {const f=i/4,y=box.y+f*box.h;ctx.strokeStyle=dark?'#30465d':'#edf0f5';ctx.beginPath();ctx.moveTo(box.x,y);ctx.lineTo(w-18,y);ctx.stroke();ctx.fillStyle=ink;ctx.textAlign='right';ctx.fillText(num(hi-f*(hi-lo),1),box.x-7,y+3);ctx.textAlign='center';ctx.fillText(num(f*end,options.xDecimals??1),tx(f*end),box.y+box.h+17);}
   for(const s of series) {ctx.strokeStyle=s.color;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dashed?[6,4]:[]);ctx.beginPath();s.values.forEach((v,i)=>i?ctx.lineTo(tx(xs[i]),ty(v)):ctx.moveTo(tx(xs[i]),ty(v)));ctx.stroke();ctx.setLineDash([]);
     if(options.frame!==undefined){ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(tx(xs[options.frame]),ty(s.values[options.frame]),4,0,2*Math.PI);ctx.fill();}}
@@ -207,6 +216,21 @@ function historyFrameAt(times,fraction) {
   const target=Math.max(0,Math.min(1,fraction))*times.at(-1);
   return times.reduce((best,t,i)=>Math.abs(t-target)<Math.abs(times[best]-target)?i:best,0);
 }
+function showPourPlan() {
+  $('pour-plan').classList.toggle('hidden',!data.pour_plan);
+  $('pour-rows').replaceChildren();
+  if(!data.pour_plan)return;
+  const rows=data.pour_plan.layers;
+  $('pour-summary').textContent=`${rows.length} capas de igual altura · volumen voxelizado total ${num(rows.reduce((s,r)=>s+r.voxel_volume_m3,0),2)} m³ · todas presentes desde t = 0`;
+  for(const row of rows){
+    const tr=document.createElement('tr');
+    for(const value of [`Vertida ${row.id}`,num(row.z_min_m,3),num(row.z_max_m,3),num(row.cells,0),num(row.voxel_volume_m3,2)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+    tr.firstChild.style.borderLeft=`5px solid rgb(${temperatureColor((row.id-.5)/rows.length,0,1).join(',')})`;
+    $('pour-rows').append(tr);
+  }
+}
+function pourColorsActive(){return !!data?.pour_plan&&$('model-color').value==='pours';}
+function modelValues(){return pourColorsActive()?data.pour_plan.cell_pour_id.map(id=>(id-.5)/data.pour_plan.layers.length):data.frames_c[frame];}
 function heightProfiles(result,current) {
   const dim=result.dimension, axis=dim-1, n=result.shape[axis], nodal=dim===1;
   const mid=result.shape.map(v=>Math.floor(v/2));
@@ -224,6 +248,10 @@ function heightProfiles(result,current) {
 }
 function draw() {
   if(!data)return;
+  const layers=pourColorsActive();
+  $('model-legend-title').textContent=layers?'VERTIDAS · CAPAS':'TEMPERATURA °C';
+  $('legend-low').textContent=layers?'Vertida 1':num(data.colorLow,1);
+  $('legend-high').textContent=layers?`Vertida ${data.pour_plan.layers.length}`:num(data.colorHigh,1);
   for(const [id,key] of [['max-value','max_c'],['center-value','center_c'],['mean-value','mean_c']])$(id).innerHTML=`${num(data.history[key][frame],1)}<small> °C</small>`;
   const days=data.time_s.at(-1)>=172800, value=data.time_s[frame]/(days?86400:3600);
   $('time-value').innerHTML=`${num(value,2)}<small> ${days?'días':'h'}</small>`;
@@ -311,8 +339,9 @@ class ThermalRenderer {
     if(!this.gl){this.software(matrix,box,mode,cut);return;}
     const gl=this.gl,L=this.locations;gl.viewport(0,0,this.canvas.width,this.canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.useProgram(this.program);gl.bindVertexArray(this.vao);gl.uniformMatrix4fv(L.matrix,false,matrix);gl.uniform3fv(L.center,this.center);gl.uniform3fv(L.delta,data.spacing_m);gl.uniform1f(L.scale,2/this.maxLength);
-    gl.uniform1f(L.low,data.colorLow);gl.uniform1f(L.high,data.colorHigh);gl.uniform1i(L.cutMode,mode==='x'?1:mode==='z'?2:0);gl.uniform1f(L.cut,cut);
-    if(this.lastFrame!==frame){gl.bindBuffer(gl.ARRAY_BUFFER,this.temperatureBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data.frames_c[frame]),gl.DYNAMIC_DRAW);this.lastFrame=frame;}
+    gl.uniform1f(L.low,pourColorsActive()?0:data.colorLow);gl.uniform1f(L.high,pourColorsActive()?1:data.colorHigh);gl.uniform1i(L.cutMode,mode==='x'?1:mode==='z'?2:0);gl.uniform1f(L.cut,cut);
+    const frameKey=`${frame}:${$('model-color').value}`;
+    if(this.lastFrame!==frameKey){gl.bindBuffer(gl.ARRAY_BUFFER,this.temperatureBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(modelValues()),gl.DYNAMIC_DRAW);this.lastFrame=frameKey;}
     gl.drawArraysInstanced(gl.TRIANGLES,0,36,data.positions_m.length);
   }
   software(matrix,box,mode,cut) {
@@ -331,13 +360,31 @@ class ThermalRenderer {
       entries.push({x:(out[0]/out[3]+1)*box.w/2,y:(1-out[1]/out[3])*box.h/2,z:out[2]/out[3],q,size:Math.max(2,box.h*data.spacing_m[0]/this.maxLength/out[3]*2.5)});
     }
     entries.sort((a,b)=>b.z-a.z);
-    for(const p of entries){ctx.fillStyle=`rgb(${temperatureColor(data.frames_c[frame][p.q]).join(',')})`;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);}
+    const values=modelValues(),layers=pourColorsActive();
+    for(const p of entries){ctx.fillStyle=`rgb(${temperatureColor(values[p.q],layers?0:data.colorLow,layers?1:data.colorHigh).join(',')})`;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);}
   }
 }
 let renderer;
 function updateClip(){const open=$('view-mode').value!=='full'&&data?.dimension===3;$('clip-control').classList.toggle('hidden',!open);$('clip-caption').textContent=$('clip-slider').value+' %';if(renderer&&data?.dimension===3)renderer.draw();}
 
 form.addEventListener('submit',calculate);
+$('model-color').addEventListener('change',draw);
+function selectTab(section) {
+  for(const name of ['laboratory','project']){
+    const active=name===section;
+    $('tab-'+name).setAttribute('aria-selected',String(active));$('tab-'+name).tabIndex=active?0:-1;
+    $('panel-'+name).classList.toggle('hidden',!active);
+  }
+  if(section==='laboratory')requestAnimationFrame(draw);
+}
+['laboratory','project'].forEach((name,index)=>{
+  $('tab-'+name).addEventListener('click',()=>selectTab(name));
+  $('tab-'+name).addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    event.preventDefault();const next=event.key==='Home'?'laboratory':event.key==='End'?'project':['laboratory','project'][1-index];
+    selectTab(next);$('tab-'+next).focus();
+  });
+});
 form.addEventListener('input',()=>{updateFields();if(data&&!busy)state('Parámetros modificados · pulsa Calcular para actualizar el resultado.','dirty');});
 $('mode').addEventListener('change',()=>{preset($('mode').value);state('Caso modificado · pulsa Calcular para resolverlo.','dirty');});
 $('reset').addEventListener('click',()=>{preset($('mode').value);state('Parámetros restablecidos · pulsa Calcular.','dirty');});
@@ -369,6 +416,7 @@ window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setT
   try {
     if(location.protocol==='file:'&&!portable)throw Error('Abre visor_termico.html para el modo portátil, o inicia abrir_visor.cmd para usar Python.');
     renderer=new ThermalRenderer($('model-canvas'));meta=await request('/api/meta');defaults=meta.defaults;
+    $('project-ifc').textContent=`IFC de referencia: ${meta.ifc.file} · SHA-256 ${meta.ifc.sha256}. Regenerar el HTML incorpora cambios posteriores guardados en Bonsai.`;
     preset('fundacion');$('connection').textContent=portable?'Portátil · sin conexión':'Solver conectado';
     if(portable){$('case-note').textContent='Geometría IFC incluida en este archivo. Cálculo local sin servidor.';$('portable-download').textContent='↓ Guardar HTML';}
     await calculate();

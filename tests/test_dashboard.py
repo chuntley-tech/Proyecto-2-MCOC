@@ -67,6 +67,47 @@ def test_foundation_comes_from_ifc_and_controls_change_solution():
     assert len(first["positions_m"]) == first["stats"]["cells"]
 
 
+def test_scaled_foundation_changes_physical_grid_and_conserves_reference():
+    options={"mode":"fundacion","resolution_m":0.5,"duration_days":0.1}
+    original=run_simulation(options)
+    scaled=run_simulation({**options,"foundation_geometry":"scaled",
+        "foundation_x_m":21.6,"foundation_y_m":14.4,"foundation_height_m":4.95,"pour_count":4})
+    np.testing.assert_allclose(scaled["lengths_m"],[21.6,14.4,4.95],rtol=0,atol=1e-14)
+    factors=np.array([21.6,14.4,4.95])/original["lengths_m"]
+    np.testing.assert_allclose(np.array(scaled["spacing_m"])/original["spacing_m"],factors,rtol=0,atol=1e-14)
+    assert scaled["active_indices"] == original["active_indices"]
+    assert scaled["ifc"]["sha256"] == original["ifc"]["sha256"]
+    assert scaled["history"]["mean_c"][-1] != original["history"]["mean_c"][-1]
+    plan=scaled["pour_plan"]
+    assert len(plan["layers"]) == 4 and plan["simultaneous"]
+    assert len(plan["cell_pour_id"]) == scaled["stats"]["cells"]
+    total=sum(row["voxel_volume_m3"] for row in plan["layers"])
+    ref=sum(row["voxel_volume_m3"] for row in original["pour_plan"]["layers"])
+    # Misma máscara: determinante del escalado respecto de las dimensiones IFC
+    # leídas (la triangulación contiene pequeñas diferencias del nominal 3.30 m).
+    assert total/ref == pytest.approx(float(np.prod(factors)),rel=1e-14)
+    assert sum(row["cells"] for row in plan["layers"]) == scaled["stats"]["cells"]
+    assert plan["layers"][0]["z_min_m"] == scaled["origin_m"][2]
+    assert plan["layers"][-1]["z_max_m"] == pytest.approx(4.95,abs=1e-14)
+
+
+def test_pour_count_is_geometric_not_a_fake_construction_sequence():
+    options={"mode":"fundacion","resolution_m":0.5,"duration_days":0.01}
+    first=run_simulation({**options,"pour_count":1})
+    second=run_simulation({**options,"pour_count":5})
+    assert first["frames_c"] == second["frames_c"]
+    assert first["history"] == second["history"]
+    assert len(second["pour_plan"]["layers"]) == 5
+    with pytest.raises(ValueError,match="malla más fina"):
+        run_simulation({**options,"pour_count":7})
+
+
+@pytest.mark.parametrize("value",[0,13,1.5,True])
+def test_invalid_pour_count_rejected(value):
+    with pytest.raises(ValueError,match="vertidas"):
+        validate_options({"pour_count":value})
+
+
 @pytest.mark.parametrize("change", [{"mode":"inventado"}, {"unknown":1}, {"nodes":8.5},
     {"duration_days":float("inf")}, {"conductivity_w_mk":-1}, {"dt_s":-1}, {"initial_c":True}])
 def test_invalid_controls_rejected(change):

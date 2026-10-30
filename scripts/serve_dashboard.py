@@ -18,7 +18,8 @@ from thermal3d.dashboard import metadata, run_simulation
 WEB = Path(__file__).resolve().parents[1]/"web"
 RUN_LOCK = threading.Lock()
 ASSETS = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
-          "/styles.css": ("styles.css", "text/css"), "/visor_termico.html": ("../visor_termico.html", "text/html")}
+          "/styles.css": ("styles.css", "text/css"), "/visor_termico.html": ("../visor_termico.html", "text/html"),
+          "/fonts/Inter-Variable.ttf": ("fonts/Inter-Variable.ttf", "font/ttf")}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -31,12 +32,12 @@ class Handler(BaseHTTPRequestHandler):
         if compressed:
             body = gzip.compress(body, compresslevel=3)
         self.send_response(status)
-        self.send_header("Content-Type", kind+"; charset=utf-8")
+        self.send_header("Content-Type", kind+("; charset=utf-8" if kind.startswith("text/") or kind=="application/json" else ""))
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
-        policy = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; connect-src 'none'; frame-ancestors 'none'"
-                  if portable else "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'")
+        policy = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; font-src data:; connect-src 'none'; frame-ancestors 'none'"
+                  if portable else "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'")
         self.send_header("Content-Security-Policy", policy)
         if compressed:
             self.send_header("Content-Encoding", "gzip")
