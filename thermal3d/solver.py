@@ -208,6 +208,36 @@ def _energy(temperature, c):
     return float(np.sum((temperature * c.capacity_j_k)[c.active]))
 
 
+def advance(p, c, temperature, time, dt, source_w_m3):
+    """Un balance explícito compartido por dominio fijo y construcción (G04/G05).
+
+    Modifica temperature; retorna calor de borde y fuente en J. La fuente ya
+    evaluada en t_n puede ser escalar o un campo por celda (edad de vertida).
+    """
+    source = np.asarray(source_w_m3, dtype=float)
+    if not np.all(np.isfinite(source)):
+        raise ValueError("Fuente no finita")
+    source = np.broadcast_to(source, p.shape)
+    power = np.zeros_like(temperature)
+    _exchange(power, temperature, np.s_[:-1, ...], np.s_[1:, ...], c.gx)
+    _exchange(power, temperature, np.s_[:, :-1, ...], np.s_[:, 1:, ...], c.gy)
+    if c.gz is not None:
+        _exchange(power, temperature, np.s_[:, :, :-1], np.s_[:, :, 1:], c.gz)
+    boundary_heat = 0.0
+    for indices, boundary, g, area in c.faces:
+        if isinstance(boundary, Neumann):
+            face_power = boundary.flux_in_w_m2 * area
+        else:
+            ambient = boundary.temperature_c if isinstance(boundary, Dirichlet) else boundary.ambient_at(time)
+            face_power = g * (ambient - temperature[indices])
+        power[indices] += face_power
+        boundary_heat += float(np.sum(face_power)) * dt
+    source_power = source * c.volume_m3 * c.active
+    power += source_power
+    temperature += dt / c.capacity_j_k * power
+    return boundary_heat, float(np.sum(source_power)) * dt
+
+
 def solve(p, initial_c, save_every=100):
     """Euler explícito: fuente y ambiente se evalúan en t_n, nunca al final.
 
@@ -230,23 +260,9 @@ def solve(p, initial_c, save_every=100):
     for step in range(steps):
         end = min((step + 1) * p.dt_s, p.duration_s)
         dt = end - time
-        power = np.zeros_like(temperature)
-        _exchange(power, temperature, np.s_[:-1, ...], np.s_[1:, ...], c.gx)
-        _exchange(power, temperature, np.s_[:, :-1, ...], np.s_[:, 1:, ...], c.gy)
-        if c.gz is not None:
-            _exchange(power, temperature, np.s_[:, :, :-1], np.s_[:, :, 1:], c.gz)
-        for indices, boundary, g, area in c.faces:
-            if isinstance(boundary, Neumann):
-                face_power = boundary.flux_in_w_m2 * area
-            else:
-                ambient = boundary.temperature_c if isinstance(boundary, Dirichlet) else boundary.ambient_at(time)
-                face_power = g * (ambient - temperature[indices])
-            power[indices] += face_power
-            accumulated_boundary += float(np.sum(face_power)) * dt
-        source_power = _evaluate(p.source_w_m3, time) * c.volume_m3 * c.active
-        power += source_power
-        accumulated_source += float(np.sum(source_power)) * dt
-        temperature += dt / c.capacity_j_k * power
+        qb, qs = advance(p, c, temperature, time, dt, _evaluate(p.source_w_m3, time))
+        accumulated_boundary += qb
+        accumulated_source += qs
         time = end
         if (step + 1) % save_every == 0 or step + 1 == steps:
             saved_times.append(time)

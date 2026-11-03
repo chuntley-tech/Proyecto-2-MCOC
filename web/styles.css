@@ -145,6 +145,11 @@ h1 { font-size: 28px; font-weight: 750; letter-spacing: -1.1px; line-height: 1.2
 .state-dot { width: 6px; height: 6px; border-radius: 50%; background: #aab6c3; flex: 0 0 auto; }
 .state-dot.ready { background: #2aa686; box-shadow: 0 0 0 3px #2aa6860e; }
 .state-dot.dirty { background: #ed9e3b; box-shadow: 0 0 0 3px #ed9e3b10; }
+.pending-changes, .pour-warning { padding: 12px 14px; border: 1px solid #edcf94; border-radius: 10px; background: #fff8e9; color: #765011; line-height: 1.6; }
+.pending-changes { margin-bottom: 16px; font-size: 13px; }
+.pour-warning strong { display: block; }
+#simulation-summary { line-height: 1.9; }
+.calculation-info>div { min-width: 0; }
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
 .metrics article { background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 16px 17px; display: flex; flex-direction: column; min-width: 0; box-shadow: var(--shadow); }
 .metric-label { font-size: 10.5px; color: #5c6e87; font-weight: 600; display: flex; align-items: center; gap: 7px; }

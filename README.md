@@ -15,6 +15,23 @@ verificación.** La geometría es una reconstrucción docente del dibujo acotado
 conservado en [docs/foundation_dimensions.png](docs/foundation_dimensions.png).
 Las fuentes, unidades y parámetros acompañan a los resultados JSON.
 
+## Construcción por vertidas en Python
+
+El flujo IFC → voxelización incluye un plan independiente de los componentes
+BIM, con `vertida_id`, volúmenes por capa, inicio y temperatura de colocación.
+El solver activa celdas en esos instantes, aplica un pulso de hidratación
+sintético por edad local y contabiliza la energía del hormigón incorporado.
+
+```cmd
+.venv\Scripts\python.exe -m scripts.construction_demo
+```
+
+Editar [config/construction_g8.json](config/construction_g8.json) para cambiar
+capas y cronograma. Consultar [formulación, supuestos y salidas](docs/CONSTRUCCION_VERTIDAS.md).
+Los resultados se guardan en `results/construction/`. Esta simulación por etapas
+se ejecuta en Python; las capas del HTML siguen siendo una división geométrica
+simultánea.
+
 ## Visor HTML portátil
 
 Abrir [visor_termico.html](visor_termico.html) con doble clic en un navegador
@@ -268,7 +285,7 @@ Para ensayar otras condiciones de intercambio o resoluciones:
 
 ## Pruebas y resultados reproducibles
 
-**Verificación del 30 de octubre de 2026: 194 pruebas aprobadas en 82.94 s.**
+**Verificación del 3 de noviembre de 2026: 211 pruebas aprobadas en 82.52 s.**
 
 ```cmd
 .venv\Scripts\python.exe -m pytest -q

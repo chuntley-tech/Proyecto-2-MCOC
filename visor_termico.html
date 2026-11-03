@@ -154,6 +154,11 @@ h1 { font-size: 28px; font-weight: 750; letter-spacing: -1.1px; line-height: 1.2
 .state-dot { width: 6px; height: 6px; border-radius: 50%; background: #aab6c3; flex: 0 0 auto; }
 .state-dot.ready { background: #2aa686; box-shadow: 0 0 0 3px #2aa6860e; }
 .state-dot.dirty { background: #ed9e3b; box-shadow: 0 0 0 3px #ed9e3b10; }
+.pending-changes, .pour-warning { padding: 12px 14px; border: 1px solid #edcf94; border-radius: 10px; background: #fff8e9; color: #765011; line-height: 1.6; }
+.pending-changes { margin-bottom: 16px; font-size: 13px; }
+.pour-warning strong { display: block; }
+#simulation-summary { line-height: 1.9; }
+.calculation-info>div { min-width: 0; }
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
 .metrics article { background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 16px 17px; display: flex; flex-direction: column; min-width: 0; box-shadow: var(--shadow); }
 .metric-label { font-size: 10.5px; color: #5c6e87; font-weight: 600; display: flex; align-items: center; gap: 7px; }
@@ -317,7 +322,7 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
             </div>
             <label class="stacked">Altura total <span>m</span><input id="foundation_height_m" name="foundation_height_m" type="number" min="0.6" max="12" step="any" value="3.3" required></label>
             <label class="stacked">Cantidad de vertidas planificadas<input id="pour_count" name="pour_count" type="number" min="1" max="12" step="1" value="3" required></label>
-            <p class="hint">Capas horizontales de igual altura. Son una división geométrica: el cálculo considera todas presentes desde t = 0, sin cronograma de colocación.</p>
+            <p class="hint pour-warning"><strong>División geométrica, sin etapas de construcción.</strong> Capas horizontales de igual altura, todas presentes desde t = 0. Cambiar solo su cantidad no cambia las temperaturas; no se simulan fechas de colocación.</p>
             <p class="hint">El escalado conserva las proporciones del zócalo, transición y cilindro. Si largo y ancho difieren, la sección superior se vuelve elíptica. No modifica el IFC guardado.</p>
           </section>
 
@@ -395,6 +400,7 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
       <div class="page-heading"><div><div class="eyebrow">EXPLORACIÓN INTERACTIVA</div><h1>Temperatura, celda a celda.</h1><p>Calcula un caso y observa cómo evoluciona el calor.</p></div><button id="download" class="secondary" disabled>↓ Exportar resultados</button></div>
       <div id="error" role="alert" class="error hidden"></div>
       <div class="result-state"><span id="state-dot" class="state-dot"></span><span id="state">Preparando el laboratorio…</span><span id="source-label" class="source-label">Modelo G8</span></div>
+      <div id="pending-changes" class="pending-changes hidden" role="status" aria-live="polite">Cambios pendientes de simular. Los gráficos, las condiciones de borde y el resumen muestran el último cálculo completado. Pulsa Calcular temperaturas para actualizarlos.</div>
       <section class="metrics" aria-label="Temperaturas del instante seleccionado">
         <article><span class="metric-label"><i class="metric-dot orange"></i>Máxima</span><strong id="max-value">—<small> °C</small></strong><span>En celdas activas</span></article>
         <article><span class="metric-label"><i class="metric-dot blue"></i>Sonda central</span><strong id="center-value">—<small> °C</small></strong><span id="probe-caption">Punto del campo calculado</span></article>
@@ -432,7 +438,7 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
         <div class="chart-stage"><canvas id="height-canvas" aria-label="Perfiles de temperatura según altura para varios tiempos"></canvas></div>
         <div id="height-legend" class="chart-legend"></div>
       </section>
-      <section class="card calculation-info"><div><span class="eyebrow">BORDES UTILIZADOS</span><p id="boundary-used">—</p><p id="bottom-used">—</p></div><div><span class="eyebrow">CÁLCULO</span><p id="calculation-used">—</p><p id="balance-used">—</p></div></section>
+      <section class="card calculation-info"><div><span class="eyebrow">BORDES UTILIZADOS · ÚLTIMO CÁLCULO</span><p id="boundary-used">—</p><p id="bottom-used">—</p><div class="table-scroll"><table class="project-table"><thead><tr><th>Cara</th><th>Condición aplicada</th></tr></thead><tbody id="boundary-faces"></tbody></table></div><p id="boundary-face-note"></p></div><div><span class="eyebrow">RESUMEN · ÚLTIMO CÁLCULO</span><p id="simulation-summary">—</p><p id="calculation-used">—</p><p id="balance-used">—</p></div></section>
       <footer>G8 · Métodos Computacionales <span>Ensayo sintético · Los colores representan temperaturas calculadas.</span></footer>
     </main>
   </div>
@@ -603,7 +609,7 @@ const form = $('parameters');
 const portable = $('mcoc-pack') ? JSON.parse($('mcoc-pack').textContent) : null;
 let worker, jobId=0;
 const jobs=new Map();
-let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHeatmap;
+let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHeatmap, calculatedOptions;
 const num = (v, n = 1) => Number(v).toLocaleString('es-CL', { maximumFractionDigits:n, minimumFractionDigits:n });
 const palette = [[40,16,78],[101,53,117],[178,73,115],[240,145,73],[246,232,121]];
 const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3' };
@@ -697,6 +703,44 @@ async function request(url,body) {
   const response=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
   const result=await response.json();if(!response.ok)throw Error(result.error||'No se pudo completar la operación');return result;
 }
+function boundaryFaces(result) {
+  // La base es el extremo negativo del último eje del solver, también en 1D.
+  const axes=result.dimension===1?['x']:result.dimension===2?['x','y']:['x','y','z'];
+  return axes.flatMap((axis,i)=>['−','+'].map(sign=>({
+    face:axis+sign,
+    condition:result.boundary_used[i===axes.length-1&&sign==='−'?'base':'laterales_y_expuestas']
+  })));
+}
+function simulationSummary(result) {
+  const p=result.parameters, dim=result.dimension;
+  const source=p.source_type==='cosine'
+    ?`Pulso Qmax = ${num(p.qmax_w_m3,0)} W/m³; τ = ${num(p.source_duration_days,3)} días`
+    :`Fuente constante = ${num(p.source_w_m3,2)} W/m³`;
+  return `Dimensiones: ${result.lengths_m.slice(0,dim).map(v=>num(v,3)).join(' × ')} m${dim===2?' · profundidad 1 m':''}. `+
+    `${dim===1?'Separación nodal':'Tamaños de celda'}: ${result.spacing_m.slice(0,dim).map(v=>num(v,5)).join(' × ')} m. `+
+    `Malla: ${result.shape.join(' × ')}; ${num(result.stats.cells,0)} ${dim===1?'nodos':'celdas activas'}. `+
+    `Duración: ${num(result.time_s.at(-1)/86400,4)} días. ${source}. `+
+    `Δt efectivo: ${num(result.stats.dt_s,6)} s (${p.dt_s===null?'automático':'solicitado'}); último paso acortado si corresponde.`;
+}
+function showSimulationDetails() {
+  $('boundary-faces').replaceChildren();
+  for(const row of boundaryFaces(data)) {
+    const tr=document.createElement('tr');
+    for(const value of [row.face,row.condition]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+    $('boundary-faces').append(tr);
+  }
+  $('boundary-face-note').textContent=data.mode==='fundacion'
+    ?'Las caras indican orientaciones de la grilla. Las superficies escalonadas expuestas del IFC usan la condición principal; solo el plano inferior usa la base.'
+    :data.dimension===1?'x es el eje numérico del perfil vertical: x− = base, x+ = extremo superior.'
+    :'La base es '+(data.dimension===2?'y−':'z−')+'. Neumann positivo indica calor entrante; Dirichlet prescribe la temperatura en la cara, no en el centro de celda.';
+  $('simulation-summary').textContent=simulationSummary(data);
+}
+function refreshPendingChanges() {
+  if(!data||busy)return;
+  const dirty=JSON.stringify(options())!==calculatedOptions;
+  $('pending-changes').classList.toggle('hidden',!dirty);
+  state(dirty?'Cambios pendientes de simular · resultados del último cálculo.':'Resultados actualizados con los parámetros del formulario.',dirty?'dirty':'ready');
+}
 async function calculate(event) {
   event?.preventDefault();if(busy||!form.reportValidity())return;
   busy=true;stop();$('error').classList.add('hidden');$('controls').disabled=true;$('download').disabled=true;
@@ -704,7 +748,7 @@ async function calculate(event) {
   $('stage-placeholder').classList.remove('hidden');state(portable?'Calculando temperaturas en este navegador…':'Resolviendo temperaturas con el solver del proyecto…');
   const start=performance.now();
   try {
-    const payload=options();data=await request('/api/run',payload);
+    const payload=options();const result=await request('/api/run',payload);data=result;
     data.colorLow=Math.min(...data.history.min_c);data.colorHigh=Math.max(...data.history.max_c);
     if(data.colorHigh-data.colorLow<0.01){data.colorLow-=0.5;data.colorHigh+=0.5;}
     lookup=new Int32Array(data.shape.reduce((a,b)=>a*b,1)).fill(-1);
@@ -725,6 +769,7 @@ async function calculate(event) {
     $('model-hint').textContent=data.dimension===3?'Arrastra para girar · rueda para acercar':'Valores calculados · escala de color fija durante el tiempo';
     $('boundary-used').textContent='Principal: '+data.boundary_used.laterales_y_expuestas;
     $('bottom-used').textContent='Base: '+data.boundary_used.base;
+    showSimulationDetails();
     $('calculation-used').textContent=`${num(data.stats.steps,0)} pasos · Δt ${num(data.stats.dt_s,3)} s · límite ${num(data.stats.limit_dt_s,3)} s`;
     $('balance-used').textContent=data.stats.balance_relative_error===null?'Energía del perfil por unidad de área.':`Residuo relativo de energía: ${data.stats.balance_relative_error.toExponential(2)}`;
     $('legend-low').textContent=num(data.colorLow,1);$('legend-high').textContent=num(data.colorHigh,1);
@@ -732,9 +777,10 @@ async function calculate(event) {
     $('view-mode').value='full';$('clip-slider').value=50;updateClip();
     $('slice-plane').value=data.dimension===2?'xy':'xz';setupSlice();
     $('stage-placeholder').classList.add('hidden');draw();
+    calculatedOptions=JSON.stringify(payload);$('pending-changes').classList.add('hidden');
     state(`Cálculo completado · ${num((performance.now()-start)/1000,1)} s · ${data.time_s.length} estados guardados`,'ready');
   } catch(error) {showError(error.message);state('Revisa los parámetros y vuelve a calcular.');$('stage-placeholder').classList.add('hidden');}
-  finally {busy=false;$('controls').disabled=false;$('calculate').classList.remove('busy');$('calculate-label').textContent='Calcular temperaturas';}
+  finally {busy=false;$('controls').disabled=false;$('download').disabled=!data;$('calculate').classList.remove('busy');$('calculate-label').textContent='Calcular temperaturas';if(data&&JSON.stringify(options())!==calculatedOptions)refreshPendingChanges();}
 }
 
 function at(i,j=0,k=0) {
@@ -983,9 +1029,10 @@ function selectTab(section) {
     selectTab(next);$('tab-'+next).focus();
   });
 });
-form.addEventListener('input',()=>{updateFields();if(data&&!busy)state('Parámetros modificados · pulsa Calcular para actualizar el resultado.','dirty');});
-$('mode').addEventListener('change',()=>{preset($('mode').value);state('Caso modificado · pulsa Calcular para resolverlo.','dirty');});
-$('reset').addEventListener('click',()=>{preset($('mode').value);state('Parámetros restablecidos · pulsa Calcular.','dirty');});
+form.addEventListener('input',()=>{updateFields();refreshPendingChanges();});
+form.addEventListener('change',()=>{updateFields();refreshPendingChanges();});
+$('mode').addEventListener('change',()=>{preset($('mode').value);refreshPendingChanges();});
+$('reset').addEventListener('click',()=>{preset($('mode').value);refreshPendingChanges();});
 $('time-slider').addEventListener('input',()=>{stop();frame=Number($('time-slider').value);draw();});
 $('history-canvas').addEventListener('click',event=>{if(!data)return;const rect=event.currentTarget.getBoundingClientRect();stop();frame=historyFrameAt(data.time_s,(event.clientX-rect.left-48)/(rect.width-67));$('time-slider').value=frame;draw();});
 $('play').addEventListener('click',()=>{if(timer){stop();return;}if(!data)return;if(frame===data.time_s.length-1)frame=0;$('time-slider').value=frame;$('play').textContent='Ⅱ';$('play').setAttribute('aria-label','Pausar evolución');draw();timer=setInterval(()=>{frame++;if(frame>=data.time_s.length){stop();frame=data.time_s.length-1;} $('time-slider').value=frame;draw();},220);});

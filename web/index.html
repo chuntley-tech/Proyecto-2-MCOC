@@ -39,7 +39,7 @@
             </div>
             <label class="stacked">Altura total <span>m</span><input id="foundation_height_m" name="foundation_height_m" type="number" min="0.6" max="12" step="any" value="3.3" required></label>
             <label class="stacked">Cantidad de vertidas planificadas<input id="pour_count" name="pour_count" type="number" min="1" max="12" step="1" value="3" required></label>
-            <p class="hint">Capas horizontales de igual altura. Son una división geométrica: el cálculo considera todas presentes desde t = 0, sin cronograma de colocación.</p>
+            <p class="hint pour-warning"><strong>División geométrica, sin etapas de construcción.</strong> Capas horizontales de igual altura, todas presentes desde t = 0. Cambiar solo su cantidad no cambia las temperaturas; no se simulan fechas de colocación.</p>
             <p class="hint">El escalado conserva las proporciones del zócalo, transición y cilindro. Si largo y ancho difieren, la sección superior se vuelve elíptica. No modifica el IFC guardado.</p>
           </section>
 
@@ -117,6 +117,7 @@
       <div class="page-heading"><div><div class="eyebrow">EXPLORACIÓN INTERACTIVA</div><h1>Temperatura, celda a celda.</h1><p>Calcula un caso y observa cómo evoluciona el calor.</p></div><button id="download" class="secondary" disabled>↓ Exportar resultados</button></div>
       <div id="error" role="alert" class="error hidden"></div>
       <div class="result-state"><span id="state-dot" class="state-dot"></span><span id="state">Preparando el laboratorio…</span><span id="source-label" class="source-label">Modelo G8</span></div>
+      <div id="pending-changes" class="pending-changes hidden" role="status" aria-live="polite">Cambios pendientes de simular. Los gráficos, las condiciones de borde y el resumen muestran el último cálculo completado. Pulsa Calcular temperaturas para actualizarlos.</div>
       <section class="metrics" aria-label="Temperaturas del instante seleccionado">
         <article><span class="metric-label"><i class="metric-dot orange"></i>Máxima</span><strong id="max-value">—<small> °C</small></strong><span>En celdas activas</span></article>
         <article><span class="metric-label"><i class="metric-dot blue"></i>Sonda central</span><strong id="center-value">—<small> °C</small></strong><span id="probe-caption">Punto del campo calculado</span></article>
@@ -154,7 +155,7 @@
         <div class="chart-stage"><canvas id="height-canvas" aria-label="Perfiles de temperatura según altura para varios tiempos"></canvas></div>
         <div id="height-legend" class="chart-legend"></div>
       </section>
-      <section class="card calculation-info"><div><span class="eyebrow">BORDES UTILIZADOS</span><p id="boundary-used">—</p><p id="bottom-used">—</p></div><div><span class="eyebrow">CÁLCULO</span><p id="calculation-used">—</p><p id="balance-used">—</p></div></section>
+      <section class="card calculation-info"><div><span class="eyebrow">BORDES UTILIZADOS · ÚLTIMO CÁLCULO</span><p id="boundary-used">—</p><p id="bottom-used">—</p><div class="table-scroll"><table class="project-table"><thead><tr><th>Cara</th><th>Condición aplicada</th></tr></thead><tbody id="boundary-faces"></tbody></table></div><p id="boundary-face-note"></p></div><div><span class="eyebrow">RESUMEN · ÚLTIMO CÁLCULO</span><p id="simulation-summary">—</p><p id="calculation-used">—</p><p id="balance-used">—</p></div></section>
       <footer>G8 · Métodos Computacionales <span>Ensayo sintético · Los colores representan temperaturas calculadas.</span></footer>
     </main>
   </div>

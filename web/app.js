@@ -5,7 +5,7 @@ const form = $('parameters');
 const portable = $('mcoc-pack') ? JSON.parse($('mcoc-pack').textContent) : null;
 let worker, jobId=0;
 const jobs=new Map();
-let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHeatmap;
+let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHeatmap, calculatedOptions;
 const num = (v, n = 1) => Number(v).toLocaleString('es-CL', { maximumFractionDigits:n, minimumFractionDigits:n });
 const palette = [[40,16,78],[101,53,117],[178,73,115],[240,145,73],[246,232,121]];
 const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3' };
@@ -99,6 +99,44 @@ async function request(url,body) {
   const response=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
   const result=await response.json();if(!response.ok)throw Error(result.error||'No se pudo completar la operación');return result;
 }
+function boundaryFaces(result) {
+  // La base es el extremo negativo del último eje del solver, también en 1D.
+  const axes=result.dimension===1?['x']:result.dimension===2?['x','y']:['x','y','z'];
+  return axes.flatMap((axis,i)=>['−','+'].map(sign=>({
+    face:axis+sign,
+    condition:result.boundary_used[i===axes.length-1&&sign==='−'?'base':'laterales_y_expuestas']
+  })));
+}
+function simulationSummary(result) {
+  const p=result.parameters, dim=result.dimension;
+  const source=p.source_type==='cosine'
+    ?`Pulso Qmax = ${num(p.qmax_w_m3,0)} W/m³; τ = ${num(p.source_duration_days,3)} días`
+    :`Fuente constante = ${num(p.source_w_m3,2)} W/m³`;
+  return `Dimensiones: ${result.lengths_m.slice(0,dim).map(v=>num(v,3)).join(' × ')} m${dim===2?' · profundidad 1 m':''}. `+
+    `${dim===1?'Separación nodal':'Tamaños de celda'}: ${result.spacing_m.slice(0,dim).map(v=>num(v,5)).join(' × ')} m. `+
+    `Malla: ${result.shape.join(' × ')}; ${num(result.stats.cells,0)} ${dim===1?'nodos':'celdas activas'}. `+
+    `Duración: ${num(result.time_s.at(-1)/86400,4)} días. ${source}. `+
+    `Δt efectivo: ${num(result.stats.dt_s,6)} s (${p.dt_s===null?'automático':'solicitado'}); último paso acortado si corresponde.`;
+}
+function showSimulationDetails() {
+  $('boundary-faces').replaceChildren();
+  for(const row of boundaryFaces(data)) {
+    const tr=document.createElement('tr');
+    for(const value of [row.face,row.condition]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+    $('boundary-faces').append(tr);
+  }
+  $('boundary-face-note').textContent=data.mode==='fundacion'
+    ?'Las caras indican orientaciones de la grilla. Las superficies escalonadas expuestas del IFC usan la condición principal; solo el plano inferior usa la base.'
+    :data.dimension===1?'x es el eje numérico del perfil vertical: x− = base, x+ = extremo superior.'
+    :'La base es '+(data.dimension===2?'y−':'z−')+'. Neumann positivo indica calor entrante; Dirichlet prescribe la temperatura en la cara, no en el centro de celda.';
+  $('simulation-summary').textContent=simulationSummary(data);
+}
+function refreshPendingChanges() {
+  if(!data||busy)return;
+  const dirty=JSON.stringify(options())!==calculatedOptions;
+  $('pending-changes').classList.toggle('hidden',!dirty);
+  state(dirty?'Cambios pendientes de simular · resultados del último cálculo.':'Resultados actualizados con los parámetros del formulario.',dirty?'dirty':'ready');
+}
 async function calculate(event) {
   event?.preventDefault();if(busy||!form.reportValidity())return;
   busy=true;stop();$('error').classList.add('hidden');$('controls').disabled=true;$('download').disabled=true;
@@ -106,7 +144,7 @@ async function calculate(event) {
   $('stage-placeholder').classList.remove('hidden');state(portable?'Calculando temperaturas en este navegador…':'Resolviendo temperaturas con el solver del proyecto…');
   const start=performance.now();
   try {
-    const payload=options();data=await request('/api/run',payload);
+    const payload=options();const result=await request('/api/run',payload);data=result;
     data.colorLow=Math.min(...data.history.min_c);data.colorHigh=Math.max(...data.history.max_c);
     if(data.colorHigh-data.colorLow<0.01){data.colorLow-=0.5;data.colorHigh+=0.5;}
     lookup=new Int32Array(data.shape.reduce((a,b)=>a*b,1)).fill(-1);
@@ -127,6 +165,7 @@ async function calculate(event) {
     $('model-hint').textContent=data.dimension===3?'Arrastra para girar · rueda para acercar':'Valores calculados · escala de color fija durante el tiempo';
     $('boundary-used').textContent='Principal: '+data.boundary_used.laterales_y_expuestas;
     $('bottom-used').textContent='Base: '+data.boundary_used.base;
+    showSimulationDetails();
     $('calculation-used').textContent=`${num(data.stats.steps,0)} pasos · Δt ${num(data.stats.dt_s,3)} s · límite ${num(data.stats.limit_dt_s,3)} s`;
     $('balance-used').textContent=data.stats.balance_relative_error===null?'Energía del perfil por unidad de área.':`Residuo relativo de energía: ${data.stats.balance_relative_error.toExponential(2)}`;
     $('legend-low').textContent=num(data.colorLow,1);$('legend-high').textContent=num(data.colorHigh,1);
@@ -134,9 +173,10 @@ async function calculate(event) {
     $('view-mode').value='full';$('clip-slider').value=50;updateClip();
     $('slice-plane').value=data.dimension===2?'xy':'xz';setupSlice();
     $('stage-placeholder').classList.add('hidden');draw();
+    calculatedOptions=JSON.stringify(payload);$('pending-changes').classList.add('hidden');
     state(`Cálculo completado · ${num((performance.now()-start)/1000,1)} s · ${data.time_s.length} estados guardados`,'ready');
   } catch(error) {showError(error.message);state('Revisa los parámetros y vuelve a calcular.');$('stage-placeholder').classList.add('hidden');}
-  finally {busy=false;$('controls').disabled=false;$('calculate').classList.remove('busy');$('calculate-label').textContent='Calcular temperaturas';}
+  finally {busy=false;$('controls').disabled=false;$('download').disabled=!data;$('calculate').classList.remove('busy');$('calculate-label').textContent='Calcular temperaturas';if(data&&JSON.stringify(options())!==calculatedOptions)refreshPendingChanges();}
 }
 
 function at(i,j=0,k=0) {
@@ -385,9 +425,10 @@ function selectTab(section) {
     selectTab(next);$('tab-'+next).focus();
   });
 });
-form.addEventListener('input',()=>{updateFields();if(data&&!busy)state('Parámetros modificados · pulsa Calcular para actualizar el resultado.','dirty');});
-$('mode').addEventListener('change',()=>{preset($('mode').value);state('Caso modificado · pulsa Calcular para resolverlo.','dirty');});
-$('reset').addEventListener('click',()=>{preset($('mode').value);state('Parámetros restablecidos · pulsa Calcular.','dirty');});
+form.addEventListener('input',()=>{updateFields();refreshPendingChanges();});
+form.addEventListener('change',()=>{updateFields();refreshPendingChanges();});
+$('mode').addEventListener('change',()=>{preset($('mode').value);refreshPendingChanges();});
+$('reset').addEventListener('click',()=>{preset($('mode').value);refreshPendingChanges();});
 $('time-slider').addEventListener('input',()=>{stop();frame=Number($('time-slider').value);draw();});
 $('history-canvas').addEventListener('click',event=>{if(!data)return;const rect=event.currentTarget.getBoundingClientRect();stop();frame=historyFrameAt(data.time_s,(event.clientX-rect.left-48)/(rect.width-67));$('time-slider').value=frame;draw();});
 $('play').addEventListener('click',()=>{if(timer){stop();return;}if(!data)return;if(frame===data.time_s.length-1)frame=0;$('time-slider').value=frame;$('play').textContent='Ⅱ';$('play').setAttribute('aria-label','Pausar evolución');draw();timer=setInterval(()=>{frame++;if(frame>=data.time_s.length){stop();frame=data.time_s.length-1;} $('time-slider').value=frame;draw();},220);});
