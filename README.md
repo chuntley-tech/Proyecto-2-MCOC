@@ -21,6 +21,9 @@ El flujo IFC → voxelización incluye un plan independiente de los componentes
 BIM, con `vertida_id`, volúmenes por capa, inicio y temperatura de colocación.
 El solver activa celdas en esos instantes, aplica un pulso de hidratación
 sintético por edad local y contabiliza la energía del hormigón incorporado.
+La edad equivalente usa Arrhenius a referencia de 20 °C; Ea inicial de
+33500 J/mol aportada por el usuario, referencia indicada Freiesleben
+Hansen–Pedersen. Ea es editable y no supone calibración experimental de G8.
 
 ```cmd
 .venv\Scripts\python.exe -m scripts.construction_demo
@@ -28,9 +31,10 @@ sintético por edad local y contabiliza la energía del hormigón incorporado.
 
 Editar [config/construction_g8.json](config/construction_g8.json) para cambiar
 capas y cronograma. Consultar [formulación, supuestos y salidas](docs/CONSTRUCCION_VERTIDAS.md).
-Los resultados se guardan en `results/construction/`. Esta simulación por etapas
-se ejecuta en Python; las capas del HTML siguen siendo una división geométrica
-simultánea.
+Los resultados se guardan en `results/construction/`. También puede ejecutarse
+desde el visor con **Construcción → Por etapas**, editando el inicio y la
+temperatura de cada capa. El servidor usa Python y el HTML portátil incluye
+un núcleo equivalente contrastado mediante pruebas.
 
 ## Visor HTML portátil
 
@@ -59,8 +63,8 @@ temperaturas en el tiempo y perfiles por altura; Qmax no es temperatura.
 En **Fundación G8** se pueden editar largo, ancho y altura escalando el IFC
 de referencia, y dividirlo en vertidas horizontales de igual altura. La vista
 3D muestra colores por temperatura o por vertida y una tabla de volúmenes
-voxelizados. Esta división es geométrica: todas las capas están presentes
-desde t = 0; aún no representa una secuencia de colocación en días distintos.
+voxelizados. El modo simultáneo es geométrico; el modo por etapas activa
+las capas según el cronograma y permite observar su evolución térmica.
 La pestaña **Información del proyecto** reúne propósito, caso G8, física,
 referencias y alcance del simulador.
 
@@ -285,7 +289,7 @@ Para ensayar otras condiciones de intercambio o resoluciones:
 
 ## Pruebas y resultados reproducibles
 
-**Verificación del 3 de noviembre de 2026: 211 pruebas aprobadas en 82.52 s.**
+**Verificación del 4 de noviembre de 2026: 228 pruebas aprobadas en 135.91 s.**
 
 ```cmd
 .venv\Scripts\python.exe -m pytest -q

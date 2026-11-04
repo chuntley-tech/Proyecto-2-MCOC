@@ -6,7 +6,7 @@ const portable = $('mcoc-pack') ? JSON.parse($('mcoc-pack').textContent) : null;
 let worker, jobId=0;
 const jobs=new Map();
 let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHeatmap, calculatedOptions;
-const num = (v, n = 1) => Number(v).toLocaleString('es-CL', { maximumFractionDigits:n, minimumFractionDigits:n });
+const num = (v, n = 1) => v===null||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('es-CL', { maximumFractionDigits:n, minimumFractionDigits:n });
 const palette = [[40,16,78],[101,53,117],[178,73,115],[240,145,73],[246,232,121]];
 const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3' };
 
@@ -32,6 +32,7 @@ function state(message,kind='') {$('state').textContent=message;$('state-dot').c
 function stop() {if(timer)clearInterval(timer);timer=null;$('play').textContent='▶';$('play').setAttribute('aria-label','Reproducir evolución');}
 
 function updateFields() {
+  updateSchedule();
   const main = $('boundary_type').value, base = $('bottom_type').value, mode = $('mode').value;
   $('main-temperature').classList.toggle('hidden',main==='neumann');
   $('main-h').classList.toggle('hidden',main!=='robin');
@@ -63,6 +64,30 @@ function updateFields() {
   $('nodes-label').textContent=mode==='1d'?'Nodos del perfil':'Celdas por eje';
   $('nodes').max=mode==='1d'?401:48;
   $('case-note').textContent=mode==='fundacion'?(original?'IFC de referencia. Vertidas como capas geométricas, sin cronograma.':'Ensayo con IFC escalado: las nuevas dimensiones sí intervienen en el cálculo térmico.'):mode==='1d'?'Altura del IFC. Borde principal: superior; base: inferior.':'Caja sintética. Base: y− en 2D, z− en 3D.';
+  if(mode==='fundacion'&&$('construction_mode').value==='staged')$('case-note').textContent='IFC → grilla térmica → activación por cronograma. Solo participa el hormigón colocado.';
+}
+function updateSchedule() {
+  const staged=$('construction_mode').value==='staged';
+  $('schedule-editor').classList.toggle('hidden',!staged);
+  $('construction-note').textContent=staged?'Por etapas: solo el hormigón colocado participa en el cálculo. Las capas tienen igual altura; el cronograma cambia su evolución térmica.':'División geométrica simultánea: todas las capas están presentes desde t = 0. Cambiar solo su cantidad no cambia las temperaturas.';
+  const count=Math.max(1,Math.min(12,Number($('pour_count').value)||1));
+  let rows;try{rows=JSON.parse($('pour_schedule').value||'[]');}catch{rows=[];}
+  if($('schedule-rows').children.length!==count||!rows.length){
+    rows=Array.from({length:count},(_,i)=>rows[i]||{start_days:i,placement_c:Number($('initial_c').value)});
+    $('schedule-rows').replaceChildren();
+    rows.forEach((row,i)=>{
+      const heading=document.createElement('p');heading.textContent=`Vertida ${i+1}`;
+      const grid=document.createElement('div');grid.className='form-grid';
+      for(const [key,label,min,max] of [['start_days','Inicio [días]',0,30],['placement_c','Colocación [°C]',-50,150]]){
+        const wrap=document.createElement('label'),input=document.createElement('input');
+        wrap.textContent=label;input.type='number';input.step='any';input.min=min;input.max=max;input.required=true;input.value=row[key];
+        input.addEventListener('input',()=>{rows[i][key]=Number(input.value);$('pour_schedule').value=JSON.stringify(rows);});
+        wrap.append(input);grid.append(wrap);
+      }
+      const section=document.createElement('div');section.append(heading,grid);$('schedule-rows').append(section);
+    });
+    $('pour_schedule').value=JSON.stringify(rows);
+  }
 }
 function casePreset(mode,defaults) {
   const values={...defaults,mode};
@@ -130,6 +155,7 @@ function showSimulationDetails() {
     :data.dimension===1?'x es el eje numérico del perfil vertical: x− = base, x+ = extremo superior.'
     :'La base es '+(data.dimension===2?'y−':'z−')+'. Neumann positivo indica calor entrante; Dirichlet prescribe la temperatura en la cara, no en el centro de celda.';
   $('simulation-summary').textContent=simulationSummary(data);
+  if(data.construction)$('simulation-summary').textContent+=' Construcción por etapas: fuente por edad local, perfil inicial sustituido por temperaturas de colocación. Δt solicitado actúa como máximo. Las celdas futuras se ocultan.';
 }
 function refreshPendingChanges() {
   if(!data||busy)return;
@@ -145,7 +171,8 @@ async function calculate(event) {
   const start=performance.now();
   try {
     const payload=options();const result=await request('/api/run',payload);data=result;
-    data.colorLow=Math.min(...data.history.min_c);data.colorHigh=Math.max(...data.history.max_c);
+    data.colorLow=Math.min(...data.history.min_c.filter(Number.isFinite));data.colorHigh=Math.max(...data.history.max_c.filter(Number.isFinite));
+    if(!Number.isFinite(data.colorLow)){data.colorLow=0;data.colorHigh=1;}
     if(data.colorHigh-data.colorLow<0.01){data.colorLow-=0.5;data.colorHigh+=0.5;}
     lookup=new Int32Array(data.shape.reduce((a,b)=>a*b,1)).fill(-1);
     data.active_indices.forEach((id,index)=>{lookup[id]=index;});
@@ -181,7 +208,7 @@ async function calculate(event) {
 
 function at(i,j=0,k=0) {
   const [,ny=1,nz=1]=data.shape;
-  const index=lookup[(i*ny+j)*nz+k];return index>=0?data.frames_c[frame][index]:NaN;
+  const index=lookup[(i*ny+j)*nz+k];return index>=0&&data.frames_c[frame][index]!==null?data.frames_c[frame][index]:NaN;
 }
 function sliceInfo() {
   const plane=$('slice-plane').value;
@@ -226,14 +253,14 @@ function heatmap(id,primary=false) {
 function lineChart(id,series,xs,options={}) {
   const {ctx,w,h}=context2d(id), dark=!!options.dark, ink=dark?'#a4b4c7':'#62738b';
   const box={x:48,y:20,w:w-67,h:h-57};
-  const values=series.flatMap(s=>s.values);let lo=Math.min(...values),hi=Math.max(...values);
+  const values=series.flatMap(s=>s.values).filter(Number.isFinite);let lo=values.length?Math.min(...values):0,hi=values.length?Math.max(...values):1;
   const pad=Math.max(0.5,(hi-lo)*0.12);lo-=pad;hi+=pad;
   if(options.minY!==undefined)lo=options.minY;
   const end=Math.max(xs.at(-1),1e-9), tx=x=>box.x+x/end*box.w, ty=t=>box.y+(hi-t)/(hi-lo)*box.h;
   ctx.font='10px Inter, system-ui, sans-serif';
   for(let i=0;i<=4;i++) {const f=i/4,y=box.y+f*box.h;ctx.strokeStyle=dark?'#30465d':'#edf0f5';ctx.beginPath();ctx.moveTo(box.x,y);ctx.lineTo(w-18,y);ctx.stroke();ctx.fillStyle=ink;ctx.textAlign='right';ctx.fillText(num(hi-f*(hi-lo),1),box.x-7,y+3);ctx.textAlign='center';ctx.fillText(num(f*end,options.xDecimals??1),tx(f*end),box.y+box.h+17);}
-  for(const s of series) {ctx.strokeStyle=s.color;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dashed?[6,4]:[]);ctx.beginPath();s.values.forEach((v,i)=>i?ctx.lineTo(tx(xs[i]),ty(v)):ctx.moveTo(tx(xs[i]),ty(v)));ctx.stroke();ctx.setLineDash([]);
-    if(options.frame!==undefined){ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(tx(xs[options.frame]),ty(s.values[options.frame]),4,0,2*Math.PI);ctx.fill();}}
+  for(const s of series) {ctx.strokeStyle=s.color;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dashed?[6,4]:[]);ctx.beginPath();let connected=false;s.values.forEach((v,i)=>{if(!Number.isFinite(v)){connected=false;return;}if(connected)ctx.lineTo(tx(xs[i]),ty(v));else ctx.moveTo(tx(xs[i]),ty(v));connected=true;});ctx.stroke();ctx.setLineDash([]);
+    if(options.frame!==undefined&&Number.isFinite(s.values[options.frame])){ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(tx(xs[options.frame]),ty(s.values[options.frame]),4,0,2*Math.PI);ctx.fill();}}
   if(options.cursor!==undefined){ctx.setLineDash([3,3]);ctx.strokeStyle=dark?'#c2d1e4':'#98aac1';ctx.beginPath();ctx.moveTo(tx(options.cursor),box.y);ctx.lineTo(tx(options.cursor),box.y+box.h);ctx.stroke();ctx.setLineDash([]);}
   ctx.fillStyle=ink;ctx.textAlign='center';ctx.fillText(options.xLabel||'Tiempo [días]',box.x+box.w/2,h-3);
   ctx.save();ctx.translate(12,box.y+box.h/2);ctx.rotate(-Math.PI/2);ctx.fillText(options.yLabel||'Temperatura [°C]',0,0);ctx.restore();
@@ -261,16 +288,17 @@ function showPourPlan() {
   $('pour-rows').replaceChildren();
   if(!data.pour_plan)return;
   const rows=data.pour_plan.layers;
-  $('pour-summary').textContent=`${rows.length} capas de igual altura · volumen voxelizado total ${num(rows.reduce((s,r)=>s+r.voxel_volume_m3,0),2)} m³ · todas presentes desde t = 0`;
+  $('pour-summary').textContent=`${rows.length} capas de igual altura · volumen voxelizado total ${num(rows.reduce((s,r)=>s+r.voxel_volume_m3,0),2)} m³ · ${data.construction?'activación por cronograma':'todas presentes desde t = 0'}`;
+  $('pour-scope').textContent=data.construction?'Colocación instantánea por capa. Las superficies temporales intercambian calor hasta recibir la siguiente capa. Fuente por edad local; balance con energía de colocación.':'División geométrica: cambiar solo su cantidad no altera las temperaturas.';
   for(const row of rows){
     const tr=document.createElement('tr');
-    for(const value of [`Vertida ${row.id}`,num(row.z_min_m,3),num(row.z_max_m,3),num(row.cells,0),num(row.voxel_volume_m3,2)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+    for(const value of [`Vertida ${row.id}`+(data.construction?` · día ${num(row.start_s/86400,2)} · ${num(row.placement_c,1)} °C`:''),num(row.z_min_m,3),num(row.z_max_m,3),num(row.cells,0),num(row.voxel_volume_m3,2)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
     tr.firstChild.style.borderLeft=`5px solid rgb(${temperatureColor((row.id-.5)/rows.length,0,1).join(',')})`;
     $('pour-rows').append(tr);
   }
 }
 function pourColorsActive(){return !!data?.pour_plan&&$('model-color').value==='pours';}
-function modelValues(){return pourColorsActive()?data.pour_plan.cell_pour_id.map(id=>(id-.5)/data.pour_plan.layers.length):data.frames_c[frame];}
+function modelValues(){return data.frames_c[frame].map((t,i)=>t===null?-1e20:pourColorsActive()?(data.pour_plan.cell_pour_id[i]-.5)/data.pour_plan.layers.length:t);}
 function heightProfiles(result,current) {
   const dim=result.dimension, axis=dim-1, n=result.shape[axis], nodal=dim===1;
   const mid=result.shape.map(v=>Math.floor(v/2));
@@ -284,7 +312,7 @@ function heightProfiles(result,current) {
   if(upper)heights.push(result.origin_m[axis]+result.lengths_m[axis]);
   const frames=[...new Set([0,.25,.5,.75,1].map(f=>historyFrameAt(result.time_s,f)).concat(current))].sort((a,b)=>a-b);
   const shades=['#2563eb','#0891b2','#8b5cf6','#ea580c','#dc2626','#16a34a'];
-  return {heights,series:frames.map((f,i)=>{const values=cells.map(j=>result.frames_c[f][j]);if(lower)values.unshift(result.parameters.bottom_c);if(upper)values.push(result.parameters.boundary_c);return {values,color:shades[i],width:f===current?3.5:1.7,dashed:f!==current,frame:f};})};
+  return {heights,series:frames.map((f,i)=>{const values=cells.map(j=>result.frames_c[f][j]);const bottomActive=values[0]!==null,topActive=values.at(-1)!==null;if(lower)values.unshift(bottomActive?result.parameters.bottom_c:null);if(upper)values.push(topActive?result.parameters.boundary_c:null);return {values,color:shades[i],width:f===current?3.5:1.7,dashed:f!==current,frame:f};})};
 }
 function draw() {
   if(!data)return;
@@ -296,6 +324,8 @@ function draw() {
   const days=data.time_s.at(-1)>=172800, value=data.time_s[frame]/(days?86400:3600);
   $('time-value').innerHTML=`${num(value,2)}<small> ${days?'días':'h'}</small>`;
   $('frame-caption').textContent=`Estado ${frame+1} de ${data.time_s.length}`;$('timeline-time').textContent=timeText(data.time_s[frame]);
+  if(data.construction)$('frame-caption').textContent+=` · ${data.frames_c[frame].filter(Number.isFinite).length} celdas colocadas`;
+  if(data.construction)$('geometry-chip').textContent=`${data.frames_c[frame].filter(Number.isFinite).length} colocadas / ${data.stats.cells} celdas previstas`;
   if(data.dimension===3)renderer.draw();else if(data.dimension===2)heatmap('flat-canvas',true);else profile('flat-canvas',true);
   if(data.dimension===3)heatmap('slice-canvas');else profile('slice-canvas');
   const unit=days?86400:3600;
@@ -308,10 +338,13 @@ function draw() {
   $('height-caption').textContent=`Columna central · línea gruesa: ${timeText(data.time_s[frame])} · extremos Dirichlet incluidos cuando están prescritos`;
   $('height-legend').replaceChildren(...profiles.series.map(s=>{const item=document.createElement('span'),mark=document.createElement('i');mark.style.background=s.color;item.append(mark,document.createTextNode(timeText(data.time_s[s.frame])+(s.frame===frame?' · seleccionado':'')));return item;}));
   const source=data.source_curve;
-  lineChart('source-canvas',[{values:source.rate_w_m3,color:'#ea580c'}],source.time_s.map(t=>t/unit),{cursor:data.time_s[frame]/unit,minY:Math.min(...source.rate_w_m3)>=0?0:undefined,xLabel:days?'Tiempo [días]':'Tiempo [h]',yLabel:'Q(t) [W/m³]'});
-  const peak=Math.max(...data.history.center_c);
+  const sourceSeries=source.layers?source.layers.map((r,i)=>({values:r.rate_w_m3,color:['#2563eb','#ea580c','#8b5cf6','#0891b2'][i%4]})):[{values:source.rate_w_m3,color:'#ea580c'}];
+  lineChart('source-canvas',sourceSeries,source.time_s.map(t=>t/unit),{cursor:data.time_s[frame]/unit,minY:Math.min(...source.rate_w_m3)>=0?0:undefined,xLabel:days?'Tiempo [días]':'Tiempo [h]',yLabel:'Q(t) [W/m³]'});
+  const central=data.history.center_c.filter(Number.isFinite),peak=central.length?Math.max(...central):null;
   const zeroSource=source.rate_w_m3.every(q=>q===0);
   $('source-caption').textContent=(zeroSource?'Sin generación de calor: Q(t) = 0. Selecciona el pulso en Tipo de fuente y pulsa Calcular temperaturas. ':data.parameters.source_type==='cosine'?`Qmax ${num(data.parameters.qmax_w_m3,1)} W/m³ · τ ${num(data.parameters.source_duration_days,2)} días · `:`Fuente constante ${num(data.parameters.source_w_m3,1)} W/m³ · `)+`máximo central guardado: ${num(peak,2)} °C.`;
+  if(data.construction)$('source-caption').textContent+=' Curvas por vertida en orden: '+data.pour_plan.layers.map((r,i)=>`${r.id} (${'azul,naranja,violeta,turquesa'.split(',')[i%4]})`).join(', ')+'.';
+  if(data.construction&&data.parameters.activation_energy_j_mol>0)$('source-caption').textContent=`Potencia instantánea media por vertida · Ea ${num(data.parameters.activation_energy_j_mol,0)} J/mol · referencia 20 °C. Qmax = 1300 W/m³ a referencia; la potencia real incluye Arrhenius. Curvas: `+data.pour_plan.layers.map((r,i)=>`${r.id} (${'azul,naranja,violeta,turquesa'.split(',')[i%4]})`).join(', ')+'.';
 }
 
 // Matrices columna mayor; cámara orbital con z vertical, como en el IFC.
@@ -345,7 +378,7 @@ class ThermalRenderer {
     layout(location=2)in vec3 position;layout(location=3)in float temperature;
     uniform mat4 matrix;uniform vec3 center;uniform vec3 delta;uniform float scale;uniform int cutMode;uniform float cut;
     out float temp;out vec3 faceNormal;flat out int visible;
-    void main(){visible=((cutMode==1&&position.x>cut)||(cutMode==2&&position.z>cut))?0:1;
+    void main(){visible=(temperature< -1e10||(cutMode==1&&position.x>cut)||(cutMode==2&&position.z>cut))?0:1;
     gl_Position=matrix*vec4((position-center+vertex*delta*0.97)*scale,1.0);temp=temperature;faceNormal=normal;}`;
     const fragment=`#version 300 es
     precision highp float;in float temp;in vec3 faceNormal;flat in int visible;uniform float low;uniform float high;out vec4 color;
@@ -389,9 +422,9 @@ class ThermalRenderer {
     const ctx=this.ctx;ctx.setTransform(box.dpr,0,0,box.dpr,0,0);ctx.clearRect(0,0,box.w,box.h);
     const visible=p=>mode==='full'||p[mode==='x'?0:2]<=cut;
     const [nx,ny,nz]=data.shape, entries=[];
-    const keep=(i,j,k)=>{if(i<0||j<0||k<0||i>=nx||j>=ny||k>=nz)return false;const q=lookup[(i*ny+j)*nz+k];return q>=0&&visible(data.positions_m[q]);};
+    const keep=(i,j,k)=>{if(i<0||j<0||k<0||i>=nx||j>=ny||k>=nz)return false;const q=lookup[(i*ny+j)*nz+k];return q>=0&&data.frames_c[frame][q]!==null&&visible(data.positions_m[q]);};
     for(let q=0;q<data.positions_m.length;q++) {
-      const p=data.positions_m[q];if(!visible(p))continue;
+      const p=data.positions_m[q];if(data.frames_c[frame][q]===null||!visible(p))continue;
       const flat=data.active_indices[q],i=Math.floor(flat/(ny*nz)),j=Math.floor(flat/nz)%ny,k=flat%nz;
       if(keep(i-1,j,k)&&keep(i+1,j,k)&&keep(i,j-1,k)&&keep(i,j+1,k)&&keep(i,j,k-1)&&keep(i,j,k+1))continue;
       const v=p.map((x,a)=>(x-this.center[a])*2/this.maxLength), out=[0,0,0,0];
@@ -428,6 +461,7 @@ function selectTab(section) {
 form.addEventListener('input',()=>{updateFields();refreshPendingChanges();});
 form.addEventListener('change',()=>{updateFields();refreshPendingChanges();});
 $('mode').addEventListener('change',()=>{preset($('mode').value);refreshPendingChanges();});
+$('construction_mode').addEventListener('change',()=>{if($('construction_mode').value==='staged'){$('profile').value='uniforme';$('source_type').value='cosine';}updateFields();refreshPendingChanges();});
 $('reset').addEventListener('click',()=>{preset($('mode').value);refreshPendingChanges();});
 $('time-slider').addEventListener('input',()=>{stop();frame=Number($('time-slider').value);draw();});
 $('history-canvas').addEventListener('click',event=>{if(!data)return;const rect=event.currentTarget.getBoundingClientRect();stop();frame=historyFrameAt(data.time_s,(event.clientX-rect.left-48)/(rect.width-67));$('time-slider').value=frame;draw();});

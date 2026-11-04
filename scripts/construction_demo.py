@@ -32,12 +32,14 @@ def run(config_path, output):
     faces["z-"] = Neumann(bc["base_flux_in_w_m2"])
     p = Parameters(grid.component.shape, tuple(grid.lengths_m), **cfg["thermal"],
                    boundaries=faces, active=grid.active, exposed=air)
-    result = solve_construction(p, plan, hydration, save_every=24)
+    ea = cfg.get("kinetics", {}).get("activation_energy_j_mol", 0.0)
+    result = solve_construction(p, plan, hydration, save_every=24, activation_energy_j_mol=ea)
     scale = max(1.0, float(np.max(np.abs(result.energy_j))),
                 float(np.max(np.abs(result.placement_energy_j))))
     report = {"data_status": cfg["data_status"], "configuration": cfg,
               "voxel": grid.report, "pours": list(plan.rows),
-              "source_model": "Pulso cosenoidal SINTÉTICO por edad local, evaluado en t_n",
+              "source_model": "Pulso cosenoidal SINTÉTICO por edad equivalente; q=rate(te_n)*factor(T_n)",
+              "activation_energy_j_mol": ea,
               "hydration_energy_j_m3": hydration.qmax_w_m3*hydration.duration_s/2,
               "saved_times_s": result.time_s.tolist(),
               "active_cells": result.active.sum(axis=(1, 2, 3)).tolist(),
@@ -49,7 +51,7 @@ def run(config_path, output):
               "placement_energy_j": result.placement_energy_j.tolist(),
               "max_balance_error_j": float(np.max(np.abs(result.energy_balance_error_j))),
               "max_balance_relative_error": float(np.max(np.abs(result.energy_balance_error_j))/scale),
-              "scope": "Colocación instantánea por capa; sin cinética dependiente de temperatura, clima real ni suelo. No certifica límites docentes."}
+              "scope": "Colocación instantánea por capa; Ea=0 conserva cinética cronológica; Ea>0 usa Arrhenius sin calibración experimental. Sin clima real ni suelo."}
     output.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(output/"construction.npz", component=grid.component,
                         vertida_id=plan.vertida_id, inicio_vertida_s=plan.start_s,
@@ -57,6 +59,7 @@ def run(config_path, output):
                         spacing_m=grid.spacing_m, lengths_m=grid.lengths_m,
                         ifc_sha256=source["sha256"], time_s=result.time_s,
                         temperature_c=result.temperature_c, active=result.active,
+                        equivalent_age_s=result.equivalent_age_s,
                         energy_j=result.energy_j, boundary_heat_in_j=result.boundary_heat_in_j,
                         source_heat_in_j=result.source_heat_in_j, placement_energy_j=result.placement_energy_j)
     (output/"resumen.json").write_text(json.dumps(report, indent=2, ensure_ascii=False)+"\n", encoding="utf-8")

@@ -9,6 +9,28 @@ import numpy as np
 
 from thermal3d.solver import prepare, advance, _energy
 
+GAS_CONSTANT_J_MOL_K = 8.31446261815324
+REFERENCE_TEMPERATURE_K = 293.15
+
+
+def arrhenius_factor(temperature_c, activation_energy_j_mol):
+    """d(te)/dt a referencia 20 °C; Ea en J/mol y R en J/(mol·K).
+
+    No se recortan factores: temperaturas no físicas o desbordamientos se
+    rechazan para no ocultar errores ni introducir una cinética diferente.
+    """
+    if (not np.isfinite(activation_energy_j_mol) or activation_energy_j_mol < 0):
+        raise ValueError("Ea debe ser finita no negativa [J/mol]")
+    kelvin = np.asarray(temperature_c, dtype=float)+273.15
+    if not np.all(np.isfinite(kelvin)) or np.any(kelvin <= 0):
+        raise ValueError("Arrhenius requiere temperaturas finitas mayores que -273.15 °C")
+    with np.errstate(over="ignore", invalid="ignore"):
+        factor = np.exp(-activation_energy_j_mol/GAS_CONSTANT_J_MOL_K
+                        *(1/kelvin-1/REFERENCE_TEMPERATURE_K))
+    if not np.all(np.isfinite(factor)) or np.any(factor <= 0):
+        raise ValueError("Factor de Arrhenius fuera del rango numérico")
+    return factor
+
 
 @dataclass(frozen=True)
 class CosineHydration:
@@ -101,6 +123,8 @@ class ConstructionSolution:
     boundary_heat_in_j: np.ndarray
     source_heat_in_j: np.ndarray
     placement_energy_j: np.ndarray
+    equivalent_age_s: np.ndarray
+    step_count: int = 0
 
     @property
     def energy_balance_error_j(self):
@@ -108,7 +132,7 @@ class ConstructionSolution:
                 -self.source_heat_in_j-self.placement_energy_j)
 
 
-def solve_construction(p, plan, hydration, save_every=100):
+def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_j_mol=0.0):
     """Euler en t_n con reloj de edad por celda y eventos exactos de colocación.
 
     dt_s es un máximo: se reduce por estabilidad, pulso/100 y eventos.
@@ -116,11 +140,15 @@ def solve_construction(p, plan, hydration, save_every=100):
     colocar, T=0 es un marcador sin significado físico: consultar active.
     La fuente propia sustituye source_w_m3, que debe ser cero. Interfaces
     temporales expuestas usan p.exposed; sin él son adiabáticas.
+    te parte en cero al colocar; q=hydration.rate(te_n)*factor(T_n) y
+    te_{n+1}=te_n+dt*factor(T_n). Ea=0 conserva edad cronológica; no es
+    una calibración. Se limita también el incremento de te a pulso/100.
     """
     if isinstance(save_every, bool) or not isinstance(save_every, int) or save_every < 1:
         raise ValueError("save_every debe ser entero positivo")
     if callable(p.source_w_m3) or np.any(np.asarray(p.source_w_m3) != 0):
         raise ValueError("Usar solo hidratación; source_w_m3 debe ser cero")
+    arrhenius_factor(np.array([20.0]), activation_energy_j_mol)
     geometric = np.ones(p.shape, bool) if p.active is None else p.active
     if (plan.vertida_id.shape != tuple(p.shape) or plan.start_s.shape != tuple(p.shape)
             or plan.placement_c.shape != tuple(p.shape)
@@ -131,16 +159,19 @@ def solve_construction(p, plan, hydration, save_every=100):
     capacity = np.broadcast_to(reference.capacity_j_k, p.shape)
     active = geometric & (plan.start_s <= 0)
     temperature = np.where(active, plan.placement_c, 0.0)
+    equivalent_age = np.zeros(p.shape, dtype=float)
     c = prepare(replace(p, active=active, dt_s=1e-30)) if active.any() else None
     events = np.unique(plan.start_s[geometric])
     times, fields, masks, energies = [], [], [], []
     boundary, sources, placements = [], [], []
+    ages = []
     qb = qs = qp = time = 0.0
 
     def save():
         times.append(time); fields.append(temperature.copy()); masks.append(active.copy())
         energies.append(_energy(temperature, c) if c is not None else 0.0)
         boundary.append(qb); sources.append(qs); placements.append(qp)
+        ages.append(equivalent_age.copy())
 
     save()
     step = 0
@@ -148,19 +179,24 @@ def solve_construction(p, plan, hydration, save_every=100):
         future = events[events > time]
         event = float(future[0]) if future.size else p.duration_s
         limit = min(c.general_dt_s, c.local_dt_s)*0.8 if c is not None else np.inf
-        end = min(time+p.dt_s, time+limit, time+hydration.duration_s/100, event, p.duration_s)
+        factor = arrhenius_factor(temperature[active], activation_energy_j_mol)
+        age_limit = hydration.duration_s/(100*max(1.0, float(factor.max()) if factor.size else 1.0))
+        end = min(time+p.dt_s, time+limit, time+age_limit, event, p.duration_s)
         if end <= time:
             raise ValueError("Paso temporal menor que la precisión del reloj")
         if c is not None:
-            # Campo de edad: nunca se evalúa en t_n + dt.
-            heat = hydration.rate(time-plan.start_s)
+            # Regla de la cadena: rate está definida por segundo equivalente.
+            heat = np.zeros(p.shape)
+            heat[active] = hydration.rate(equivalent_age[active])*factor
             b, s = advance(p, c, temperature, time, end-time, heat)
             qb += b; qs += s
+            equivalent_age[active] += (end-time)*factor
         time = end
         new = geometric & ~active & (plan.start_s <= time)
         changed = bool(new.any())
         if changed:
             temperature[new] = plan.placement_c[new]
+            equivalent_age[new] = 0.0
             qp += float(np.sum(capacity[new]*temperature[new]))
             active = active | new
             c = prepare(replace(p, active=active, dt_s=1e-30))
@@ -168,4 +204,4 @@ def solve_construction(p, plan, hydration, save_every=100):
         if changed or step % save_every == 0 or time == p.duration_s:
             save()
     return ConstructionSolution(*(np.asarray(values) for values in
-                                  (times, fields, masks, energies, boundary, sources, placements)))
+                                  (times, fields, masks, energies, boundary, sources, placements, ages)), step_count=step)

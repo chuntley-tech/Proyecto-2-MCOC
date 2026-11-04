@@ -9,6 +9,7 @@ from dataclasses import replace
 from functools import lru_cache
 import hashlib
 import math
+import json
 from pathlib import Path
 
 import numpy as np
@@ -34,6 +35,8 @@ DEFAULTS = {"mode": "fundacion", "initial_c": 30.0, "profile": "uniforme", "ampl
             "qmax_w_m3": 1300.0, "source_duration_days": 2.0, "dt_s": None}
 DEFAULTS.update({"foundation_geometry": "ifc", "foundation_x_m": 18.0,
                  "foundation_y_m": 18.0, "foundation_height_m": 3.3, "pour_count": 3})
+DEFAULTS.update({"construction_mode": "simultaneous", "pour_schedule": ""})
+DEFAULTS["activation_energy_j_mol"] = 33500.0
 BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.001, 30),
           "conductivity_w_mk": (0.05, 10), "density_kg_m3": (100, 5000),
           "specific_heat_j_kgk": (100, 5000), "resolution_m": (0.2, 1.0),
@@ -44,6 +47,7 @@ BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.
           "qmax_w_m3": (0, 10000), "source_duration_days": (0.001, 30)}
 BOUNDS.update({"foundation_x_m": (4, 40), "foundation_y_m": (4, 40),
                "foundation_height_m": (0.6, 12)})
+BOUNDS["activation_energy_j_mol"] = (0, 100000)
 
 
 def validate_options(data):
@@ -51,6 +55,8 @@ def validate_options(data):
     if not isinstance(data, dict) or set(data)-set(DEFAULTS):
         raise ValueError("La solicitud contiene parámetros desconocidos")
     options = {**DEFAULTS, **data}
+    if options["construction_mode"] not in ("simultaneous", "staged"):
+        raise ValueError("Modo constructivo desconocido")
     if options["mode"] not in ("fundacion", "1d", "2d", "3d"):
         raise ValueError("Caso desconocido")
     if options["profile"] not in ("uniforme", "seno"):
@@ -75,7 +81,29 @@ def validate_options(data):
     dt = options["dt_s"]
     if dt is not None and (isinstance(dt, bool) or not isinstance(dt, (float, int)) or not math.isfinite(dt) or dt <= 0):
         raise ValueError("Δt debe ser positivo o automático")
+    schedule_for(options)
     return options
+
+
+def schedule_for(options):
+    """Cronograma explícito del visor: días y °C por capa de igual altura."""
+    try:
+        rows = json.loads(options["pour_schedule"]) if options["pour_schedule"] else [
+            {"start_days": i, "placement_c": options["initial_c"]} for i in range(options["pour_count"])]
+        if not isinstance(rows, list) or len(rows) != options["pour_count"]:
+            raise ValueError()
+        previous = 0
+        for row in rows:
+            if not isinstance(row, dict) or set(row) != {"start_days", "placement_c"}:
+                raise ValueError()
+            if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in row.values()):
+                raise ValueError()
+            if not previous <= row["start_days"] <= 30 or not -50 <= row["placement_c"] <= 150:
+                raise ValueError()
+            previous = row["start_days"]
+        return rows
+    except (ValueError, TypeError):
+        raise ValueError("Cronograma inválido: una fila por vertida, inicios ordenados de 0 a 30 días y temperaturas entre -50 y 150 °C") from None
 
 
 def source_value(options, time_s):
@@ -168,7 +196,7 @@ def run_simulation(data):
 
     Los controles prevalecen en esta ejecución; no escriben al IFC ni al JSON.
     La geometría procede del IFC, con escalado opcional explícito. Las vertidas
-    son una partición geométrica; todas las celdas están presentes desde t=0.
+    admiten modo simultáneo o activación temporal con cronograma sintético.
     """
     o = validate_options(data)
     common = _boundary(o["boundary_type"], o["boundary_c"], o["h_w_m2k"], o["flux_in_w_m2"], o["resistance_m2k_w"])
@@ -231,9 +259,31 @@ def run_simulation(data):
         steps = math.ceil(duration/p.dt_s)
         _check_budget(steps)
         wave = sine_initial(p) if o["profile"] == "seno" else np.zeros(shape)
-        result = solve(p, o["initial_c"]+o["amplitude_c"]*wave, save_every=max(1, math.ceil(steps/24)))
+        staged = mode == "fundacion" and o["construction_mode"] == "staged"
+        if staged:
+            from thermal3d.construction import Pour, CosineHydration, build_plan, solve_construction
+            from thermal3d.voxel import VoxelGrid
+            from types import SimpleNamespace
+            rows = schedule_for(o)
+            plan = build_plan(VoxelGrid(origin, lengths, p.spacing_m, grid.component, {}), [
+                Pour(i+1, i/o["pour_count"], (i+1)/o["pour_count"], row["start_days"]*86400, row["placement_c"])
+                for i, row in enumerate(rows)])
+            hydration = (CosineHydration(o["qmax_w_m3"], o["source_duration_days"]*86400)
+                         if o["source_type"] == "cosine" else SimpleNamespace(
+                             duration_s=duration*100, rate=lambda age: np.where(age >= 0, o["source_w_m3"], 0.0)))
+            # Cota conservadora para cualquier interfaz temporal Dirichlet/Robin.
+            conservative = 0.8/(4*float(p.alpha_m2_s)*float(np.sum(1/p.spacing_m**2)))
+            cap = hydration.duration_s/100
+            p = replace(p, dt_s=min(p.dt_s, conservative, cap), source_w_m3=0)
+            limit = conservative/0.8
+            steps = math.ceil(duration/p.dt_s)+o["pour_count"]
+            _check_budget(steps)
+            result = solve_construction(p, plan, hydration, save_every=max(1, math.ceil(steps/24)),
+                                        activation_energy_j_mol=o["activation_energy_j_mol"])
+        else:
+            result = solve(p, o["initial_c"]+o["amplitude_c"]*wave, save_every=max(1, math.ceil(steps/24)))
         energy = result.energy_j
-        balance_error = float(np.max(np.abs(result.energy_balance_error_j))/max(1.0, abs(energy[0])))
+        balance_error = float(np.max(np.abs(result.energy_balance_error_j))/max(1.0, float(np.max(np.abs(energy)))))
         local_indices = np.column_stack(np.unravel_index(np.flatnonzero(active), shape))
         positions = np.zeros((len(local_indices), 3))
         positions[:, :dim] = origin[:dim]+(local_indices+0.5)*p.spacing_m
@@ -250,7 +300,15 @@ def run_simulation(data):
         probe = int(np.argmin(np.sum((positions-center_position)**2, axis=1)))
     else:
         probe = int(np.searchsorted(active_indices, np.ravel_multi_index(center_index, shape)))
-    mean = temperatures.mean(axis=1)
+    staged = mode == "fundacion" and o["construction_mode"] == "staged"
+    frame_active = result.active[:, active] if staged else np.ones_like(temperatures, bool)
+    temperatures = np.where(frame_active, temperatures, np.nan)
+    def values_or_none(values):
+        return [float(v) if np.isfinite(v) else None for v in values]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mean = np.nansum(temperatures, axis=1)/frame_active.sum(axis=1)
+    minimum = [float(t[a].min()) if a.any() else None for t, a in zip(temperatures, frame_active)]
+    maximum = [float(t[a].max()) if a.any() else None for t, a in zip(temperatures, frame_active)]
     if mode == "1d":
         weights = np.ones(shape)
         weights[[0, -1]] = 0.5
@@ -273,17 +331,43 @@ def run_simulation(data):
         tau = o["source_duration_days"]*86400
         curve_times.update(t for t in (tau/2,tau) if t <= duration)
     curve_times = sorted(curve_times)
+    if staged:
+        pour_plan["simultaneous"] = False
+        pour_plan["type"] = "Construcción por etapas · edad local"
+        for layer, row in zip(pour_plan["layers"], rows):
+            layer.update(start_s=row["start_days"]*86400, placement_c=row["placement_c"])
+        curve_times = sorted(set(curve_times) | {row["start_days"]*86400+offset
+                             for row in rows for offset in (0, o["source_duration_days"]*43200, o["source_duration_days"]*86400)
+                             if row["start_days"]*86400+offset <= duration})
+    frames = [[float(v) if np.isfinite(v) else None for v in row] for row in np.round(temperatures, 5)]
+    equivalent_curve = None
+    if staged and o["activation_energy_j_mol"] > 0:
+        from thermal3d.construction import arrhenius_factor
+        rates = np.zeros_like(result.temperature_c)
+        rates[result.active] = hydration.rate(result.equivalent_age_s[result.active])*arrhenius_factor(
+            result.temperature_c[result.active], o["activation_energy_j_mol"])
+        equivalent_curve = {"time_s": result.time_s.tolist(), "rate_w_m3": [0.0]*len(result.time_s),
+                            "layers": [{"id": i+1, "rate_w_m3": rates[:, plan.vertida_id == i+1].mean(axis=1).tolist()}
+                                       for i in range(o["pour_count"])],
+                            "description": "Potencia instantánea media por vertida; hormigón futuro aporta cero. Arrhenius por celda."}
     return {"mode": mode, "parameters": o, "ifc": source, "shape": list(shape),
             "dimension": len(shape), "origin_m": origin.tolist(), "lengths_m": lengths.tolist(),
             "spacing_m": spacing.tolist(), "positions_m": np.round(positions, 8).tolist(),
-            "active_indices": active_indices.tolist(), "frames_c": np.round(temperatures, 5).tolist(),
+            "active_indices": active_indices.tolist(), "frames_c": frames,
             "time_s": result.time_s.tolist(), "temperature_precision_decimals": 5,
-            "history": {"center_c": temperatures[:, probe].tolist(), "min_c": temperatures.min(axis=1).tolist(),
-                        "max_c": temperatures.max(axis=1).tolist(), "mean_c": mean.tolist(), "energy": energy.tolist()},
+            "history": {"center_c": values_or_none(temperatures[:, probe]), "min_c": minimum,
+                        "max_c": maximum, "mean_c": values_or_none(mean), "energy": energy.tolist()},
             "probe_position_m": positions[probe].tolist(), "boundary_used": boundary_used,
             "pour_plan": pour_plan,
-            "source_curve": {"time_s": curve_times, "rate_w_m3": [source_value(o,t) for t in curve_times]},
-            "stats": {"cells": int(active.sum()), "steps": steps, "dt_s": p.dt_s, "limit_dt_s": limit,
+            "construction": {"placement_energy_j": result.placement_energy_j.tolist(),
+                             "equivalent_age_s": result.equivalent_age_s[:, active].tolist(),
+                             "source_heat_in_j": result.source_heat_in_j.tolist(),
+                             "boundary_heat_in_j": result.boundary_heat_in_j.tolist()} if staged else None,
+            "source_curve": equivalent_curve or {"time_s": curve_times, "rate_w_m3": [source_value(o,t) for t in curve_times],
+                             **({"layers": [{"id": i+1, "rate_w_m3": [source_value(o, t-row["start_days"]*86400)
+                                 if t >= row["start_days"]*86400 else 0 for t in curve_times]}
+                                 for i, row in enumerate(rows)]} if staged else {})},
+            "stats": {"cells": int(active.sum()), "steps": result.step_count if staged else steps, "dt_s": p.dt_s, "limit_dt_s": limit,
                       "alpha_m2_s": alpha, "balance_relative_error": balance_error,
                       "energy_unit": "J/m²" if mode == "1d" else "J"},
             "data_status": "Datos sintéticos. Parámetros de esta ejecución desde los controles; archivos del proyecto sin modificar."}

@@ -40,7 +40,7 @@ Se supone colocación instantánea de cada capa completa.
 ## Hidratación inicial
 
 Se conserva el pulso sintético del visor, ahora en función de la **edad local**
-de cada vertida: `a = t − start_s`.
+de cada vertida: `a = te`, edad equivalente por celda a referencia de 20 °C.
 
 \[
 \dot q_h(a)=\frac{Q_{\max}}2[1-\cos(2\pi a/\tau)],\quad 0\le a<\tau;
@@ -50,9 +50,39 @@ de cada vertida: `a = t − start_s`.
 `Qmax = 1300 W/m³` y `τ = 172800 s` en el ejemplo. Su integral completa es
 `Qmax·τ/2 = 112320000 J/m³`. La conexión física con una curva adiabática es
 `q_h = ρ cp dθ_ad/dt`. No representa cinética calibrada, grado de hidratación
-ni dependencia de la velocidad con la temperatura. La fuente se evalúa en
+por sí sola: la dependencia térmica se incorpora mediante Arrhenius.
+La fuente se evalúa en
 `t_n`, al inicio de cada paso, por lo que su integral numérica es una suma
 izquierda; la conservación se comprueba contra esa misma energía discreta.
+
+### Edad equivalente y temperatura
+
+`solve_construction(..., activation_energy_j_mol=Ea)` integra por celda:
+
+\[
+f(T_n)=\exp\left[-\frac{E_a}{R}\left(\frac1{T_n+273.15}-\frac1{293.15}\right)\right],
+\quad \dot q_n=\mathrm{rate}(te_n)f(T_n),
+\quad te_{n+1}=te_n+\Delta t\,f(T_n).
+\]
+
+R = 8,31446261815324 J/(mol·K); Ea se expresa en J/mol, te y dt en segundos.
+Se usa la temperatura al inicio del paso para ambas operaciones; la fuente
+no se evalúa adelantando primero te. La temperatura debe ser superior al cero
+absoluto. A 20 °C el factor vale uno; con Ea positiva aumenta al calentar.
+El factor multiplica la potencia por la regla de la cadena, porque `rate`
+se define por segundo equivalente y el balance usa tiempo físico.
+
+El campo te parte en cero y permanece en cero antes de colocar. Se guarda
+en `ConstructionSolution.equivalent_age_s` y en `construction.npz` con los
+mismos instantes que T. El paso limita también el incremento equivalente a
+τ/100, para resolver el pulso cuando se acelera la reacción.
+
+Editar `kinetics.activation_energy_j_mol` en el JSON de construcción. El valor
+actual es **33500 J/mol**, aportado por el usuario con referencia indicada
+Freiesleben Hansen–Pedersen. No es una calibración experimental de la mezcla
+G8. Ea=0 conserva el reloj cronológico. El HTML permite editar Ea en el apartado
+de construcción y utiliza la misma ecuación en Python y en el modo portátil.
+La prueba adicional con 35000 J/mol es sintética y no calibra G8.
 
 ## Activación y balance
 
@@ -89,7 +119,7 @@ estados activos y balance. `construction.npz` conserva componentes, grilla,
 
 En la ejecución inicial: 7120 celdas geométricas, volumen IFC 487,350199 m³,
 volumen voxelizado 489,500004 m³, residuo relativo máximo de energía
-1,183684 × 10⁻¹⁵. Son resultados calculados guardados en ese JSON, con la
+2,222927 × 10⁻¹⁵ tras incorporar Ea = 33500 J/mol. Son resultados calculados guardados en ese JSON, con la
 resolución solicitada 0,5 × 0,5 × 0,275 m.
 
 Las pruebas verifican cobertura y volumen, planes inválidos, eventos exactos,
@@ -101,9 +131,18 @@ Verificación del 3 de noviembre de 2026: 12 pruebas específicas aprobadas;
 batería completa, 211 aprobadas en 82,52 s. Se comprobó también que el NPZ
 conserva cobertura de etiquetas, suma de volúmenes y marcadores inactivos.
 
+Ampliación del 4 de noviembre: edad equivalente isotérmica, reinicio al colocar,
+regla de la cadena, evaluación en t_n y equivalencia Ea=0 verificados. La batería
+completa aprobó 228 pruebas en 135,91 s; también se contrastaron Python y el
+HTML con Ea=33500 J/mol, incluidos los campos te y las potencias por vertida.
+
 ![Evolución sintética y activación](../results/construction/evolucion.png)
 
-Esta funcionalidad se ejecuta en **Python**. El HTML conserva su división
-geométrica simultánea y no ejecuta este cronograma. Quedan para etapas
+Esta funcionalidad se ejecuta en Python y está conectada al HTML mediante
+**Construcción → Por etapas**. El visor permite definir el inicio y la
+temperatura de cada capa; con servidor utiliza el solver Python y el archivo
+portátil utiliza el núcleo JavaScript contrastado con ese solver. El cronograma
+del visor es propio de cada ensayo y no sobrescribe el JSON de construcción.
+Quedan para etapas
 posteriores la calibración experimental, clima real, cinética térmica avanzada,
 duración de llenado, suelo y validación de una decisión constructiva.

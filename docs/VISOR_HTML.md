@@ -83,11 +83,46 @@ Los volúmenes no son iguales entre capas porque cambia la sección del sólido.
 El selector **Colorear modelo → Vertidas planificadas** muestra sus colores
 en la vista 3D y admite cortes para ver el interior.
 
-Esta es una **partición geométrica**, no una secuencia temporal de colocación.
-Todas las celdas están presentes desde t = 0; sus interfaces siguen conduciendo
-con el mismo material. Por ello, cambiar solo la cantidad de vertidas no cambia
-las temperaturas. Hace falta un cronograma de colocación para modelar activación
-progresiva, edad del hormigón y cambios de superficies expuestas.
+En **Construcción → Simultánea** todas las celdas están presentes desde t = 0:
+cambiar solo su cantidad no cambia las temperaturas.
+
+En **Construcción → Por etapas**, editar el inicio [días] y la temperatura de
+colocación [°C] de cada capa, ordenadas de abajo hacia arriba, y pulsar Calcular.
+Los valores iniciales del editor son supuestos sintéticos: días 0, 1, 2, etc.,
+y la temperatura inicial del formulario al crear las filas. El cronograma
+no sobrescribe `config/construction_g8.json`; se incluye en el JSON exportado.
+El perfil inicial general se sustituye por las temperaturas de colocación.
+
+La fuente constante actúa desde la colocación y el pulso coseno comienza a
+edad cero en cada vertida. Qmax sigue fijo en 1300 W/m³ en la interfaz. Las
+curvas Q se muestran por capa, con colores identificados en el subtítulo.
+Las celdas futuras se ocultan del modelo, cortes, perfiles y estadísticas;
+la sonda central muestra «—» hasta estar colocada. La tabla registra cronograma
+y volúmenes. El balance incluye la energía introducida con el hormigón nuevo,
+disponible en `construction` del JSON exportado. El paso temporal solicitado
+es un máximo, limitado por estabilidad, eventos y duración del pulso.
+
+Con servidor, el cálculo utiliza `thermal3d.construction.solve_construction`.
+El HTML portátil conserva el funcionamiento sin conexión mediante su núcleo
+JavaScript contrastado con Python. La activación es instantánea por capa;
+no se modela llenado gradual ni hidratación calibrada.
+
+La cinética por etapas usa edad equivalente `te`, inicializada al colocar:
+`f = exp[-Ea/R · (1/(T+273.15) − 1/293.15)]`,
+`q = rate(te_n) · f(T_n)` y `te += dt · f(T_n)`. Ea está en J/mol; valor
+inicial 33500, aportado por el usuario (referencia indicada Freiesleben
+Hansen–Pedersen). Ea=0 recupera la edad cronológica. Las curvas Q muestran
+la potencia instantánea media de cada vertida, que con Arrhenius puede
+superar Qmax: 1300 W/m³ corresponde a la ley de referencia a 20 °C.
+La exportación incluye `construction.equivalent_age_s`, con las mismas celdas
+e instantes que las temperaturas. El perfil térmico dentro de una vertida
+puede producir edades equivalentes diferentes entre sus celdas.
+
+Verificación del 4 de noviembre de 2026: 228 pruebas de la batería completa
+aprobadas en 135,91 s tras incorporar edad equivalente. El contraste
+de etapas cubre Dirichlet, Neumann y Robin, fuente constante y pulso, celdas
+futuras, eventos y energía de colocación. Se comprobó en Chrome el cálculo
+portátil y la visualización de un instante con dos de tres capas colocadas.
 
 ## Pestaña de información
 
