@@ -69,7 +69,7 @@ def test_model_masks_unplaced_cells_in_temperature_and_layer_coloring():
     source = (ROOT/"web/app.js").read_text(encoding="utf-8")
     helper = source[source.index("function modelValues("):source.index("function heightProfiles(")]
     code = "let data={frames_c:[[null,20]],pour_plan:{cell_pour_id:[1,2],layers:[{},{}]}},frame=0,layers=false;const pourColorsActive=()=>layers;"
-    code += helper + "const temperature=modelValues();layers=true;console.log(JSON.stringify([temperature,modelValues()]));"
+    code += helper + "const temperature=modelValues(),hidden=modelValues(new Set([2]));layers=true;console.log(JSON.stringify([temperature,modelValues(),hidden,modelValues(new Set([2])),data.frames_c[0]]));"
     output = subprocess.run([node, "-"], input=code, encoding="utf-8", text=True, capture_output=True, check=True)
     actual = json.loads(output.stdout)
-    assert actual == [[-1e20, 20], [-1e20, .75]]
+    assert actual == [[-1e20, 20], [-1e20, .75], [-1e20, -1e20], [-1e20, -1e20], [None, 20]]

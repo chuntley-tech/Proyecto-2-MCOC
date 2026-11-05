@@ -9,6 +9,8 @@ let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHea
 const num = (v, n = 1) => v===null||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('es-CL', { maximumFractionDigits:n, minimumFractionDigits:n });
 const palette = [[40,16,78],[101,53,117],[178,73,115],[240,145,73],[246,232,121]];
 const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3' };
+const hiddenPourIds=new Set();
+let pourVisibilityVersion=0;
 
 function temperatureColor(t,low=data.colorLow,high=data.colorHigh) {
   const x = Math.max(0, Math.min(0.999999, (t-low)/(high-low)))*4;
@@ -284,10 +286,20 @@ function historyFrameAt(times,fraction) {
   return times.reduce((best,t,i)=>Math.abs(t-target)<Math.abs(times[best]-target)?i:best,0);
 }
 function showPourPlan() {
+  hiddenPourIds.clear();pourVisibilityVersion++;
+  $('pour-visibility').classList.toggle('hidden',!data.pour_plan);
+  $('pour-visibility-options').replaceChildren();
   $('pour-plan').classList.toggle('hidden',!data.pour_plan);
   $('pour-rows').replaceChildren();
   if(!data.pour_plan)return;
   const rows=data.pour_plan.layers;
+  for(const row of rows){
+    const label=document.createElement('label'),input=document.createElement('input');
+    input.type='checkbox';input.checked=true;input.dataset.pourId=row.id;
+    input.addEventListener('change',()=>{input.checked?hiddenPourIds.delete(row.id):hiddenPourIds.add(row.id);refreshPourVisibility();});
+    label.append(input,document.createTextNode(`Vertida ${row.id}`));$('pour-visibility-options').append(label);
+  }
+  $('pour-visibility-caption').textContent='Todas seleccionadas. Solo cambia la vista 3D; los gráficos y el cálculo conservan todas las vertidas.';
   $('pour-summary').textContent=`${rows.length} capas de igual altura · volumen voxelizado total ${num(rows.reduce((s,r)=>s+r.voxel_volume_m3,0),2)} m³ · ${data.construction?'activación por cronograma':'todas presentes desde t = 0'}`;
   $('pour-scope').textContent=data.construction?'Colocación instantánea por capa. Las superficies temporales intercambian calor hasta recibir la siguiente capa. Fuente por edad local; balance con energía de colocación.':'División geométrica: cambiar solo su cantidad no altera las temperaturas.';
   for(const row of rows){
@@ -298,7 +310,13 @@ function showPourPlan() {
   }
 }
 function pourColorsActive(){return !!data?.pour_plan&&$('model-color').value==='pours';}
-function modelValues(){return data.frames_c[frame].map((t,i)=>t===null?-1e20:pourColorsActive()?(data.pour_plan.cell_pour_id[i]-.5)/data.pour_plan.layers.length:t);}
+function refreshPourVisibility() {
+  pourVisibilityVersion++;
+  const shown=data.pour_plan.layers.length-hiddenPourIds.size;
+  $('pour-visibility-caption').textContent=`${shown} de ${data.pour_plan.layers.length} vertidas seleccionadas. Las aún no colocadas permanecen ocultas. Solo cambia la vista 3D; los gráficos y el cálculo conservan todas las vertidas.`;
+  renderer.draw();
+}
+function modelValues(hiddenIds=new Set()){return data.frames_c[frame].map((t,i)=>t===null||hiddenIds.has(data.pour_plan?.cell_pour_id[i])?-1e20:pourColorsActive()?(data.pour_plan.cell_pour_id[i]-.5)/data.pour_plan.layers.length:t);}
 function heightProfiles(result,current) {
   const dim=result.dimension, axis=dim-1, n=result.shape[axis], nodal=dim===1;
   const mid=result.shape.map(v=>Math.floor(v/2));
@@ -413,8 +431,8 @@ class ThermalRenderer {
     const gl=this.gl,L=this.locations;gl.viewport(0,0,this.canvas.width,this.canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.useProgram(this.program);gl.bindVertexArray(this.vao);gl.uniformMatrix4fv(L.matrix,false,matrix);gl.uniform3fv(L.center,this.center);gl.uniform3fv(L.delta,data.spacing_m);gl.uniform1f(L.scale,2/this.maxLength);
     gl.uniform1f(L.low,pourColorsActive()?0:data.colorLow);gl.uniform1f(L.high,pourColorsActive()?1:data.colorHigh);gl.uniform1i(L.cutMode,mode==='x'?1:mode==='z'?2:0);gl.uniform1f(L.cut,cut);
-    const frameKey=`${frame}:${$('model-color').value}`;
-    if(this.lastFrame!==frameKey){gl.bindBuffer(gl.ARRAY_BUFFER,this.temperatureBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(modelValues()),gl.DYNAMIC_DRAW);this.lastFrame=frameKey;}
+    const frameKey=`${frame}:${$('model-color').value}:${pourVisibilityVersion}`;
+    if(this.lastFrame!==frameKey){gl.bindBuffer(gl.ARRAY_BUFFER,this.temperatureBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(modelValues(hiddenPourIds)),gl.DYNAMIC_DRAW);this.lastFrame=frameKey;}
     gl.drawArraysInstanced(gl.TRIANGLES,0,36,data.positions_m.length);
   }
   software(matrix,box,mode,cut) {
@@ -422,9 +440,9 @@ class ThermalRenderer {
     const ctx=this.ctx;ctx.setTransform(box.dpr,0,0,box.dpr,0,0);ctx.clearRect(0,0,box.w,box.h);
     const visible=p=>mode==='full'||p[mode==='x'?0:2]<=cut;
     const [nx,ny,nz]=data.shape, entries=[];
-    const keep=(i,j,k)=>{if(i<0||j<0||k<0||i>=nx||j>=ny||k>=nz)return false;const q=lookup[(i*ny+j)*nz+k];return q>=0&&data.frames_c[frame][q]!==null&&visible(data.positions_m[q]);};
+    const keep=(i,j,k)=>{if(i<0||j<0||k<0||i>=nx||j>=ny||k>=nz)return false;const q=lookup[(i*ny+j)*nz+k];return q>=0&&data.frames_c[frame][q]!==null&&!hiddenPourIds.has(data.pour_plan?.cell_pour_id[q])&&visible(data.positions_m[q]);};
     for(let q=0;q<data.positions_m.length;q++) {
-      const p=data.positions_m[q];if(data.frames_c[frame][q]===null||!visible(p))continue;
+      const p=data.positions_m[q];if(data.frames_c[frame][q]===null||hiddenPourIds.has(data.pour_plan?.cell_pour_id[q])||!visible(p))continue;
       const flat=data.active_indices[q],i=Math.floor(flat/(ny*nz)),j=Math.floor(flat/nz)%ny,k=flat%nz;
       if(keep(i-1,j,k)&&keep(i+1,j,k)&&keep(i,j-1,k)&&keep(i,j+1,k)&&keep(i,j,k-1)&&keep(i,j,k+1))continue;
       const v=p.map((x,a)=>(x-this.center[a])*2/this.maxLength), out=[0,0,0,0];
@@ -433,7 +451,7 @@ class ThermalRenderer {
       entries.push({x:(out[0]/out[3]+1)*box.w/2,y:(1-out[1]/out[3])*box.h/2,z:out[2]/out[3],q,size:Math.max(2,box.h*data.spacing_m[0]/this.maxLength/out[3]*2.5)});
     }
     entries.sort((a,b)=>b.z-a.z);
-    const values=modelValues(),layers=pourColorsActive();
+    const values=modelValues(hiddenPourIds),layers=pourColorsActive();
     for(const p of entries){ctx.fillStyle=`rgb(${temperatureColor(values[p.q],layers?0:data.colorLow,layers?1:data.colorHigh).join(',')})`;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);}
   }
 }
@@ -442,6 +460,12 @@ function updateClip(){const open=$('view-mode').value!=='full'&&data?.dimension=
 
 form.addEventListener('submit',calculate);
 $('model-color').addEventListener('change',draw);
+for(const [id,hide] of [['show-all-pours',false],['hide-all-pours',true]])$(id).addEventListener('click',()=>{
+  if(!data?.pour_plan)return;
+  hiddenPourIds.clear();if(hide)for(const row of data.pour_plan.layers)hiddenPourIds.add(row.id);
+  for(const input of $('pour-visibility-options').querySelectorAll('input'))input.checked=!hide;
+  refreshPourVisibility();
+});
 function selectTab(section) {
   for(const name of ['laboratory','project']){
     const active=name===section;

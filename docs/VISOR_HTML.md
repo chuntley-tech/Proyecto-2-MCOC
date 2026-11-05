@@ -83,6 +83,13 @@ Los volúmenes no son iguales entre capas porque cambia la sección del sólido.
 El selector **Colorear modelo → Vertidas planificadas** muestra sus colores
 en la vista 3D y admite cortes para ver el interior.
 
+Sobre el modelo, **Mostrar vertidas** permite marcar cada capa o usar
+**Mostrar todas / Ocultar todas**. Es un filtro de la vista 3D, compatible con
+temperaturas, colores por vertida y cortes. Conserva los gráficos, estadísticas
+y exportación completos. En construcción por etapas, una capa seleccionada
+solo aparece después de su colocación. Un nuevo cálculo restablece todas
+las selecciones.
+
 En **Construcción → Simultánea** todas las celdas están presentes desde t = 0:
 cambiar solo su cantidad no cambia las temperaturas.
 

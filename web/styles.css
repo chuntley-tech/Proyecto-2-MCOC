@@ -278,3 +278,10 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
 @media(prefers-reduced-motion:reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+.pour-visibility { padding: 14px 19px; border-top: 1px solid var(--line); }
+.visibility-heading, .visibility-options { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.visibility-heading { margin-bottom: 12px; font-size: 12px; }
+.visibility-heading .secondary { padding: 6px 10px; font-size: 11px; }
+.visibility-options label { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.visibility-options input { width: 16px; height: 16px; margin: 0; accent-color: var(--blue); }
+.pour-visibility .hint { margin: 10px 0 0; }
