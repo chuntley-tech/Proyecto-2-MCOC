@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#315cf2">
   <title>MCOC · Laboratorio térmico</title>
   <link rel="stylesheet" href="/styles.css">
+  <script src="/terrain.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
@@ -17,6 +18,7 @@
   <nav class="page-tabs" role="tablist" aria-label="Secciones del proyecto">
     <button id="tab-laboratory" role="tab" aria-selected="true" aria-controls="panel-laboratory" type="button">Simulador térmico</button>
     <button id="tab-project" role="tab" aria-selected="false" aria-controls="panel-project" tabindex="-1" type="button">Información del proyecto</button>
+    <button id="tab-terrain" role="tab" aria-selected="false" aria-controls="panel-terrain" tabindex="-1" type="button">Terreno 3D</button>
   </nav>
   <div class="workspace" id="panel-laboratory" role="tabpanel" aria-labelledby="tab-laboratory">
     <aside class="sidebar">
@@ -119,7 +121,7 @@
     </aside>
 
     <main>
-      <div class="page-heading"><div><div class="eyebrow">EXPLORACIÓN INTERACTIVA</div><h1>Temperatura, celda a celda.</h1><p>Calcula un caso y observa cómo evoluciona el calor.</p></div><button id="download" class="secondary" disabled>↓ Exportar resultados</button></div>
+      <div class="page-heading"><div><div class="eyebrow">EXPLORACIÓN INTERACTIVA</div><h1>Temperatura, celda a celda.</h1><p>Calcula un caso y observa cómo evoluciona el calor.</p></div><div class="view-tools terrain-return"><button id="back-to-terrain" class="secondary" type="button">Ver terreno</button><button id="download" class="secondary" disabled>↓ Exportar resultados</button></div></div>
       <div id="error" role="alert" class="error hidden"></div>
       <div class="result-state"><span id="state-dot" class="state-dot"></span><span id="state">Preparando el laboratorio…</span><span id="source-label" class="source-label">Modelo G8</span></div>
       <div id="pending-changes" class="pending-changes hidden" role="status" aria-live="polite">Cambios pendientes de simular. Los gráficos, las condiciones de borde y el resumen muestran el último cálculo completado. Pulsa Calcular temperaturas para actualizarlos.</div>
@@ -183,6 +185,41 @@
       <article class="card info-card"><h2>Vertidas y superficies temporales</h2><p>En modo simultáneo, variar solo la cantidad de capas conserva el problema térmico. En modo por etapas, cada capa entra en su instante y a su temperatura de colocación, con <strong>te = 0</strong>. El hormigón futuro permanece fuera del intercambio térmico.</p><p>Una superficie temporal recibe la condición principal mientras está expuesta. Al colocar la capa vecina pasa a ser una interfaz conductiva interna. El balance incluye la energía incorporada con el hormigón nuevo, además de la fuente y los bordes.</p><p>La colocación es instantánea por capa y el material es común. No se simulan llenado gradual, resistencia de junta ni viento, radiación o suelo reales. Ocultar una vertida es un filtro visual: conserva el cálculo, las estadísticas y la exportación completos.</p></article>
       <article class="card info-card"><h2>Cómo interpretar los resultados</h2><p>Dirichlet prescribe la temperatura en la <strong>cara</strong>; el centro de la celda puede tener otra temperatura. Neumann positivo aporta calor hacia el hormigón. Robin intercambia calor según la temperatura superficial y el ambiente; la condición de la base se configura por separado.</p><p>La máxima, mínima y media se calculan sobre el hormigón activo de cada instante. La sonda central corresponde a la posición indicada; muestra «—» antes de colocarse. Las curvas contienen estados guardados: su máximo no garantiza capturar el pico continuo entre ellos.</p><p>La voxelización clasifica centros, aproxima fronteras escalonadas y estima volumen como Nceldas · ΔxΔyΔz. Refinar la grilla ayuda a estudiar ese error. La estabilidad y un residuo energético pequeño verifican aspectos numéricos; la precisión física requiere propiedades, bordes y cinética contrastados con datos del caso.</p></article>
     </div>
+  </section>
+  <section id="panel-terrain" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-terrain">
+    <div class="eyebrow">EMPLAZAMIENTO DOCENTE · GRUPO 8</div>
+    <h1>Terreno 3D de Llanquihue</h1>
+    <p class="project-intro">Explora el relieve de Cuatro Vientos. Selecciona el rayo luminoso para abrir la fundación en el simulador térmico.</p>
+    <article class="card terrain-card">
+      <div class="card-heading">
+        <div><h2>Cuatro Vientos · punto docente G8</h2><p id="terrain-location">Llanquihue, Región de Los Lagos</p></div>
+        <div class="view-tools">
+          <select id="terrain-layer" aria-label="Capa del terreno"><option value="auto">Vista automática</option><option value="satellite">Satélite</option><option value="relief">Relieve</option></select>
+          <button id="terrain-zoom-out" class="icon-button" type="button" aria-label="Alejar terreno">−</button>
+          <output id="terrain-zoom-level" aria-label="Nivel de acercamiento">1,0×</output>
+          <button id="terrain-zoom-in" class="icon-button" type="button" aria-label="Acercar terreno">+</button>
+          <button id="terrain-reset" class="secondary" type="button">Restablecer vista</button>
+        </div>
+      </div>
+      <div class="terrain-stage">
+        <canvas aria-label="Relieve tridimensional del entorno del punto docente G8"></canvas>
+        <p id="terrain-imagery-credit" class="terrain-imagery-credit hidden"><a href="https://cloudless.eox.at/" target="_blank" rel="noopener noreferrer">EOxCloudless</a> by EOX IT Services GmbH<br>Contains modified Copernicus Sentinel data 2016 · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
+        <div class="terrain-north" aria-label="Norte"><b>N</b><span aria-hidden="true">↑</span></div>
+        <p id="terrain-status" class="terrain-status" role="status">Preparando el relieve…</p>
+        <button id="terrain-beacon" class="terrain-beacon hidden" type="button" aria-label="Abrir fundación G8 en el simulador">
+          <span class="beacon-label">G8 · Ver fundación <span aria-hidden="true">↗</span></span><span class="beacon-light" aria-hidden="true"></span><span class="beacon-dot" aria-hidden="true"></span>
+        </button>
+        <div class="terrain-scale" aria-label="Escala horizontal"><span aria-hidden="true"></span><output></output></div>
+        <div class="terrain-hint">Arrastra para girar · rueda o botones para acercar</div>
+      </div>
+      <div class="terrain-credits">
+        <p id="terrain-details">Recorte de 18 × 18 km · relieve vertical ×3 para facilitar la lectura.</p>
+        <p id="terrain-layer-status" aria-live="polite">La vista automática muestra el satélite al alejarse y resalta el relieve al acercarse.</p>
+        <p>El marcador ubica el punto meteorológico docente G8. La cota mostrada es una estimación del modelo de superficie. La fundación se explora a escala de modelo en el simulador.</p>
+        <p>Produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. <a href="https://registry.opendata.aws/copernicus-dem/" target="_blank" rel="noopener noreferrer">Fuente de elevaciones</a> · <a href="https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/DEM/resources/license/License-COPDEM-30.pdf" target="_blank" rel="noopener noreferrer">Licencia</a>.</p>
+        <p>Los organismos a cargo del programa Copernicus por ley o por delegación no asumen responsabilidad por el uso de Copernicus WorldDEM-30.</p>
+      </div>
+    </article>
   </section>
 </body>
 </html>

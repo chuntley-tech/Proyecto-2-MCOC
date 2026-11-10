@@ -160,6 +160,18 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert 'value="1300" readonly' in text
     assert 'source-example' not in text and 'source-activate' not in text
     assert 'id="tab-project"' in text and 'id="panel-project"' in text
+    assert 'id="tab-terrain"' in text and 'id="terrain-beacon"' in text
+    embedded_relief = re.search(r'<script id="mcoc-terrain" type="application/json">(.*?)</script>', text, re.S)
+    assert embedded_relief is not None
+    terrain = json.loads(embedded_relief.group(1))
+    assert terrain == json.loads((ROOT/"web/terrain_g8.json").read_text(encoding="utf-8"))
+    site = json.loads((ROOT/"config/case_g8.json").read_text(encoding="utf-8"))["site"]
+    assert (terrain["latitude"], terrain["longitude"]) == (site["latitude"], site["longitude"])
+    assert len(terrain["elevation_m"]) == terrain["samples"]**2 and np.ptp(terrain["elevation_m"]) > 0
+    texture = re.search(r'<script id="mcoc-texture" type="text/plain">([A-Za-z0-9+/=]+)</script>', text)
+    assert texture is not None
+    assert base64.b64decode(texture.group(1)) == (ROOT/"web/terrain_g8.jpg").read_bytes()
+    assert 'Contains modified Copernicus Sentinel data 2016' in text
     assert 'id="foundation_geometry"' in text and 'id="pour_count"' in text
     # La fuente de Google Fonts y su licencia viajan dentro del único HTML.
     embedded_font=re.search(r'data:font/ttf;base64,([A-Za-z0-9+/=]+)',text)

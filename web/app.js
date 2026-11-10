@@ -466,22 +466,85 @@ for(const [id,hide] of [['show-all-pours',false],['hide-all-pours',true]])$(id).
   for(const input of $('pour-visibility-options').querySelectorAll('input'))input.checked=!hide;
   refreshPourVisibility();
 });
+const tabNames = ['laboratory', 'project', 'terrain'];
+let terrainView, terrainLoading = false;
+
+async function showTerrain() {
+  if (terrainView) {
+    terrainView.scheduleDraw();
+    return;
+  }
+  if (terrainLoading) return;
+  terrainLoading = true;
+  const status = $('terrain-status');
+  status.textContent = 'Preparando el relieve…';
+  status.classList.remove('hidden');
+  $('terrain-beacon').classList.add('hidden');
+  try {
+    const embedded = $('mcoc-terrain');
+    let terrain;
+    if (embedded) {
+      terrain = JSON.parse(embedded.textContent);
+    } else {
+      const response = await fetch('/terrain_g8.json');
+      if (!response.ok) throw Error('No se pudo cargar el recorte de Llanquihue.');
+      terrain = await response.json();
+    }
+    $('terrain-location').textContent = `${terrain.latitude.toFixed(6)}, ${terrain.longitude.toFixed(6)} · Los Lagos`;
+    const texture = $('mcoc-texture');
+    let photo = new Image();
+    photo.src = texture ? `data:image/jpeg;base64,${texture.textContent.trim()}` : '/terrain_g8.jpg';
+    try {
+      await photo.decode();
+    } catch {
+      photo = null;
+    }
+    terrainView = new TerrainView($('panel-terrain'), terrain, photo);
+    const imagery = photo ? ' · Sentinel-2 de 2016' : ' · textura satelital no disponible';
+    const sideKm = num(terrain.extent_m / 1000, 0);
+    $('terrain-details').textContent = `Recorte de ${sideKm} × ${sideKm} km · malla visual de ${terrainView.spacing} m · relieve vertical ×3 · cota estimada del punto ${num(terrainView.elevation, 1)} m${imagery}.`;
+    status.classList.add('hidden');
+    $('terrain-beacon').classList.remove('hidden');
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    terrainLoading = false;
+  }
+}
+
 function selectTab(section) {
-  for(const name of ['laboratory','project']){
+  for(const name of tabNames){
     const active=name===section;
     $('tab-'+name).setAttribute('aria-selected',String(active));$('tab-'+name).tabIndex=active?0:-1;
     $('panel-'+name).classList.toggle('hidden',!active);
   }
   if(section==='laboratory')requestAnimationFrame(draw);
+  if(section==='terrain')void showTerrain();
 }
-['laboratory','project'].forEach((name,index)=>{
+tabNames.forEach((name,index)=>{
   $('tab-'+name).addEventListener('click',()=>selectTab(name));
   $('tab-'+name).addEventListener('keydown',event=>{
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-    event.preventDefault();const next=event.key==='Home'?'laboratory':event.key==='End'?'project':['laboratory','project'][1-index];
+    event.preventDefault();
+    const offset = event.key === 'ArrowLeft' ? -1 : 1;
+    const next = event.key === 'Home' ? tabNames[0] : event.key === 'End' ? tabNames.at(-1)
+      : tabNames[(index + offset + tabNames.length) % tabNames.length];
     selectTab(next);$('tab-'+next).focus();
   });
 });
+$('back-to-terrain').addEventListener('click', () => {
+  selectTab('terrain');
+  $('tab-terrain').focus();
+});
+$('terrain-beacon').addEventListener('click', () => {
+  selectTab('laboratory');
+  $('tab-laboratory').focus();
+  if (!defaults || busy) return;
+  if ($('mode').value !== 'fundacion') preset('fundacion');
+  if (data?.mode !== 'fundacion') void calculate();
+  else refreshPendingChanges();
+});
+if ($('tab-terrain').getAttribute('aria-selected') === 'true') void showTerrain();
 form.addEventListener('input',()=>{updateFields();refreshPendingChanges();});
 form.addEventListener('change',()=>{updateFields();refreshPendingChanges();});
 $('mode').addEventListener('change',()=>{preset($('mode').value);refreshPendingChanges();});

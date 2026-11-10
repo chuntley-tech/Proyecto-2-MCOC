@@ -18,6 +18,8 @@ from thermal3d.dashboard import metadata, run_simulation
 WEB = Path(__file__).resolve().parents[1]/"web"
 RUN_LOCK = threading.Lock()
 ASSETS = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
+          "/terrain.js": ("terrain.js", "text/javascript"), "/terrain_g8.json": ("terrain_g8.json", "application/json"),
+          "/terrain_g8.jpg": ("terrain_g8.jpg", "image/jpeg"),
           "/styles.css": ("styles.css", "text/css"), "/visor_termico.html": ("../visor_termico.html", "text/html"),
           "/fonts/Inter-Variable.ttf": ("fonts/Inter-Variable.ttf", "font/ttf")}
 

@@ -131,6 +131,50 @@ de etapas cubre Dirichlet, Neumann y Robin, fuente constante y pulso, celdas
 futuras, eventos y energía de colocación. Se comprobó en Chrome el cálculo
 portátil y la visualización de un instante con dos de tres capas colocadas.
 
+## Terreno 3D de Llanquihue
+
+La tercera pestaña muestra un recorte del entorno de Cuatro Vientos. Arrastrar
+para girar e inclinar. Usar la rueda o los botones para acercar. El rayo abre el
+caso Fundación G8. Si ese caso ya está seleccionado, se conservan sus parámetros
+y resultados al ir y volver del terreno. Si se seleccionó otro caso, el rayo
+abre la fundación. El simulador sigue siendo la vista inicial.
+
+Fuente de elevaciones: [Copernicus GLO-30 Public](https://registry.opendata.aws/copernicus-dem/).
+Se usó el [GeoTIFF S42 W074](https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S42_00_W074_00_DEM/Copernicus_DSM_COG_10_S42_00_W074_00_DEM.tif).
+El recorte usa coordenadas locales este/norte alrededor del punto WGS84 G8 y
+muestreo bilineal de 201 × 201 puntos sobre 18 × 18 km. La separación de la malla
+visual es de 90 m. El zoom alcanza 24× y la escala horizontal se ajusta a la
+vista. La exageración vertical ×3 y el sombreado facilitan la
+lectura. El rayo está anclado a la cota interpolada del modelo de
+superficie en el punto meteorológico docente.
+
+La textura es un [recorte de EOxCloudless Sentinel-2 de 2016](https://tiles.maps.eox.at/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=s2cloudless&STYLES=&SRS=EPSG%3A4326&BBOX=-73.402935522,-41.303577582,-73.188270478,-41.141500418&WIDTH=2048&HEIGHT=2048&FORMAT=image%2Fjpeg),
+obtenido como JPEG de 2048 × 2048 píxeles, con los mismos límites WGS84 del
+relieve. Se incluye como `web/terrain_g8.jpg`, SHA-256
+`7441a20249e265af18c9bb184e1f9c64b0f76ec77ee9fa0e2c217824b6df9fcc`.
+La malla usa el norte de la imagen en el extremo norte del recorte y combina
+la foto con el sombreado del relieve. Si WebGL no está disponible, Canvas 2D
+muestrea los colores sobre la malla. El recorte y la imagen se incluyen en el
+HTML portátil y se muestran con los créditos de EOX y la licencia CC BY 4.0.
+
+**Vista automática** mezcla la textura con el relieve según el tamaño de un
+píxel nominal de Sentinel-2 en pantalla. La transición comienza al superar
+1,5 píxeles de pantalla por 10 m de terreno y completa el cambio a relieve
+a partir de 4 píxeles. En WebGL el relieve incluye curvas de nivel cada 10 m
+derivadas de la misma malla. **Satélite** y **Relieve** fijan la capa elegida
+para cualquier zoom.
+
+Para reproducir el recorte, descargar el GeoTIFF anterior y ejecutar:
+
+```cmd
+.venv\Scripts\python.exe -m scripts.build_terrain ruta\al\GeoTIFF.tif
+.venv\Scripts\python.exe -m scripts.build_dashboard
+```
+
+`web/terrain_g8.json` conserva el origen de datos y el SHA-256 del GeoTIFF.
+El HTML incrusta el recorte, incluidos los créditos de Copernicus, y lo dibuja
+sin conexión. La versión servida localmente lee el mismo recorte del repositorio.
+
 ## Pestaña de información
 
 **Información del proyecto** presenta propósito, caso G8, punto meteorológico
