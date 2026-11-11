@@ -97,6 +97,36 @@ def test_nominal_foundation_seven_days_matches_python(pack):
     assert portable["history"]["center_c"][-1] == pytest.approx(27.462812176219007,abs=2e-11)
 
 
+@pytest.mark.parametrize("staged", [False, True])
+def test_foundation_environment_matches_python_and_changes_temperature(pack, staged):
+    base = {"mode": "fundacion", "resolution_m": 0.5, "duration_days": 0.4, "initial_c": 30}
+    if staged:
+        base.update(construction_mode="staged", pour_count=2,
+                    pour_schedule=json.dumps([{"start_days": 0, "placement_c": 30},
+                                              {"start_days": 0.25, "placement_c": 20}]))
+    options = {**base, "environment_mode": "e10", "environment_wind": "synthetic",
+               "environment_solar": "synthetic", "environment_formwork": "scheduled",
+               "environment_strip_h": 4, "environment_insulation": "blanket",
+               "environment_soil": "equivalent"}
+    reference = run_simulation(options)
+    portable = javascript(options, pack)
+    np.testing.assert_allclose(portable["time_s"], reference["time_s"], rtol=1e-14)
+    # Los dos exportadores redondean los campos guardados a cinco decimales.
+    np.testing.assert_allclose(np.asarray(portable["frames_c"], dtype=float),
+                               np.asarray(reference["frames_c"], dtype=float), atol=1.01e-5, rtol=0)
+    assert portable["stats"]["balance_relative_error"] < 1e-12
+    assert reference["stats"]["balance_relative_error"] < 1e-12
+    assert portable["stats"]["dt_s"] <= pack["meta"]["environment"]["max_step_s"]
+    assert "E10" in portable["boundary_used"]["laterales_y_expuestas"]
+    assert "Suelo equivalente" in reference["boundary_used"]["base"]
+    manual = run_simulation(base)
+    assert np.nanmax(np.abs(np.asarray(reference["frames_c"][-1], dtype=float)
+                            - np.asarray(manual["frames_c"][-1], dtype=float))) > 0.1
+    if not staged:
+        shade = run_simulation({**options, "environment_solar": "off"})
+        assert reference["history"]["mean_c"][-1] > shade["history"]["mean_c"][-1]
+
+
 @pytest.mark.parametrize("count",[1,4,5])
 def test_scaled_foundation_and_pour_plan_match_python(count,pack):
     options={"mode":"fundacion","resolution_m":0.5,"duration_days":0.1,

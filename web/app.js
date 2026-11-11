@@ -36,6 +36,20 @@ function stop() {if(timer)clearInterval(timer);timer=null;$('play').textContent=
 function updateFields() {
   updateSchedule();
   const main = $('boundary_type').value, base = $('bottom_type').value, mode = $('mode').value;
+  const environment = mode==='fundacion'&&$('environment_mode').value==='e10';
+  const usesSoil = environment&&$('environment_soil').value==='equivalent';
+  $('environment-fields').classList.toggle('hidden',mode!=='fundacion');
+  $('environment-options').classList.toggle('hidden',!environment);
+  $('manual-exposed-fields').classList.toggle('hidden',environment);
+  $('boundary-fields').classList.toggle('hidden',usesSoil);
+  for(const id of ['boundary_type','boundary_c','h_w_m2k','flux_in_w_m2','resistance_m2k_w'])$(id).disabled=environment;
+  for(const id of ['bottom_type','bottom_c','bottom_h_w_m2k','bottom_flux_in_w_m2'])$(id).disabled=usesSoil;
+  const fixedFilm = environment&&$('environment_wind').value==='fixed';
+  const scheduled = environment&&$('environment_formwork').value==='scheduled';
+  $('environment-h-field').classList.toggle('hidden',!fixedFilm);
+  $('environment-strip-field').classList.toggle('hidden',!scheduled);
+  $('environment_h').disabled=!fixedFilm;
+  $('environment_strip_h').disabled=!scheduled;
   $('main-temperature').classList.toggle('hidden',main==='neumann');
   $('main-h').classList.toggle('hidden',main!=='robin');
   $('main-flux').classList.toggle('hidden',main!=='neumann');
@@ -106,7 +120,9 @@ function preset(mode) {
 function options() {
   const result={};
   for(const name of Object.keys(defaults)) {
-    const value=form.elements.namedItem(name).value;
+    const field=form.elements.namedItem(name);
+    if(field.disabled){result[name]=defaults[name];continue;}
+    const value=field.value;
     result[name]=typeof defaults[name]==='number'?Number(value):name==='dt_s'?(value===''?null:Number(value)):value;
   }
   return result;
@@ -156,7 +172,18 @@ function showSimulationDetails() {
     ?'Las caras indican orientaciones de la grilla. Las superficies escalonadas expuestas del IFC usan la condición principal; solo el plano inferior usa la base.'
     :data.dimension===1?'x es el eje numérico del perfil vertical: x− = base, x+ = extremo superior.'
     :'La base es '+(data.dimension===2?'y−':'z−')+'. Neumann positivo indica calor entrante; Dirichlet prescribe la temperatura en la cara, no en el centro de celda.';
+  if(data.parameters.environment_mode==='e10'){
+    const p=data.parameters;
+    const wind=p.environment_wind==='synthetic'?'h calculado con viento sintético':`h fijo = ${num(p.environment_h,2)} W/(m²·K)`;
+    const solar=p.environment_solar==='synthetic'?'radiación sintética':'sin radiación';
+    const mold={none:'sin moldaje',permanent:'moldaje permanente',scheduled:`retiro del moldaje a las ${num(p.environment_strip_h,2)} h`}[p.environment_formwork];
+    const insulation=p.environment_insulation==='blanket'?'manta superior':'sin manta superior';
+    $('boundary-face-note').textContent=`E10 · aire sintético, ${wind}, ${solar}, ${mold} y ${insulation}.`+
+      (p.environment_soil==='equivalent'?' La base usa resistencia térmica equivalente y temperatura profunda fija.':' La base usa el borde manual.');
+  }
   $('simulation-summary').textContent=simulationSummary(data);
+  if(data.parameters.environment_mode==='e10')$('simulation-summary').textContent+=
+    ` E10 limita Δt a ${num(meta.environment.max_step_s,0)} s para resolver el ciclo meteorológico horario.`;
   if(data.construction)$('simulation-summary').textContent+=' Construcción por etapas: fuente por edad local, perfil inicial sustituido por temperaturas de colocación. Δt solicitado actúa como máximo. Las celdas futuras se ocultan.';
 }
 function refreshPendingChanges() {

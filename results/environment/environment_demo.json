@@ -1,0 +1,85 @@
+{
+  "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+  "decision_time_utc": "2026-11-11T03:12:10Z",
+  "weather_source": {
+    "type": "SINTETICO",
+    "note": "No hay snapshot (o se pidió --synthetic): serie sintética, no es pronóstico."
+  },
+  "coverage_of_weather_input": {
+    "start_utc": "2026-11-27T07:00Z",
+    "end_utc": "2026-12-11T07:00Z",
+    "needed_hours": 336.0,
+    "covered_from_utc": "2026-11-27T06:00Z",
+    "covered_until_utc": "2026-12-11T07:00Z",
+    "covered_hours": 336.0,
+    "missing_hours_at_end": 0.0,
+    "starts_before_construction": true,
+    "complete": true
+  },
+  "weather_used": {
+    "first_utc": "2026-11-27T06:00Z",
+    "last_utc": "2026-12-11T07:00Z",
+    "hours": 338,
+    "origin_hours": {
+      "sintetico": 338
+    },
+    "air_c_min": 7.0,
+    "air_c_max": 15.0,
+    "wind_max_m_s": 3.0,
+    "shortwave_max_w_m2": 650.0,
+    "snapshot": null
+  },
+  "boundary_example_side_face": {
+    "antes_desmolde": {
+      "cara": "costado (moldaje)",
+      "t_s": 259199.0,
+      "aire_c": 7.136258834650715,
+      "h_w_m2k": 14.800160472060416,
+      "capas": [
+        "moldaje terciado"
+      ],
+      "r_capas_m2k_w": 0.13846153846153844,
+      "t_sol_aire_c": 7.136258834650715
+    },
+    "despues_desmolde": {
+      "cara": "costado (moldaje)",
+      "t_s": 259201.0,
+      "aire_c": 7.136407695313177,
+      "h_w_m2k": 14.800160472060416,
+      "capas": [
+        "moldaje terciado"
+      ],
+      "r_capas_m2k_w": 0.13846153846153844,
+      "t_sol_aire_c": 7.136407695313177
+    }
+  },
+  "grid": {
+    "shape": [
+      21,
+      20
+    ],
+    "spacing_m": [
+      0.5,
+      0.275
+    ],
+    "dt_s": 600.0
+  },
+  "results": {
+    "desmolde 72 h": {
+      "dt_limit_s": 27685.510210486773,
+      "energy_balance_rel": 1.0005863800102982e-15,
+      "concrete_max_c": 67.984923295506,
+      "max_internal_spread_c": 39.52174805099895,
+      "side_mid_c_at_96h": 41.95164200659532,
+      "core_c_at_96h": 67.30393219774176
+    },
+    "moldaje permanente": {
+      "dt_limit_s": 28502.879078694816,
+      "energy_balance_rel": 0.0,
+      "concrete_max_c": 67.984923295506,
+      "max_internal_spread_c": 35.48441762696079,
+      "side_mid_c_at_96h": 46.636338363952156,
+      "core_c_at_96h": 67.30393219774176
+    }
+  }
+}

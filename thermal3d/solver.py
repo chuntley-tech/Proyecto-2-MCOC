@@ -14,6 +14,31 @@ import numpy as np
 from thermal1d.solver import Dirichlet, Neumann, Robin, _check_boundary, _evaluate
 
 
+def _is_environmental(boundary):
+    """Borde ambiental (environment.SurfaceExposure u otro con el mismo protocolo).
+
+    Debe entregar equivalent_ambient_c(t), outer_resistance_m2k_w(t) y
+    min_outer_resistance_m2k_w. La resistencia exterior puede cambiar en el
+    tiempo (viento, desmolde); el Δt estable se calcula con la mínima.
+    """
+    return all(hasattr(boundary, name) for name in
+               ("equivalent_ambient_c", "outer_resistance_m2k_w", "min_outer_resistance_m2k_w"))
+
+
+def _check_any_boundary(boundary, name):
+    if hasattr(boundary, "split"):
+        # Mapa de superficies: distintas condiciones según la cara y la región.
+        for child in boundary.children():
+            _check_any_boundary(child, name)
+    elif _is_environmental(boundary):
+        if not boundary.min_outer_resistance_m2k_w > 0:
+            raise ValueError(f"{name}: resistencia exterior mínima debe ser positiva")
+        if hasattr(boundary, "validate"):
+            boundary.validate(name)
+    else:
+        _check_boundary(boundary, name)
+
+
 @dataclass(frozen=True)
 class Parameters:
     """Geometría SI, propiedades escalares o por celda y entradas trazables.
@@ -56,7 +81,7 @@ class Parameters:
         if not callable(self.source_w_m3):
             _evaluate(self.source_w_m3, 0.0)
         if self.exposed is not None:
-            _check_boundary(self.exposed, "exposed")
+            _check_any_boundary(self.exposed, "exposed")
 
     @property
     def spacing_m(self):
@@ -126,9 +151,25 @@ def _interface(active, lower, upper, k, geometric_factor, diagonal):
     return g
 
 
-def _add_face(faces, diagonal, indices, mask, boundary, k, area, delta):
-    """Ensamble común de una cara exterior o expuesta, una sola vez."""
+def _add_face(faces, diagonal, indices, mask, boundary, k, area, delta, direction=None):
+    """Ensamble común de una cara exterior o expuesta, una sola vez.
+
+    direction ('x-', 'z+', …) indica hacia dónde mira la cara; lo usa un mapa
+    de superficies para distinguir, por ejemplo, la cara superior del costado.
+    """
+    if hasattr(boundary, "split"):
+        for submask, child in boundary.split(indices, mask, direction):
+            if np.any(submask):
+                _add_face(faces, diagonal, indices, submask, child, k, area, delta, direction)
+        return
     local_k = k if np.isscalar(k) else k[indices]
+    if _is_environmental(boundary):
+        # Media celda de hormigón en serie con la resistencia exterior variable.
+        half = delta / (2 * local_k)
+        g = area / (boundary.min_outer_resistance_m2k_w + half) * mask
+        diagonal[indices] += g
+        faces.append((indices, boundary, half, area * mask))
+        return
     if isinstance(boundary, Dirichlet):
         g = 2 * local_k * area / delta * mask
     elif isinstance(boundary, Robin) and boundary.h_w_m2k > 0:
@@ -163,23 +204,25 @@ def prepare(p):
     for face, boundary in p.boundaries.items():
         if face not in valid:
             raise ValueError(f"Cara desconocida para esta grilla: {face}")
-        _check_boundary(boundary, face)
+        _check_any_boundary(boundary, face)
         axis = "xyz".index(face[0])
         indices = [slice(None)] * len(p.shape)
         indices[axis] = 0 if face[1] == "-" else -1
         indices = tuple(indices)
         area = volume / spacing[axis]
-        _add_face(faces, diagonal, indices, active[indices], boundary, k, area, spacing[axis])
+        _add_face(faces, diagonal, indices, active[indices], boundary, k, area, spacing[axis], face)
     if p.exposed is not None:
         # Lista corta de caras orientadas, sin iterar por celdas.
         oriented = [(0, np.s_[:-1, ...], np.s_[1:, ...]), (0, np.s_[1:, ...], np.s_[:-1, ...]),
                     (1, np.s_[:, :-1, ...], np.s_[:, 1:, ...]), (1, np.s_[:, 1:, ...], np.s_[:, :-1, ...])]
         if len(p.shape) == 3:
             oriented += [(2, np.s_[:, :, :-1], np.s_[:, :, 1:]), (2, np.s_[:, :, 1:], np.s_[:, :, :-1])]
-        for axis, indices, neighbor in oriented:
+        for number, (axis, indices, neighbor) in enumerate(oriented):
             mask = active[indices] & ~active[neighbor]
             if mask.any():
-                _add_face(faces, diagonal, indices, mask, p.exposed, k, volume/spacing[axis], spacing[axis])
+                direction = "xyz"[axis] + ("+" if number % 2 == 0 else "-")
+                _add_face(faces, diagonal, indices, mask, p.exposed, k, volume/spacing[axis], spacing[axis],
+                          direction)
     alpha = k * volume / capacity
     max_alpha = float(alpha) if np.isscalar(alpha) else float(np.max(alpha[active]))
     general_dt = 0.5 / (max_alpha * float(np.sum(1 / spacing**2)))
@@ -227,6 +270,10 @@ def advance(p, c, temperature, time, dt, source_w_m3):
     for indices, boundary, g, area in c.faces:
         if isinstance(boundary, Neumann):
             face_power = boundary.flux_in_w_m2 * area
+        elif _is_environmental(boundary):
+            # g es aquí la media celda Δ/(2k); la conductancia se arma en t_n.
+            conductance = area / (boundary.outer_resistance_m2k_w(time) + g)
+            face_power = conductance * (boundary.equivalent_ambient_c(time) - temperature[indices])
         else:
             ambient = boundary.temperature_c if isinstance(boundary, Dirichlet) else boundary.ambient_at(time)
             face_power = g * (ambient - temperature[indices])

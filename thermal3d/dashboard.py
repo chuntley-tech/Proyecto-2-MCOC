@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
+from environment import Layer, LayerSchedule, Region, SurfaceExposure, SurfaceMap
 from scripts.voxelize_foundation import case_ifc
 from thermal1d.solver import (Dirichlet, Neumann, Robin, Parameters as Parameters1D,
                               energy_per_area_j_m2, solve as solve1d)
@@ -21,6 +22,7 @@ from thermal3d import Parameters, prepare, solve
 from thermal3d.reference import sine_initial
 from thermal3d.solver import effective_h
 from thermal3d.voxel import load_ifc_meshes, voxelize
+from weather.series import HOUR, synthetic_series
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT/"config/case_g8.json"
@@ -37,6 +39,17 @@ DEFAULTS.update({"foundation_geometry": "ifc", "foundation_x_m": 18.0,
                  "foundation_y_m": 18.0, "foundation_height_m": 3.3, "pour_count": 3})
 DEFAULTS.update({"construction_mode": "simultaneous", "pour_schedule": ""})
 DEFAULTS["activation_energy_j_mol"] = 33500.0
+ENV_CHOICES = {
+    "environment_mode": ("standard", "e10"),
+    "environment_wind": ("fixed", "synthetic"),
+    "environment_solar": ("off", "synthetic"),
+    "environment_formwork": ("none", "permanent", "scheduled"),
+    "environment_insulation": ("none", "blanket"),
+    "environment_soil": ("standard", "equivalent"),
+}
+DEFAULTS.update({key: choices[0] for key, choices in ENV_CHOICES.items()})
+DEFAULTS["environment_strip_h"] = 72.0
+DEFAULTS["environment_h"] = 10.0
 BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.001, 30),
           "conductivity_w_mk": (0.05, 10), "density_kg_m3": (100, 5000),
           "specific_heat_j_kgk": (100, 5000), "resolution_m": (0.2, 1.0),
@@ -48,6 +61,8 @@ BOUNDS = {"initial_c": (-50, 150), "amplitude_c": (0, 100), "duration_days": (0.
 BOUNDS.update({"foundation_x_m": (4, 40), "foundation_y_m": (4, 40),
                "foundation_height_m": (0.6, 12)})
 BOUNDS["activation_energy_j_mol"] = (0, 100000)
+BOUNDS["environment_strip_h"] = (0.01, 720)
+BOUNDS["environment_h"] = (0.01, 1000)
 
 
 def validate_options(data):
@@ -55,6 +70,10 @@ def validate_options(data):
     if not isinstance(data, dict) or set(data)-set(DEFAULTS):
         raise ValueError("La solicitud contiene parámetros desconocidos")
     options = {**DEFAULTS, **data}
+    if any(options[key] not in choices for key, choices in ENV_CHOICES.items()):
+        raise ValueError("Opción ambiental E10 desconocida")
+    if options["environment_mode"] == "e10" and options["mode"] != "fundacion":
+        raise ValueError("El entorno E10 solo está disponible para la fundación")
     if options["construction_mode"] not in ("simultaneous", "staged"):
         raise ValueError("Modo constructivo desconocido")
     if options["mode"] not in ("fundacion", "1d", "2d", "3d"):
@@ -172,7 +191,60 @@ def metadata():
     defaults.update(dict(zip(("foundation_x_m","foundation_y_m","foundation_height_m"),(high-low).tolist())))
     validate_options(defaults)
     return {"defaults": defaults, "ifc": {**source, "lengths_m": (high-low).tolist(), "components": len(meshes)},
+            "environment": environment_inputs(),
             "data_status": "Ensayos sintéticos para exploración térmica.", "max_steps": 8000}
+
+
+@lru_cache(maxsize=1)
+def environment_inputs():
+    """Comparte los supuestos de E10 y un ciclo sintético horario con el HTML portátil."""
+    config = json.loads((ROOT / "config" / "environment_g8.json").read_text(encoding="utf-8"))
+    start = config["construction"]["start_utc"]
+    functions = synthetic_series(start, 2).boundary_functions(start)
+    weather = {
+        name: [functions[name](hour * HOUR) for hour in range(25)]
+        for name in ("air_c", "wind_10m_m_s")
+    }
+    # La media solar de la hora previa se interpola desde centros de hora.
+    weather["shortwave_w_m2"] = [functions["shortwave_w_m2"]((hour + 0.5) * HOUR)
+                                for hour in range(-1, 24)]
+    return {**{key: config[key] for key in ("convection", "solar", "formwork", "insulation", "soil")},
+            "weather": weather, "max_step_s": config["demo_section"]["dt_s"],
+            "origin": "ciclo horario sintético E10 repetido cada 24 h"}
+
+
+def environment_boundaries(o, bottom):
+    """Usa capas en serie por orientación y, opcionalmente, una base equivalente."""
+    inputs = environment_inputs()
+    series = inputs["weather"]
+    def weather(name, shift=0):
+        return lambda t: float(np.interp((t / HOUR + shift) % 24, np.arange(25), series[name]))
+    wind = o["environment_wind"] == "synthetic"
+    solar = o["environment_solar"] == "synthetic"
+    strip = o["environment_formwork"]
+    form = inputs["formwork"]
+    blanket = inputs["insulation"]
+    layer = Layer("moldaje E10", form["thickness_m"], form["conductivity_w_mk"])
+    side_layers = {"none": LayerSchedule(), "permanent": LayerSchedule(((0, (layer,)),)),
+                   "scheduled": LayerSchedule.formwork_removed_at(o["environment_strip_h"] * HOUR, layer)}[strip]
+    top_layers = LayerSchedule(((0, (Layer("manta E10", blanket["thickness_m"],
+                                          blanket["conductivity_w_mk"]),)),)) if o["environment_insulation"] == "blanket" else LayerSchedule()
+    conv = {key: value for key, value in inputs["convection"].items() if key != "source"}
+    common = dict(air_c=weather("air_c"), wind_10m_m_s=weather("wind_10m_m_s") if wind else 0,
+                  shortwave_w_m2=weather("shortwave_w_m2", 0.5) if solar else 0,
+                  h_w_m2k=None if wind else o["environment_h"], max_wind_m_s=max(series["wind_10m_m_s"]), **conv)
+    s = inputs["solar"]
+    side = SurfaceExposure(**common, layers=side_layers, solar_absorptance=s["absorptance_formwork"]
+                           if strip != "none" else s["absorptance_concrete"], solar_factor=s["side_factor"])
+    top = SurfaceExposure(**common, layers=top_layers, solar_absorptance=s["absorptance_concrete"], solar_factor=s["top_factor"])
+    exposed = SurfaceMap((Region(side, frozenset({"x-", "x+", "y-", "y+"})),
+                          Region(top, frozenset({"z+"}))), default=SurfaceExposure(**common))
+    if o["environment_soil"] == "equivalent":
+        soil = inputs["soil"]
+        bottom = Robin(soil["conductivity_w_mk"] / soil["depth_m"], soil["deep_temperature_c"])
+    faces = {key: exposed for key in ("x-", "x+", "y-", "y+", "z+")}
+    faces["z-"] = bottom
+    return faces, exposed, bottom
 
 
 def _boundary(kind, temperature, h, flux, resistance=0.0):
@@ -207,6 +279,7 @@ def run_simulation(data):
     origin = np.zeros(3)
     k, rho, cp = o["conductivity_w_mk"], o["density_kg_m3"], o["specific_heat_j_kgk"]
     mode = o["mode"]
+    use_environment = o["environment_mode"] == "e10"
     if mode == "1d":
         path, fingerprint = _identity()
         meshes, source = _meshes(path, fingerprint)
@@ -251,11 +324,16 @@ def run_simulation(data):
             active = np.ones(shape, dtype=bool)
         faces = {name: common for name in ("x-", "x+", "y-", "y+", "z-", "z+")[:2*dim]}
         faces["y-" if dim == 2 else "z-"] = bottom
+        exposed = common if mode == "fundacion" else None
+        if use_environment:
+            faces, exposed, bottom = environment_boundaries(o, bottom)
         p = Parameters(shape, tuple(lengths), k, rho, cp, 1e-9, duration, faces,
-                       active=active, source_w_m3=heat_source, exposed=common if mode == "fundacion" else None)
+                       active=active, source_w_m3=heat_source, exposed=exposed)
         c = prepare(p)
         limit = min(c.general_dt_s, c.local_dt_s)
         p = replace(p, dt_s=_dashboard_dt(o, limit))
+        if use_environment:
+            p = replace(p, dt_s=min(p.dt_s, environment_inputs()["max_step_s"]))
         steps = math.ceil(duration/p.dt_s)
         _check_budget(steps)
         wave = sine_initial(p) if o["profile"] == "seno" else np.zeros(shape)
@@ -314,6 +392,10 @@ def run_simulation(data):
         weights[[0, -1]] = 0.5
         mean = temperatures@weights/weights.sum()
     boundary_used = {"laterales_y_expuestas": _description(common), "base": _description(bottom)}
+    if use_environment:
+        boundary_used["laterales_y_expuestas"] = "Robin ambiental E10 · aire sintético y opciones por orientación"
+        if o["environment_soil"] == "equivalent":
+            boundary_used["base"] = "Suelo equivalente · " + boundary_used["base"]
     pour_plan = None
     if mode == "fundacion":
         ids = np.floor((local_indices[:,2]+0.5)*o["pour_count"]/shape[2]).astype(int)

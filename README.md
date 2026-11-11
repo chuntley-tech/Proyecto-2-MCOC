@@ -227,6 +227,37 @@ centro de la primera celda está a media celda de la cara: **la cara puede estar
 a 20 °C mientras el centro vecino está más caliente**. Robin, por su parte,
 no fija la superficie a la temperatura del aire.
 
+### Entorno térmico, moldaje y suelo (E10)
+
+| Pieza | Módulo |
+|---|---|
+| Borde ambiental: aire + viento (h = 5,7 + 3,8 v) + sol (sol-aire) + capas | `environment/surface.py` (`SurfaceExposure`, `SurfaceMap`) |
+| Moldaje y aislación como R = e/k; desmolde a las 72 h | `environment/surface.py` (`Layer`, `LayerSchedule`) |
+| Suelo explícito bajo la fundación, base a temperatura profunda | `environment/ground.py` |
+| Cliente Open-Meteo y snapshots inmutables con sha256 | `weather/` y `scripts/fetch_weather.py` |
+| Demo desmolde vs. moldaje permanente | `scripts/environment_demo.py` → `results/environment/` |
+
+```powershell
+python -m scripts.fetch_weather        # nuevo snapshot en data/weather/ (requiere internet)
+python -m scripts.environment_demo --synthetic  # demo reproducible sin internet
+```
+
+El demo compara dos escenarios de moldaje en una sección 2D simplificada. Para
+usar un pronóstico guardado del G8, omite `--synthetic` y fija el corte de
+descarga con `--decision` (fecha y hora UTC).
+
+En el visor, selecciona **Fundación G8 → Entorno de la fundación → E10**.
+Puedes combinar convección fija o con viento, radiación, moldaje lateral con
+retiro programado, manta superior y suelo equivalente. El aire, viento y sol
+del visor siguen un ciclo sintético. El suelo equivalente usa `R″ = profundidad/k`
+hacia la temperatura profunda en la base. El demo 2D modela el suelo con celdas.
+
+Detalle, supuestos y respuestas de la revisión oral en
+[`docs/E10_entorno_moldaje_clima.md`](docs/E10_entorno_moldaje_clima.md).
+El ejemplo generado incluye un [gráfico](results/environment/environment_demo.png),
+un [resumen JSON](results/environment/environment_demo.json) y la
+[serie meteorológica sintética](results/environment/weather_used.csv).
+
 ## Ver las soluciones de temperatura
 
 ```cmd

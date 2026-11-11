@@ -50,6 +50,36 @@
             <p class="hint">El escalado conserva las proporciones del zócalo, transición y cilindro. Si largo y ancho difieren, la sección superior se vuelve elíptica. No modifica el IFC guardado.</p>
           </section>
 
+          <section id="environment-fields" class="form-section">
+            <h2>Entorno de la fundación</h2>
+            <label class="stacked">Modelo de borde
+              <select id="environment_mode" name="environment_mode">
+                <option value="standard">Condiciones de borde manuales</option>
+                <option value="e10">E10 · entorno sintético</option>
+              </select>
+            </label>
+            <div id="environment-options" class="hidden">
+              <label class="stacked">Convección
+                <select id="environment_wind" name="environment_wind"><option value="fixed">h fijo</option><option value="synthetic">Viento sintético · h(v)</option></select>
+              </label>
+              <label id="environment-h-field" class="stacked">h fijo <span>W/(m²·K)</span><input id="environment_h" name="environment_h" type="number" min="0.01" max="1000" step="any" value="10" required></label>
+              <label class="stacked">Radiación solar
+                <select id="environment_solar" name="environment_solar"><option value="off">Sin sol</option><option value="synthetic">Ciclo solar sintético</option></select>
+              </label>
+              <label class="stacked">Moldaje lateral
+                <select id="environment_formwork" name="environment_formwork"><option value="none">Sin moldaje</option><option value="permanent">Moldaje durante todo el cálculo</option><option value="scheduled">Moldaje con retiro programado</option></select>
+              </label>
+              <label id="environment-strip-field" class="stacked hidden">Retiro desde inicio de la simulación <span>h</span><input id="environment_strip_h" name="environment_strip_h" type="number" min="0.01" max="720" step="any" value="72" required></label>
+              <label class="stacked">Aislación superior
+                <select id="environment_insulation" name="environment_insulation"><option value="none">Sin aislación</option><option value="blanket">Manta desde la colocación</option></select>
+              </label>
+              <label class="stacked">Suelo
+                <select id="environment_soil" name="environment_soil"><option value="standard">Usar la condición manual de la base</option><option value="equivalent">Resistencia térmica equivalente</option></select>
+              </label>
+              <p class="hint">El aire sigue un ciclo sintético diario. En construcción por etapas, la manta se aplica a la cara superior expuesta y la hora de desmolde se cuenta desde t = 0 para todos los laterales.</p>
+            </div>
+          </section>
+
           <section id="box-geometry" class="form-section hidden">
             <h2>Geometría del ensayo</h2>
             <label id="box-shape-field" class="stacked">Forma del bloque<select id="box-shape"><option value="cube">Cubo · lados iguales</option><option value="custom">Bloque · dimensiones independientes</option></select></label>
@@ -71,8 +101,9 @@
             <label id="amplitude-field" class="stacked hidden">Amplitud del seno <span>°C</span><input id="amplitude_c" name="amplitude_c" type="number" min="0" max="100" step="0.5" value="0" required></label>
           </section>
 
-          <section class="form-section">
+          <section id="boundary-fields" class="form-section">
             <h2><span>02</span> Condiciones de borde</h2>
+            <div id="manual-exposed-fields">
             <label class="stacked">Laterales, cara superior y superficies expuestas<select id="boundary_type" name="boundary_type"><option value="robin">Robin · intercambio con el aire</option><option value="dirichlet">Dirichlet · temperatura de cara</option><option value="neumann">Neumann · flujo entrante</option></select></label>
             <div id="main-temperature" class="form-grid">
               <label><span id="boundary-c-label">Aire</span> <span>°C</span><input id="boundary_c" name="boundary_c" type="number" min="-50" max="150" step="0.5" value="10" required></label>
@@ -80,6 +111,7 @@
             </div>
             <label id="main-flux" class="stacked hidden">Flujo entrante <span>W/m²</span><input id="flux_in_w_m2" name="flux_in_w_m2" type="number" min="-5000" max="5000" value="0" required></label>
             <label id="resistance-field" class="stacked">Resistencia de aislación <span>m²·K/W</span><input id="resistance_m2k_w" name="resistance_m2k_w" type="number" min="0" max="5" step="0.05" value="0" required></label>
+            </div>
             <details class="details"><summary>Condición en la base</summary>
               <label class="stacked">Tipo<select id="bottom_type" name="bottom_type"><option value="neumann">Neumann · flujo / adiabático</option><option value="dirichlet">Dirichlet · temperatura de cara</option><option value="robin">Robin · intercambio</option></select></label>
               <div class="form-grid" id="bottom-temperature">

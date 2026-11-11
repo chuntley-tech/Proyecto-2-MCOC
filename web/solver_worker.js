@@ -12,6 +12,12 @@ function runOffline(input, pack) {
   if(!['ifc','scaled'].includes(o.foundation_geometry))throw Error('Geometría de fundación desconocida');
   if(!Number.isInteger(o.pour_count)||o.pour_count<1||o.pour_count>12)throw Error('Cantidad de vertidas: entero entre 1 y 12');
   if(!['simultaneous','staged'].includes(o.construction_mode))throw Error('Modo constructivo desconocido');
+  const envChoices={environment_mode:['standard','e10'],environment_wind:['fixed','synthetic'],
+    environment_solar:['off','synthetic'],environment_formwork:['none','permanent','scheduled'],
+    environment_insulation:['none','blanket'],environment_soil:['standard','equivalent']};
+  if(Object.entries(envChoices).some(([key,choices])=>!choices.includes(o[key])))throw Error('Opción ambiental E10 desconocida');
+  const useEnvironment=o.environment_mode==='e10';
+  if(useEnvironment&&o.mode!=='fundacion')throw Error('El entorno E10 solo está disponible para la fundación');
   const staged=o.mode==='fundacion'&&o.construction_mode==='staged';
   let schedule;
   try {
@@ -54,7 +60,20 @@ function runOffline(input, pack) {
   const diagonal=new Float64Array(total), bg=new Float64Array(total), fixed=new Float64Array(total), flux=new Float64Array(total);
   const makeBoundary=(type,t,h,q,resistance=0)=>({type,t,h:h===0?0:1/(1/h+resistance),q});
   const main=makeBoundary(o.boundary_type,o.boundary_c,o.h_w_m2k,o.flux_in_w_m2,o.resistance_m2k_w);
-  const bottom=makeBoundary(o.bottom_type,o.bottom_c,o.bottom_h_w_m2k,o.bottom_flux_in_w_m2);
+  const env=pack.meta.environment;
+  const useSoil=useEnvironment&&o.environment_soil==='equivalent';
+  const bottom=useSoil?makeBoundary('robin',env.soil.deep_temperature_c,env.soil.conductivity_w_mk/env.soil.depth_m,0)
+    :makeBoundary(o.bottom_type,o.bottom_c,o.bottom_h_w_m2k,o.bottom_flux_in_w_m2);
+  const environmentalFaces=[];
+  const layerR=layer=>layer.thickness_m/layer.conductivity_w_mk;
+  const stripTime=o.environment_strip_h*3600;
+  const climate=(name,time,shift=0)=>{
+    const hour=(time/3600+shift)%24, i=Math.floor(hour), f=hour-i, samples=env.weather[name];
+    return (1-f)*samples[i]+f*samples[i+1];
+  };
+  const film=wind=>o.environment_wind==='fixed'?o.environment_h:env.convection.h_a_w_m2k+
+    env.convection.h_b_w_m2k_per_m_s*wind*(env.convection.wind_height_m/10)**env.convection.wind_exponent;
+  const maxFilm=useEnvironment?film(Math.max(...env.weather.wind_10m_m_s)):0;
   const pairA=new Int32Array(count*dim),pairB=new Int32Array(count*dim),pairG=new Float64Array(count*dim);let pairs=0;
   const strides=[ny*nz,nz,1], counts=[nx,ny,nz];
   const coordinates=id=>[Math.floor(id/(ny*nz)),Math.floor(id/nz)%ny,id%nz];
@@ -69,6 +88,7 @@ function runOffline(input, pack) {
   }
   function assemble() {
     pairs=0;diagonal.fill(0);bg.fill(0);fixed.fill(0);flux.fill(0);
+    environmentalFaces.length=0;
     for(const id of indices){if(!active[id])continue;const at=coordinates(id);
     for(let axis=0;axis<dim;axis++)if(at[axis]+1<counts[axis]&&active[id+strides[axis]]){
       const other=id+strides[axis],g=k*volume/delta[axis]**2;
@@ -84,6 +104,18 @@ function runOffline(input, pack) {
       if(!outer&&!(exposed&&o.mode==='fundacion'))continue;
       const base=outer&&sign<0&&axis===dim-1;
       const b=base?bottom:main,area=nodal?1:volume/delta[axis];
+      if(useEnvironment&&!base){
+        const side=axis!==2, top=axis===2&&sign>0;
+        const form=side&&o.environment_formwork!=='none'?layerR(env.formwork):0;
+        const insulation=top&&o.environment_insulation==='blanket'?layerR(env.insulation):0;
+        const half=delta[axis]/(2*k);
+        const removable=side&&o.environment_formwork==='scheduled';
+        const solarFactor=side?env.solar.side_factor*(form?env.solar.absorptance_formwork:env.solar.absorptance_concrete):
+          top?env.solar.top_factor*env.solar.absorptance_concrete:0;
+        diagonal[id]+=area/(half+insulation+(removable?0:form)+1/maxFilm);
+        environmentalFaces.push({id,area,half,insulation,form,removable,solarFactor});
+        continue;
+      }
       if(nodal&&b.type==='dirichlet')continue;
       if(b.type==='neumann')flux[id]+=b.q*area;
       else {
@@ -103,9 +135,10 @@ function runOffline(input, pack) {
   const limit=Math.min(general,local);
   // La cota general/2 cubre también las nuevas superficies temporales.
   const fullAutomatic=0.8*Math.min(general,staged?general:local);
-  const dt=staged?Math.min(o.dt_s??Math.min(fullAutomatic,o.source_type==='cosine'?tau/100:Infinity),0.4*general,o.source_type==='cosine'?tau/100:Infinity):o.dt_s??Math.min(0.8*limit,o.source_type==='cosine'?tau/100:Infinity);
-  if(dt>general)throw Error(`Estabilidad general: Δt=${dt} s; límite=${general} s`);
-  if(!staged&&dt>local)throw Error(`Estabilidad local: Δt=${dt} s; límite=${local} s`);
+  const requested=staged?Math.min(o.dt_s??Math.min(fullAutomatic,o.source_type==='cosine'?tau/100:Infinity),0.4*general,o.source_type==='cosine'?tau/100:Infinity):o.dt_s??Math.min(0.8*limit,o.source_type==='cosine'?tau/100:Infinity);
+  if(requested>general)throw Error(`Estabilidad general: Δt=${requested} s; límite=${general} s`);
+  if(!staged&&requested>local)throw Error(`Estabilidad local: Δt=${requested} s; límite=${local} s`);
+  const dt=useEnvironment?Math.min(requested,env.max_step_s):requested;
   const duration=o.duration_days*86400,steps=Math.ceil(duration/dt)+(staged?o.pour_count:0);
   if(steps>pack.meta.max_steps)throw Error(`El caso requiere ${steps} pasos; reduce duración o usa una malla menos fina (máximo ${pack.meta.max_steps}).`);
   const every=Math.max(1,Math.ceil(steps/24)),frames=[],times=[],history={center_c:[],min_c:[],max_c:[],mean_c:[],energy:[]};
@@ -141,9 +174,19 @@ function runOffline(input, pack) {
     const end=Math.min(staged?time+dt:(step+1)*dt,time+ageCap,duration,...future),width=end-time;let boundaryPower=0,sourcePower=0,bcCorrection=0,sourceCorrection=0;
     if(end<=time)throw Error('Paso menor que la precisión del reloj');
     const qNow=heatSource(time); // Inicio del paso t_n, también para el último paso acortado.
+    if(useEnvironment){
+      const air=climate('air_c',time), h=film(climate('wind_10m_m_s',time));
+      const solar=o.environment_solar==='synthetic'?climate('shortwave_w_m2',time,0.5):0;
+      for(const face of environmentalFaces){
+        const {id,area,half,insulation,form,removable,solarFactor}=face;
+        const layers=insulation+(removable&&time>=stripTime?0:form);
+        const q=area*(air+solarFactor*solar/h-T[id])/(half+layers+1/h);
+        power[id]+=q;
+      }
+    }
     for(const id of indices){
       if(!active[id])continue;
-      const b=fixed[id]+flux[id]-bg[id]*T[id],s=(staged?heatSource(te[id])*factors[id]:qNow)*C[id]/rhocp;power[id]=b+s;
+      const b=(useEnvironment?power[id]:0)+fixed[id]+flux[id]-bg[id]*T[id],s=(staged?heatSource(te[id])*factors[id]:qNow)*C[id]/rhocp;power[id]=b+s;
       const db=b-bcCorrection,newB=boundaryPower+db;bcCorrection=(newB-boundaryPower)-db;boundaryPower=newB;
       const ds=s-sourceCorrection,newS=sourcePower+ds;sourceCorrection=(newS-sourcePower)-ds;sourcePower=newS;
     }
@@ -155,6 +198,7 @@ function runOffline(input, pack) {
     let changed=false;
     if(staged)for(const id of indices)if(!active[id]&&starts[id]<=time){active[id]=1;te[id]=0;T[id]=placement[id];placementEnergy+=C[id]*T[id];changed=true;}
     if(changed)assemble();
+    if(useEnvironment)power.fill(0);
     stepCount=step+1;
     if(changed||(step+1)%every===0||time===duration)save(time);
   }
@@ -174,7 +218,9 @@ function runOffline(input, pack) {
   }
   return {mode:o.mode,parameters:o,ifc:source,shape,dimension:dim,origin_m:origin,lengths_m:lengths,spacing_m:delta,
     positions_m:positions,active_indices:Array.from(indices),frames_c:frames,time_s:times,temperature_precision_decimals:5,
-    history,probe_position_m:positions[probe],boundary_used:{laterales_y_expuestas:describe(main),base:describe(bottom)},
+    history,probe_position_m:positions[probe],boundary_used:{
+      laterales_y_expuestas:useEnvironment?'Robin ambiental E10 · aire sintético y opciones por orientación':describe(main),
+      base:(useSoil?'Suelo equivalente · ':'')+describe(bottom)},
     source_curve:staged&&o.activation_energy_j_mol>0?{time_s:times,rate_w_m3:times.map(()=>0),layers:layerSource.map((rate_w_m3,i)=>({id:i+1,rate_w_m3})),description:'Potencia instantánea media por vertida; Arrhenius por celda.'}:{time_s:sourceTimes,rate_w_m3:sourceTimes.map(heatSource),...(staged?{layers:schedule.map((r,i)=>({id:i+1,rate_w_m3:sourceTimes.map(t=>t<r.start_days*86400?0:heatSource(t-r.start_days*86400))}))}:{})},
     pour_plan:pourPlan,
     construction:staged?construction:null,

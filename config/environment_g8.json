@@ -1,0 +1,72 @@
+{
+  "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+  "site": {
+    "latitude": -41.222539,
+    "longitude": -73.295603,
+    "source": "config/case_g8.json (punto meteorológico docente, Llanquihue)"
+  },
+  "construction": {
+    "start_local": "2026-11-27T04:00",
+    "timezone": "America/Santiago",
+    "start_utc": "2026-11-27T07:00Z",
+    "days_after_start": 14,
+    "note": "Inicio tomado del ejemplo de la guía G08. Se supone hora local de Chile (UTC−3 en noviembre, horario de verano)."
+  },
+  "weather": {
+    "snapshot_root": "data/weather",
+    "decision_time_utc": null,
+    "tail_method": "auto",
+    "note": "decision_time_utc = null usa la hora actual como corte. Si falta parte del pronóstico al final, auto usa reanálisis del mismo sitio descargado al corte o persistencia. Cada hora queda marcada."
+  },
+  "convection": {
+    "h_a_w_m2k": 5.7,
+    "h_b_w_m2k_per_m_s": 3.8,
+    "wind_height_m": 2.0,
+    "wind_exponent": 0.14,
+    "source": "Correlación de Jürges/McAdams h = 5,7 + 3,8 v (superficies exteriores); perfil de viento potencial con exponente 1/7 para terreno abierto."
+  },
+  "solar": {
+    "absorptance_concrete": 0.65,
+    "absorptance_formwork": 0.6,
+    "top_factor": 1.0,
+    "side_factor": 0.35,
+    "source": "Absortancia típica de hormigón gris 0,6–0,7 (supuesto). Factor lateral 0,35: fracción aproximada de radiación global sobre cara vertical (supuesto docente, sin cálculo de geometría solar)."
+  },
+  "formwork": {
+    "thickness_m": 0.018,
+    "conductivity_w_mk": 0.13,
+    "strip_after_h": 72,
+    "source": "Terciado fenólico 18 mm, k ≈ 0,13 W/(m·K) (valor típico). Retiro a las 72 h: supuesto E10 para la propiedad RetiroMoldaje_h propuesta en la guía G02."
+  },
+  "insulation": {
+    "thickness_m": 0.025,
+    "conductivity_w_mk": 0.04,
+    "on_top_from_h": 0.0,
+    "source": "Manta de curado/aislante 25 mm, k ≈ 0,04 W/(m·K) (valor típico de espuma/fibra). Supuesto de diseño, no especificación del proyecto."
+  },
+  "soil": {
+    "depth_m": 2.2,
+    "margin_m": 1.5,
+    "conductivity_w_mk": 1.39,
+    "density_kg_m3": 1800.0,
+    "specific_heat_j_kgk": 1273.0,
+    "deep_temperature_c": 10.0,
+    "source": "k, ρ, cp: Ju y Lei (2019), guía de difusión §31. Temperatura profunda 10 °C: SUPUESTO (orden de la media anual del aire en Llanquihue), no medido."
+  },
+  "concrete": {
+    "conductivity_w_mk": 2.2,
+    "density_kg_m3": 2400.0,
+    "specific_heat_j_kgk": 900.0,
+    "placement_c": 16.0,
+    "qmax_w_m3": 1300.0,
+    "hydration_duration_s": 172800.0,
+    "source": "Mismos valores sintéticos de construction_g8.json; colocación 16 °C del ejemplo G08. No calibrado."
+  },
+  "demo_section": {
+    "half_width_m": 9.0,
+    "height_m": 3.3,
+    "spacing_m": [0.5, 0.275],
+    "dt_s": 600.0,
+    "note": "Sección vertical 2D x–z por el eje de la fundación, mitad por simetría. Es una sección rectangular simplificada para mostrar las condiciones de borde; la geometría completa está en el modelo 3D."
+  }
+}
