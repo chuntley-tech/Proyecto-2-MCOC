@@ -1,0 +1,270 @@
+{
+  "data_status": "Clima: pronóstico determinista. Geometría: IFC voxelizado. Hidratación, moldaje, manta y suelo: supuestos/sintéticos de config/environment_g8.json. Todo el volumen se coloca en t = 0 (simulación corta de laboratorio, no el plan de vertidas).",
+  "weather": {
+    "folder": "data\\weather\\2026-11-12T0153Z_forecast",
+    "kind": "forecast",
+    "status": "pronóstico determinista",
+    "model": "seamless (elección automática de Open-Meteo)",
+    "retrieved_at": "2026-11-12T01:53:29Z",
+    "sha256": "1d5e9346f3894f4ddf52957b914719a01f0c0f4ed40391d35a435455f48ad8fc",
+    "request_url": "https://api.open-meteo.com/v1/forecast?latitude=-41.222539&longitude=-73.295603&hourly=temperature_2m%2Cwind_speed_10m%2Cshortwave_radiation&wind_speed_unit=ms&timezone=GMT&forecast_days=4",
+    "latitude": -41.222539,
+    "longitude": -73.295603,
+    "grid_latitude": -41.23023,
+    "grid_longitude": -73.23782,
+    "timezone": "GMT",
+    "units": {
+      "time": "iso8601",
+      "temperature_2m": "°C",
+      "wind_speed_10m": "m/s",
+      "shortwave_radiation": "W/m²"
+    },
+    "first_time": "2026-11-12T00:00",
+    "last_time": "2026-11-15T23:00"
+  },
+  "simulation": {
+    "start_utc": "2026-11-12T02:00Z",
+    "hours": 48.0,
+    "dt_s": 900.0,
+    "dt_limit_s": 10122.142792327377,
+    "steps": 192,
+    "grid_cells": [
+      84,
+      84,
+      20
+    ],
+    "spacing_m": [
+      0.25,
+      0.25,
+      0.2750000019868215
+    ],
+    "coarsen": 1,
+    "hydration": true,
+    "energy_balance_relative": 1.3665037381626722e-16,
+    "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44"
+  },
+  "boundaries_at_t0": {
+    "side": {
+      "cara": "costados (moldaje)",
+      "t_s": 0.0,
+      "aire_c": 9.9,
+      "h_w_m2k": 13.344134796530751,
+      "capas": [
+        "moldaje terciado"
+      ],
+      "r_capas_m2k_w": 0.13846153846153844,
+      "t_sol_aire_c": 9.9
+    },
+    "top": {
+      "cara": "caras superiores (manta)",
+      "t_s": 0.0,
+      "aire_c": 9.9,
+      "h_w_m2k": 13.344134796530751,
+      "capas": [
+        "manta aislante"
+      ],
+      "r_capas_m2k_w": 0.625,
+      "t_sol_aire_c": 9.9
+    },
+    "ground": {
+      "cara": "terreno descubierto",
+      "t_s": 0.0,
+      "aire_c": 9.9,
+      "h_w_m2k": 13.344134796530751,
+      "capas": [],
+      "r_capas_m2k_w": 0,
+      "t_sol_aire_c": 9.9
+    }
+  },
+  "core": {
+    "cell": [
+      41,
+      41,
+      13
+    ],
+    "xyz_m": [
+      8.875,
+      8.875,
+      1.5125000109275182
+    ],
+    "depth_to_boundary_m": 1.3750000099341075,
+    "definition": "celda de hormigón más alejada de todo borde (aire o suelo): núcleo geométrico. El núcleo térmico (T máx) se informa por cuadro en tmax_by_frame."
+  },
+  "surface_probes": {
+    "superior": {
+      "cell": [
+        41,
+        41,
+        19
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        3.1625000228484472
+      ]
+    },
+    "lateral": {
+      "cell": [
+        69,
+        41,
+        13
+      ],
+      "xyz_m": [
+        15.875,
+        8.875,
+        1.5125000109275182
+      ]
+    }
+  },
+  "tmax_by_frame": [
+    {
+      "t_h": 0.0,
+      "tmax_c": 16.0,
+      "cell": [
+        6,
+        27,
+        8
+      ],
+      "xyz_m": [
+        0.125,
+        5.375,
+        0.13750000099341086
+      ],
+      "depth_to_boundary_m": 0.0
+    },
+    {
+      "t_h": 6.0,
+      "tmax_c": 16.608803225490533,
+      "cell": [
+        38,
+        39,
+        14
+      ],
+      "xyz_m": [
+        8.125,
+        8.375,
+        1.78750001291434
+      ],
+      "depth_to_boundary_m": 1.3750000099341075
+    },
+    {
+      "t_h": 12.0,
+      "tmax_c": 20.589239601332586,
+      "cell": [
+        41,
+        41,
+        14
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        1.78750001291434
+      ],
+      "depth_to_boundary_m": 1.3750000099341075
+    },
+    {
+      "t_h": 18.0,
+      "tmax_c": 30.015998493920325,
+      "cell": [
+        41,
+        41,
+        19
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        3.1625000228484472
+      ],
+      "depth_to_boundary_m": 0.0
+    },
+    {
+      "t_h": 24.0,
+      "tmax_c": 41.806541574223054,
+      "cell": [
+        41,
+        41,
+        18
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        2.8875000208616255
+      ],
+      "depth_to_boundary_m": 0.2750000019868215
+    },
+    {
+      "t_h": 30.0,
+      "tmax_c": 54.11828827615019,
+      "cell": [
+        41,
+        41,
+        14
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        1.78750001291434
+      ],
+      "depth_to_boundary_m": 1.3750000099341075
+    },
+    {
+      "t_h": 36.0,
+      "tmax_c": 63.13641530040536,
+      "cell": [
+        41,
+        41,
+        15
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        2.062500014901161
+      ],
+      "depth_to_boundary_m": 1.100000007947286
+    },
+    {
+      "t_h": 42.0,
+      "tmax_c": 67.3021767213283,
+      "cell": [
+        41,
+        41,
+        14
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        1.78750001291434
+      ],
+      "depth_to_boundary_m": 1.3750000099341075
+    },
+    {
+      "t_h": 48.0,
+      "tmax_c": 67.97919258772345,
+      "cell": [
+        41,
+        41,
+        14
+      ],
+      "xyz_m": [
+        8.875,
+        8.875,
+        1.78750001291434
+      ],
+      "depth_to_boundary_m": 1.3750000099341075
+    }
+  ],
+  "final": {
+    "núcleo": 67.93268262005182,
+    "superficie superior": 63.308637552891206,
+    "superficie lateral": 53.01030403443739,
+    "tmax_c": 67.97919258772345
+  },
+  "max_core_minus_surface_c": 14.922378585614432,
+  "files": {
+    "vtk_series": "temperature.pvd (cuadros en vtk/, no versionados)",
+    "vtk_final": "final.vti",
+    "weather_plot": "clima_snapshot.png",
+    "dashboard": "visor_e11.json",
+    "trajectories": "nucleo_superficie.png"
+  }
+}

@@ -493,7 +493,130 @@ for(const [id,hide] of [['show-all-pours',false],['hide-all-pours',true]])$(id).
   for(const input of $('pour-visibility-options').querySelectorAll('input'))input.checked=!hide;
   refreshPourVisibility();
 });
-const tabNames = ['laboratory', 'project', 'terrain'];
+const tabNames = ['laboratory', 'project', 'terrain', 'weather'];
+const e11Planes = {xz:[0,2,1], yz:[1,2,0], xy:[0,1,2]};
+const e11Curves = [
+  ['núcleo','#dc2626'], ['superficie superior','#ea580c'], ['superficie lateral','#7c3aed'],
+  ['tmax_c','#172033','Máxima del hormigón'], ['aire_c','#2563eb','Aire a 2 m']
+];
+let e11;
+
+function validateE11(result) {
+  const invalid = () => {throw Error('Archivo E11 inválido. Selecciona el visor_e11.json generado por weather_3d.');};
+  const vector = (a,n) => Array.isArray(a)&&a.length===n&&a.every(Number.isFinite);
+  const times = a => Array.isArray(a)&&a.length>0&&a[0]===0&&a.every((v,i)=>Number.isFinite(v)&&(!i||v>a[i-1]));
+  if(result?.format!=='mcoc-e11-v1'||!vector(result.shape,3)||!result.shape.every(n=>Number.isInteger(n)&&n>0)||
+    !vector(result.spacing_m,3)||result.spacing_m.some(x=>x<=0)||!vector(result.origin_m,3))invalid();
+  const size=result.shape.reduce((a,b)=>a*b);
+  const ids=result.active_indices, count=ids?.length;
+  if(size>2000000||!Array.isArray(ids)||!count||
+    ids.some((id,i)=>!Number.isInteger(id)||id<0||id>=size||(i&&id<=ids[i-1]))||
+    !vector(result.material,count)||result.material.some(v=>v!==1&&v!==2))invalid();
+  if(!times(result.times_h)||!Array.isArray(result.frames_c)||result.frames_c.length!==result.times_h.length||
+    !times(result.history?.t_h)||result.history.t_h.length>20000)invalid();
+  const sampleCount=result.history.t_h.length;
+  if(e11Curves.some(([key])=>!vector(result.history[key],sampleCount))||
+    !vector(result.wind_m_s,sampleCount)||!vector(result.solar_w_m2,sampleCount))invalid();
+  const cell = c => vector(c,3)&&c.every((n,i)=>Number.isInteger(n)&&n>=0&&n<result.shape[i]);
+  const summary=result.summary;
+  if(!cell(summary?.core?.cell)||!Array.isArray(summary.tmax_by_frame)||summary.tmax_by_frame.length!==result.times_h.length||
+    summary.tmax_by_frame.some(s=>!cell(s?.cell)||!Number.isFinite(s.tmax_c))||typeof summary.weather?.status!=='string'||
+    !['superior','lateral'].every(key=>cell(summary.surface_probes?.[key]?.cell))||
+    !Number.isFinite(summary.max_core_minus_surface_c))invalid();
+  let low=Infinity, high=-Infinity;
+  for(const row of result.frames_c){
+    if(!vector(row,count))invalid();
+    for(const t of row){low=Math.min(low,t);high=Math.max(high,t);}
+  }
+  if(high-low<0.01){low-=0.5;high+=0.5;}
+  const lookup=new Int32Array(size).fill(-1);
+  ids.forEach((id,i)=>lookup[id]=i);
+  return {...result, lookup, low, high};
+}
+
+function e11Current() {return Number($('e11-time').value);}
+
+function e11SetPlane(cell) {
+  const axis=e11Planes[$('e11-plane').value][2];
+  $('e11-position').max=e11.shape[axis]-1;
+  $('e11-position').value=cell[axis];
+  drawE11();
+}
+
+function e11DrawSlice(index) {
+  const [u,v,axis]=e11Planes[$('e11-plane').value], fixed=Number($('e11-position').value);
+  const {ctx,w,h}=context2d('e11-map'), {shape,spacing_m:spacing,origin_m:origin}=e11;
+  if(w<60||h<60)return;
+  const scale=Math.min((w-54)/(shape[u]*spacing[u]),(h-42)/(shape[v]*spacing[v]));
+  const dx=spacing[u]*scale, dy=spacing[v]*scale;
+  const x0=(w-shape[u]*dx)/2, y0=(h+shape[v]*dy)/2-4;
+  const field=e11.frames_c[index], showSoil=$('e11-soil').checked;
+  const cell=[0,0,0];cell[axis]=fixed;
+  for(let a=0;a<shape[u];a++)for(let b=0;b<shape[v];b++){
+    cell[u]=a;cell[v]=b;
+    const q=e11.lookup[(cell[0]*shape[1]+cell[1])*shape[2]+cell[2]];
+    if(q<0||(!showSoil&&e11.material[q]===2))continue;
+    ctx.fillStyle=`rgb(${temperatureColor(field[q],e11.low,e11.high).join(',')})`;
+    ctx.fillRect(x0+a*dx,y0-(b+1)*dy,dx+0.2,dy+0.2);
+  }
+  const probes=e11.summary.surface_probes;
+  for(const [probe,color,radius] of [[e11.summary.core.cell,'#fff',7],
+    [e11.summary.tmax_by_frame[index].cell,'#22d3ee',4],
+    [probes.superior.cell,'#fba24c',4],[probes.lateral.cell,'#c4a6ff',4]]){
+    if(probe[axis]!==fixed)continue;
+    const x=x0+(probe[u]+0.5)*dx, y=y0-(probe[v]+0.5)*dy;
+    ctx.strokeStyle='#142337';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x,y,radius,0,2*Math.PI);ctx.stroke();
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+  }
+  ctx.fillStyle='#62738b';ctx.font='12px Inter, system-ui, sans-serif';ctx.textAlign='center';
+  ctx.fillText(`${'XYZ'[u]} [m] · ${num(origin[u],2)} a ${num(origin[u]+shape[u]*spacing[u],2)}`,w/2,h-5);
+  ctx.save();ctx.translate(12,h/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText(`${'XYZ'[v]} [m] · ${num(origin[v],2)} a ${num(origin[v]+shape[v]*spacing[v],2)}`,0,0);ctx.restore();
+  $('e11-position-label').textContent=`${'XYZ'[axis]} = ${num(origin[axis]+(fixed+0.5)*spacing[axis],2)} m`;
+}
+
+function drawE11() {
+  if(!e11||$('panel-weather').classList.contains('hidden'))return;
+  const index=e11Current(), time=e11.times_h[index], hot=e11.summary.tmax_by_frame[index];
+  $('e11-time-label').textContent=`${num(time,2)} h`;
+  $('e11-cut-details').textContent=`Máxima del hormigón ${num(hot.tmax_c,2)} °C en el estado guardado.`;
+  $('e11-field-note').textContent=`Escala fija ${num(e11.low,1)} a ${num(e11.high,1)} °C · blanco: núcleo · cian: punto caliente · naranja y violeta: sondas superficiales del corte.`;
+  e11DrawSlice(index);
+  const xs=e11.history.t_h, options={cursor:time,xLabel:'Tiempo [h]'};
+  lineChart('e11-temperatures',e11Curves.map(([key,color])=>({values:e11.history[key],color,dashed:key==='tmax_c'})),xs,options);
+  lineChart('e11-wind',[{values:e11.wind_m_s,color:'#168253'}],xs,{...options,minY:0,yLabel:'Viento [m/s]'});
+  lineChart('e11-solar',[{values:e11.solar_w_m2,color:'#c87c08'}],xs,{...options,minY:0,yLabel:'Onda corta [W/m²]'});
+}
+
+$('e11-file').addEventListener('change',async event=>{
+  const file=event.target.files[0];
+  if(!file)return;
+  try{
+    if(file.size>96*1024*1024)throw Error('El resultado supera 96 MB. Exporta menos cuadros o usa una malla más gruesa.');
+    const candidate=validateE11(JSON.parse(await file.text()));
+    if(event.target.files[0]!==file)return;
+    e11=candidate;
+    const weather=e11.summary.weather, simulation=e11.summary.simulation;
+    $('e11-source').textContent=`${weather.status} · ${num(e11.times_h.at(-1),2)} h · ${e11.shape.join(' × ')} celdas`;
+    $('e11-provenance').textContent=[weather.folder,simulation?.start_utc&&`Inicio ${simulation.start_utc}`,
+      weather.retrieved_at&&`Descarga ${weather.retrieved_at}`,weather.sha256&&`SHA-256 clima ${weather.sha256}`,
+      simulation?.ifc_sha256&&`SHA-256 IFC ${simulation.ifc_sha256}`].filter(Boolean).join(' · ');
+    $('e11-differential').textContent=`Mayor diferencia guardada del núcleo respecto de la sonda superficial más fría: ${num(e11.summary.max_core_minus_surface_c,2)} °C.`;
+    $('e11-temperature-legend').replaceChildren(...e11Curves.map(([key,color,label])=>{
+      const item=document.createElement('span'),mark=document.createElement('i');
+      mark.style.background=color;item.append(mark,document.createTextNode(label||key));return item;
+    }));
+    $('e11-time').max=e11.times_h.length-1;$('e11-time').value=e11.times_h.length-1;
+    $('e11-results').classList.remove('hidden');e11SetPlane(e11.summary.core.cell);
+  }catch(error){
+    if(event.target.files[0]!==file)return;
+    e11=null;$('e11-results').classList.add('hidden');$('e11-provenance').textContent='';
+    $('e11-source').textContent=error.message;
+  }
+});
+for(const id of ['e11-time','e11-position','e11-soil'])$(id).addEventListener('input',drawE11);
+$('e11-plane').addEventListener('change',()=>{if(e11)e11SetPlane(e11.summary.core.cell);});
+$('e11-hot').addEventListener('click',()=>{if(e11)e11SetPlane(e11.summary.tmax_by_frame[e11Current()].cell);});
 let terrainView, terrainLoading = false;
 
 async function showTerrain() {
@@ -547,6 +670,7 @@ function selectTab(section) {
   }
   if(section==='laboratory')requestAnimationFrame(draw);
   if(section==='terrain')void showTerrain();
+  if(section==='weather')requestAnimationFrame(drawE11);
 }
 tabNames.forEach((name,index)=>{
   $('tab-'+name).addEventListener('click',()=>selectTab(name));
@@ -599,7 +723,7 @@ $('portable-download').addEventListener('click',()=>{
   else{a.href='/visor_termico.html';a.click();}
 });
 let resizeTimer;new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(draw,80);}).observe($('model-stage'));
-window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(draw,80);});
+window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{draw();drawE11();},80);});
 
 (async()=>{
   try {

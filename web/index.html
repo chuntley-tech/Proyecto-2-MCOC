@@ -19,6 +19,7 @@
     <button id="tab-laboratory" role="tab" aria-selected="true" aria-controls="panel-laboratory" type="button">Simulador térmico</button>
     <button id="tab-project" role="tab" aria-selected="false" aria-controls="panel-project" tabindex="-1" type="button">Información del proyecto</button>
     <button id="tab-terrain" role="tab" aria-selected="false" aria-controls="panel-terrain" tabindex="-1" type="button">Terreno 3D</button>
+    <button id="tab-weather" role="tab" aria-selected="false" aria-controls="panel-weather" tabindex="-1" type="button">Clima 3D · E11</button>
   </nav>
   <div class="workspace" id="panel-laboratory" role="tabpanel" aria-labelledby="tab-laboratory">
     <aside class="sidebar">
@@ -216,6 +217,42 @@
       <article class="card info-card"><h2>Hidratación y edad equivalente</h2><p>La ley sintética de referencia es Qref(te) = Qmax/2 · [1 − cos(2πte/τ)] durante el pulso y cero después. <strong>Qmax = 1300 W/m³</strong> es potencia por volumen a la temperatura de referencia de 20 °C; τ es duración en tiempo equivalente.</p><p>En construcción por etapas: <strong>f(T) = exp[−Ea/R · (1/(T+273,15) − 1/293,15)]</strong>, con R = 8,31446261815324 J/(mol·K). Se calcula Q = Qref(te) · f(T) y se acumula te += Δt · f(T), usando la temperatura y la edad al inicio del paso.</p><p><strong>Ea = 33500 J/mol</strong> fue aportada por el usuario con referencia indicada Freiesleben Hansen–Pedersen; no constituye calibración experimental de G8. Ea = 0 recupera la edad cronológica. El factor puede hacer que la potencia real supere 1300 W/m³. La fuente constante sigue activa desde la colocación y, en modo por etapas, también recibe el factor.</p></article>
       <article class="card info-card"><h2>Vertidas y superficies temporales</h2><p>En modo simultáneo, variar solo la cantidad de capas conserva el problema térmico. En modo por etapas, cada capa entra en su instante y a su temperatura de colocación, con <strong>te = 0</strong>. El hormigón futuro permanece fuera del intercambio térmico.</p><p>Una superficie temporal recibe la condición principal mientras está expuesta. Al colocar la capa vecina pasa a ser una interfaz conductiva interna. El balance incluye la energía incorporada con el hormigón nuevo, además de la fuente y los bordes.</p><p>La colocación es instantánea por capa y el material es común. No se simulan llenado gradual, resistencia de junta ni viento, radiación o suelo reales. Ocultar una vertida es un filtro visual: conserva el cálculo, las estadísticas y la exportación completos.</p></article>
       <article class="card info-card"><h2>Cómo interpretar los resultados</h2><p>Dirichlet prescribe la temperatura en la <strong>cara</strong>; el centro de la celda puede tener otra temperatura. Neumann positivo aporta calor hacia el hormigón. Robin intercambia calor según la temperatura superficial y el ambiente; la condición de la base se configura por separado.</p><p>La máxima, mínima y media se calculan sobre el hormigón activo de cada instante. La sonda central corresponde a la posición indicada; muestra «—» antes de colocarse. Las curvas contienen estados guardados: su máximo no garantiza capturar el pico continuo entre ellos.</p><p>La voxelización clasifica centros, aproxima fronteras escalonadas y estima volumen como Nceldas · ΔxΔyΔz. Refinar la grilla ayuda a estudiar ese error. La estabilidad y un residuo energético pequeño verifican aspectos numéricos; la precisión física requiere propiedades, bordes y cinética contrastados con datos del caso.</p></article>
+    </div>
+  </section>
+  <section id="panel-weather" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-weather">
+    <h1>Clima y temperaturas · E11</h1>
+    <p class="project-intro">Abre el archivo <code>visor_e11.json</code> generado con <code>python -m scripts.weather_3d</code>. Para un ejemplo sin pronóstico, agrega <code>--synthetic --coarsen 2</code>.</p>
+    <article class="card">
+      <div class="card-heading">
+        <div><h2>Simulación guardada</h2><p id="e11-source" role="status">Selecciona un resultado E11.</p></div>
+        <label class="stacked">Archivo de resultados<input id="e11-file" type="file" accept=".json,application/json"></label>
+      </div>
+      <p id="e11-provenance" class="scope-note"></p>
+    </article>
+    <div id="e11-results" class="hidden">
+      <section class="card height-card">
+        <div class="card-heading">
+          <div><h2>Corte de la fundación y del suelo</h2><p id="e11-cut-details"></p></div>
+          <div class="view-tools">
+            <label>Plano <select id="e11-plane"><option value="xz">XZ</option><option value="yz">YZ</option><option value="xy">XY</option></select></label>
+            <button id="e11-hot" class="secondary" type="button">Corte por punto caliente</button>
+            <label><input id="e11-soil" type="checkbox" checked> Mostrar suelo</label>
+          </div>
+        </div>
+        <div class="chart-stage e11-section"><canvas id="e11-map" aria-label="Corte de temperaturas del dominio 3D"></canvas></div>
+        <div class="slice-control"><label for="e11-position">Posición del corte</label><input id="e11-position" type="range" min="0" max="0" value="0"><output id="e11-position-label"></output></div>
+        <div class="slice-control"><label for="e11-time">Tiempo guardado</label><input id="e11-time" type="range" min="0" max="0" value="0"><output id="e11-time-label"></output></div>
+        <p id="e11-field-note" class="scope-note"></p>
+      </section>
+      <section class="card height-card">
+        <div class="card-heading"><div><h2>Núcleo, superficie y aire</h2><p id="e11-differential"></p></div></div>
+        <div class="chart-stage"><canvas id="e11-temperatures" aria-label="Evolución térmica de núcleo, superficie y aire"></canvas></div>
+        <div class="chart-legend" id="e11-temperature-legend"></div>
+      </section>
+      <section class="charts height-card">
+        <article class="card"><div class="card-heading"><div><h2>Viento a 10 m</h2><p>Velocidad usada en la convección</p></div></div><div class="chart-stage"><canvas id="e11-wind" aria-label="Velocidad del viento frente al tiempo"></canvas></div></article>
+        <article class="card"><div class="card-heading"><div><h2>Radiación de onda corta</h2><p>Serie interpolada usada en la temperatura sol-aire</p></div></div><div class="chart-stage"><canvas id="e11-solar" aria-label="Radiación solar frente al tiempo"></canvas></div></article>
+      </section>
     </div>
   </section>
   <section id="panel-terrain" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-terrain">

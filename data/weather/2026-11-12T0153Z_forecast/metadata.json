@@ -1,0 +1,31 @@
+{
+  "source": "Open-Meteo (https://open-meteo.com/)",
+  "kind": "forecast",
+  "status": "pronóstico determinista",
+  "model": "seamless (elección automática de Open-Meteo)",
+  "retrieved_at": "2026-11-12T01:53:29Z",
+  "request_url": "https://api.open-meteo.com/v1/forecast?latitude=-41.222539&longitude=-73.295603&hourly=temperature_2m%2Cwind_speed_10m%2Cshortwave_radiation&wind_speed_unit=ms&timezone=GMT&forecast_days=4",
+  "latitude": -41.222539,
+  "longitude": -73.295603,
+  "grid_latitude": -41.23023,
+  "grid_longitude": -73.23782,
+  "timezone": "GMT",
+  "utc_offset_seconds": 0,
+  "variables": [
+    "temperature_2m",
+    "wind_speed_10m",
+    "shortwave_radiation"
+  ],
+  "units": {
+    "time": "iso8601",
+    "temperature_2m": "°C",
+    "wind_speed_10m": "m/s",
+    "shortwave_radiation": "W/m²"
+  },
+  "first_time": "2026-11-12T00:00",
+  "last_time": "2026-11-15T23:00",
+  "hours": 96,
+  "file": "forecast.json",
+  "sha256": "1d5e9346f3894f4ddf52957b914719a01f0c0f4ed40391d35a435455f48ad8fc",
+  "note": "Respuesta original sin modificar. shortwave_radiation es la media de la hora anterior."
+}

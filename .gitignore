@@ -70,3 +70,6 @@ logs/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Cuadros intermedios regenerables de E11
+results/weather_3d/*/vtk/

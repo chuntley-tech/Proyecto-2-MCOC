@@ -258,6 +258,25 @@ El ejemplo generado incluye un [gráfico](results/environment/environment_demo.p
 un [resumen JSON](results/environment/environment_demo.json) y la
 [serie meteorológica sintética](results/environment/weather_used.csv).
 
+### Pronóstico y campo térmico 3D (E11)
+
+```powershell
+python -m scripts.fetch_weather
+python -m scripts.weather_3d
+```
+
+E11 voxeliza el IFC vigente, resuelve el intercambio con el suelo y las
+superficies expuestas, y deja los resultados en `results/weather_3d/<snapshot>/`.
+Abre `visor_e11.json` en **Clima 3D · E11** del visor para recorrer el tiempo,
+inspeccionar cortes XZ, YZ y XY y comparar el núcleo con dos sondas
+superficiales. El HTML portátil lee este archivo local. Para obtener un caso
+sin conexión, usa `python -m scripts.weather_3d --synthetic --coarsen 2`.
+
+La misma carpeta contiene `temperature.pvd` para la serie VTK,
+`final.vti` para el campo final y `resumen.json` con la procedencia.
+Consulta [la guía E11](docs/E11_weather_pipeline_3d.md) para los comandos y
+supuestos del caso de laboratorio.
+
 ## Ver las soluciones de temperatura
 
 ```cmd
