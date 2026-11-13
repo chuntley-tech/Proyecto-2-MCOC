@@ -58,6 +58,46 @@ class CosineHydration:
 
 
 @dataclass(frozen=True)
+class ExponentialAdiabaticHydration:
+    """Curva adiabática del curso: theta_ad(a)=theta_inf*(1-exp(-a/tau)).
+
+    q(a)=rho*cp*(theta_inf/tau)*exp(-a/tau) [W/m³]. El límite de paso de edad
+    se fija en 5*tau; la tasa exponencial no se trunca en ese instante (a 5*tau
+    aún queda ~0,7 % de la elevación total).
+    """
+
+    theta_inf_c: float = 45.0
+    tau_s: float = 30.0*3600.0
+    density_kg_m3: float = 2400.0
+    specific_heat_j_kgk: float = 900.0
+    tau_h: float | None = None
+
+    def __post_init__(self):
+        if self.tau_h is not None:
+            object.__setattr__(self, "tau_s", float(self.tau_h)*3600.0)
+        values = (self.theta_inf_c, self.tau_s, self.density_kg_m3, self.specific_heat_j_kgk)
+        if not all(np.isfinite(v) and v > 0 for v in values):
+            raise ValueError("theta_inf, tau, rho y cp deben ser finitos positivos")
+
+    @property
+    def duration_s(self):
+        """Límite de paso de edad equivalente (5 tau)."""
+        return 5.0*self.tau_s
+
+    def rate(self, age_s):
+        """Fuente de hidratación por edad equivalente; nula antes de colocar."""
+        age = np.asarray(age_s, dtype=float)
+        with np.errstate(over="ignore"):
+            return np.where(age >= 0, self.density_kg_m3*self.specific_heat_j_kgk
+                            * (self.theta_inf_c/self.tau_s)*np.exp(-np.where(age >= 0, age, 0.0)/self.tau_s), 0.0)
+
+    def theta_ad_c(self, age_s):
+        """Elevación adiabática acumulada [°C] de la curva usada."""
+        age = np.asarray(age_s, dtype=float)
+        return np.where(age >= 0, self.theta_inf_c*(1-np.exp(-np.where(age >= 0, age, 0.0)/self.tau_s)), 0.0)
+
+
+@dataclass(frozen=True)
 class Pour:
     """Capa horizontal: cotas relativas a la altura IFC, inicio [s], T [°C]."""
 
@@ -132,7 +172,8 @@ class ConstructionSolution:
                 -self.source_heat_in_j-self.placement_energy_j)
 
 
-def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_j_mol=0.0):
+def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_j_mol=0.0,
+                       source_mask=None, initial_c=None):
     """Euler en t_n con reloj de edad por celda y eventos exactos de colocación.
 
     dt_s es un máximo: se reduce por estabilidad, pulso/100 y eventos.
@@ -143,6 +184,13 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
     te parte en cero al colocar; q=hydration.rate(te_n)*factor(T_n) y
     te_{n+1}=te_n+dt*factor(T_n). Ea=0 conserva edad cronológica; no es
     una calibración. Se limita también el incremento de te a pulso/100.
+
+    source_mask (opcional) separa las celdas que hidratan (hormigón) de las
+    que solo conducen calor (por ejemplo, suelo). Si se entrega, debe tener el
+    mismo shape y coincidir con las celdas marcadas por el plan; las celdas
+    activas fuera de la máscara parten en initial_c (por defecto 0 °C) y no
+    reciben fuente ni envejecen. Sin source_mask se conserva el comportamiento
+    anterior: toda celda activa pertenece al plan y recibe hidratación.
     """
     if isinstance(save_every, bool) or not isinstance(save_every, int) or save_every < 1:
         raise ValueError("save_every debe ser entero positivo")
@@ -150,18 +198,34 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         raise ValueError("Usar solo hidratación; source_w_m3 debe ser cero")
     arrhenius_factor(np.array([20.0]), activation_energy_j_mol)
     geometric = np.ones(p.shape, bool) if p.active is None else p.active
+    poured = plan.vertida_id > 0
+    if source_mask is None:
+        reactive = geometric
+    else:
+        reactive = np.asarray(source_mask, dtype=bool)
+        if reactive.shape != tuple(p.shape):
+            raise ValueError("source_mask debe tener el shape de la grilla")
+        if np.any(reactive & ~geometric):
+            raise ValueError("source_mask debe ser subconjunto de la máscara activa")
+        if not np.array_equal(poured, reactive):
+            raise ValueError("Las celdas del plan deben coincidir con source_mask")
     if (plan.vertida_id.shape != tuple(p.shape) or plan.start_s.shape != tuple(p.shape)
             or plan.placement_c.shape != tuple(p.shape)
-            or not np.array_equal(plan.vertida_id > 0, geometric)):
+            or not np.array_equal(poured, reactive)):
         raise ValueError("Plan incompatible con la máscara geométrica")
+    if initial_c is not None:
+        initial_c = np.asarray(initial_c, dtype=float)
+        if initial_c.shape != tuple(p.shape) or not np.all(np.isfinite(initial_c)):
+            raise ValueError("initial_c debe tener un valor finito por celda")
     # Validar propiedades y obtener capacidades sin exigir dt del usuario.
     reference = prepare(replace(p, dt_s=1e-30))
     capacity = np.broadcast_to(reference.capacity_j_k, p.shape)
-    active = geometric & (plan.start_s <= 0)
-    temperature = np.where(active, plan.placement_c, 0.0)
+    active = geometric & ((poured & (plan.start_s <= 0)) | ~poured)
+    initial = np.zeros(p.shape) if initial_c is None else initial_c
+    temperature = np.where(active, np.where(poured, plan.placement_c, initial), 0.0)
     equivalent_age = np.zeros(p.shape, dtype=float)
     c = prepare(replace(p, active=active, dt_s=1e-30)) if active.any() else None
-    events = np.unique(plan.start_s[geometric])
+    events = np.unique(plan.start_s[poured]) if poured.any() else np.empty(0)
     times, fields, masks, energies = [], [], [], []
     boundary, sources, placements = [], [], []
     ages = []
@@ -179,7 +243,8 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         future = events[events > time]
         event = float(future[0]) if future.size else p.duration_s
         limit = min(c.general_dt_s, c.local_dt_s)*0.8 if c is not None else np.inf
-        factor = arrhenius_factor(temperature[active], activation_energy_j_mol)
+        reacting = active & reactive
+        factor = arrhenius_factor(temperature[reacting], activation_energy_j_mol)
         age_limit = hydration.duration_s/(100*max(1.0, float(factor.max()) if factor.size else 1.0))
         end = min(time+p.dt_s, time+limit, time+age_limit, event, p.duration_s)
         if end <= time:
@@ -187,12 +252,12 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         if c is not None:
             # Regla de la cadena: rate está definida por segundo equivalente.
             heat = np.zeros(p.shape)
-            heat[active] = hydration.rate(equivalent_age[active])*factor
+            heat[reacting] = hydration.rate(equivalent_age[reacting])*factor
             b, s = advance(p, c, temperature, time, end-time, heat)
             qb += b; qs += s
-            equivalent_age[active] += (end-time)*factor
+            equivalent_age[reacting] += (end-time)*factor
         time = end
-        new = geometric & ~active & (plan.start_s <= time)
+        new = poured & ~active & (plan.start_s <= time)
         changed = bool(new.any())
         if changed:
             temperature[new] = plan.placement_c[new]

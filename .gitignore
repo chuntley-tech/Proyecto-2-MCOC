@@ -73,3 +73,4 @@ Desktop.ini
 
 # Cuadros intermedios regenerables de E11
 results/weather_3d/*/vtk/
+results/e12_14d/*/vtk/

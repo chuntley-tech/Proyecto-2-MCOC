@@ -10,7 +10,13 @@
     "duration_s": 345600.0
   },
   "boundary": {"air_c": 20.0, "h_w_m2k": 10.0, "base_flux_in_w_m2": 0.0},
-  "hydration": {"qmax_w_m3": 1300.0, "duration_s": 172800.0},
+  "hydration": {
+    "qmax_w_m3": 1300.0,
+    "duration_s": 172800.0,
+    "theta_inf_c": 45.0,
+    "tau_h": 30.0,
+    "source": "Guía Difusión de calor §24 (material del curso)"
+  },
   "kinetics": {"activation_energy_j_mol": 33500.0, "status": "Ea aportada por el usuario; referencia indicada: Freiesleben Hansen-Pedersen. No es una calibración experimental de la mezcla G8."},
   "pours": [
     {"id": 1, "z_min_fraction": 0.0, "z_max_fraction": 0.3333333333333333, "start_s": 0.0, "placement_c": 20.0},
