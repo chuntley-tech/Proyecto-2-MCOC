@@ -501,6 +501,71 @@ const e11Curves = [
 ];
 let e11;
 
+class E11SurfaceView {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.reset();
+    let drag;
+    canvas.addEventListener('pointerdown', event=>{
+      if(event.button!==0)return;
+      drag=[event.clientX,event.clientY];canvas.setPointerCapture(event.pointerId);
+    });
+    canvas.addEventListener('pointermove', event=>{
+      if(!drag)return;
+      this.yaw+=(event.clientX-drag[0])*.009;
+      this.pitch=Math.max(.12,Math.min(1.52,this.pitch+(event.clientY-drag[1])*.009));
+      drag=[event.clientX,event.clientY];this.schedule();
+    });
+    canvas.addEventListener('lostpointercapture', ()=>{drag=null;});
+    canvas.addEventListener('wheel', event=>{
+      event.preventDefault();
+      this.zoom=Math.max(.6,Math.min(4,this.zoom*Math.exp(-event.deltaY*.001)));
+      this.schedule();
+    },{passive:false});
+  }
+  reset() {
+    this.yaw=-.6;this.pitch=.72;this.zoom=1;
+    this.schedule();
+  }
+  schedule() {
+    if(this.pending)return;
+    this.pending=requestAnimationFrame(()=>{
+      this.pending=null;
+      if(e11?.mesh_3d&&!$('panel-weather').classList.contains('hidden'))this.draw(e11,e11Current(),$('e11-soil').checked);
+    });
+  }
+  draw(result,index,soil) {
+    const {ctx,w,h}=context2d(this.canvas.id);
+    if(!w||!h)return;
+    const lengths=result.shape.map((n,i)=>n*result.spacing_m[i]);
+    const center=result.origin_m.map((x,i)=>x+lengths[i]/2);
+    const scale=Math.min(w,h)*.70*this.zoom/Math.max(...lengths);
+    const cos=Math.cos(this.yaw),sin=Math.sin(this.yaw),p=Math.sin(this.pitch),q=Math.cos(this.pitch);
+    const faces=[];
+    for(const surface of result.mesh_3d.surfaces){
+      if(surface.material===2&&!soil)continue;
+      const points=surface.points_m.map(([x,y,z])=>{
+        x-=center[0];y-=center[1];z-=center[2];
+        const depth=sin*x+cos*y;
+        return [w/2+(cos*x-sin*y)*scale,h/2+(depth*p-z*q)*scale,depth*q+z*p];
+      });
+      surface.triangles.forEach(([a,b,c],i)=>{
+        const u=points[a],v=points[b],s=points[c];
+        faces.push({u,v,s,depth:u[2]+v[2]+s[2],cell:surface.frame_indices[i]});
+      });
+    }
+    faces.sort((a,b)=>a.depth-b.depth);
+    const temperatures=result.frames_c[index], colors=new Map();
+    ctx.lineWidth=.55;
+    for(const {u,v,s,cell} of faces){
+      if(!colors.has(cell))colors.set(cell,`rgb(${temperatureColor(temperatures[cell],result.low,result.high).join(',')})`);
+      ctx.fillStyle=ctx.strokeStyle=colors.get(cell);
+      ctx.beginPath();ctx.moveTo(u[0],u[1]);ctx.lineTo(v[0],v[1]);ctx.lineTo(s[0],s[1]);ctx.closePath();ctx.fill();ctx.stroke();
+    }
+  }
+}
+let e11SurfaceView;
+
 function validateE11(result) {
   const invalid = () => {throw Error('Archivo E11 inválido. Selecciona el visor_e11.json generado por weather_3d.');};
   const vector = (a,n) => Array.isArray(a)&&a.length===n&&a.every(Number.isFinite);
@@ -517,6 +582,19 @@ function validateE11(result) {
   const sampleCount=result.history.t_h.length;
   if(e11Curves.some(([key])=>!vector(result.history[key],sampleCount))||
     !vector(result.wind_m_s,sampleCount)||!vector(result.solar_w_m2,sampleCount))invalid();
+  if(result.boundary_frames!==undefined&&(!Array.isArray(result.boundary_frames)||
+    result.boundary_frames.length!==result.times_h.length||result.boundary_frames.some(frame=>
+      !['air_c','wind_m_s','solar_w_m2','h_w_m2k','top_sol_air_c','side_sol_air_c'].every(key=>Number.isFinite(frame?.[key])))))invalid();
+  if(result.mesh_3d!==undefined){
+    const mesh=result.mesh_3d;
+    if(typeof mesh?.engine!=='string'||!Array.isArray(mesh.surfaces)||!mesh.surfaces.length)invalid();
+    for(const surface of mesh.surfaces){
+      if(![1,2].includes(surface?.material)||!Array.isArray(surface.points_m)||!surface.points_m.every(p=>vector(p,3))||
+        !Array.isArray(surface.triangles)||!vector(surface.frame_indices,surface.triangles.length))invalid();
+      if(surface.triangles.some(t=>!vector(t,3)||!t.every(i=>Number.isInteger(i)&&i>=0&&i<surface.points_m.length))||
+        surface.frame_indices.some(i=>!Number.isInteger(i)||result.material[i]!==surface.material))invalid();
+    }
+  }
   const cell = c => vector(c,3)&&c.every((n,i)=>Number.isInteger(n)&&n>=0&&n<result.shape[i]);
   const summary=result.summary;
   if(!cell(summary?.core?.cell)||!Array.isArray(summary.tmax_by_frame)||summary.tmax_by_frame.length!==result.times_h.length||
@@ -579,6 +657,17 @@ function drawE11() {
   if(!e11||$('panel-weather').classList.contains('hidden'))return;
   const index=e11Current(), time=e11.times_h[index], hot=e11.summary.tmax_by_frame[index];
   $('e11-time-label').textContent=`${num(time,2)} h`;
+  const start=Date.parse(e11.summary.simulation?.start_utc);
+  $('e11-weather-time').textContent=Number.isFinite(start)
+    ?new Date(start+time*3600000).toISOString().replace('T',' ').slice(0,16)+' UTC'
+    :`${num(time,2)} h desde el inicio`;
+  const boundary=e11.boundary_frames?.[index];
+  const labels=boundary?[['Aire',boundary.air_c,'°C'],['Viento a 10 m',boundary.wind_m_s,'m/s'],
+    ['Onda corta',boundary.solar_w_m2,'W/m²'],['h convectivo',boundary.h_w_m2k,'W/(m²·K)'],
+    ['Sol-aire superior',boundary.top_sol_air_c,'°C'],['Sol-aire lateral',boundary.side_sol_air_c,'°C']]:[];
+  $('e11-weather-values').textContent=labels.length?labels.map(([name,value,unit])=>`${name} ${num(value,2)} ${unit}`).join(' · ')
+    :'El archivo incluye las curvas meteorológicas debajo del corte.';
+  e11SurfaceView?.schedule();
   $('e11-cut-details').textContent=`Máxima del hormigón ${num(hot.tmax_c,2)} °C en el estado guardado.`;
   $('e11-field-note').textContent=`Escala fija ${num(e11.low,1)} a ${num(e11.high,1)} °C · blanco: núcleo · cian: punto caliente · naranja y violeta: sondas superficiales del corte.`;
   e11DrawSlice(index);
@@ -607,6 +696,13 @@ $('e11-file').addEventListener('change',async event=>{
       mark.style.background=color;item.append(mark,document.createTextNode(label||key));return item;
     }));
     $('e11-time').max=e11.times_h.length-1;$('e11-time').value=e11.times_h.length-1;
+    $('e11-model').classList.toggle('hidden',!e11.mesh_3d);
+    if(e11.mesh_3d){
+      e11SurfaceView ??= new E11SurfaceView($('e11-model-canvas'));
+      e11SurfaceView.reset();
+      $('e11-model-source').textContent=`Malla de ${e11.mesh_3d.engine} · arrastra para girar y usa la rueda para acercar.`;
+      $('e11-model-legend').textContent=`Escala fija ${num(e11.low,1)} a ${num(e11.high,1)} °C. La opción Mostrar suelo controla también esta vista.`;
+    }
     $('e11-results').classList.remove('hidden');e11SetPlane(e11.summary.core.cell);
   }catch(error){
     if(event.target.files[0]!==file)return;
@@ -617,6 +713,13 @@ $('e11-file').addEventListener('change',async event=>{
 for(const id of ['e11-time','e11-position','e11-soil'])$(id).addEventListener('input',drawE11);
 $('e11-plane').addEventListener('change',()=>{if(e11)e11SetPlane(e11.summary.core.cell);});
 $('e11-hot').addEventListener('click',()=>{if(e11)e11SetPlane(e11.summary.tmax_by_frame[e11Current()].cell);});
+$('e11-camera-reset').addEventListener('click',()=>e11SurfaceView?.reset());
+for(const id of ['e11-temperatures','e11-wind','e11-solar'])$(id).addEventListener('click',event=>{
+  if(!e11)return;
+  const rect=event.currentTarget.getBoundingClientRect();
+  $('e11-time').value=historyFrameAt(e11.times_h,(event.clientX-rect.left-48)/(rect.width-67));
+  drawE11();
+});
 let terrainView, terrainLoading = false;
 
 async function showTerrain() {
@@ -649,10 +752,11 @@ async function showTerrain() {
     } catch {
       photo = null;
     }
-    terrainView = new TerrainView($('panel-terrain'), terrain, photo);
+    const terrainMeta = meta || await request('/api/meta');
+    terrainView = new TerrainView($('panel-terrain'), terrain, photo, terrainMeta.terrain_foundation);
     const imagery = photo ? ' · Sentinel-2 de 2016' : ' · textura satelital no disponible';
     const sideKm = num(terrain.extent_m / 1000, 0);
-    $('terrain-details').textContent = `Recorte de ${sideKm} × ${sideKm} km · malla visual de ${terrainView.spacing} m · relieve vertical ×3 · cota estimada del punto ${num(terrainView.elevation, 1)} m${imagery}.`;
+    $('terrain-details').textContent = `Recorte de ${sideKm} × ${sideKm} km · malla visual de ${terrainView.spacing} m · relieve regional ×3 y detalle a escala real · cota estimada ${num(terrainView.elevation, 1)} m${imagery}.`;
     status.classList.add('hidden');
     $('terrain-beacon').classList.remove('hidden');
   } catch (error) {

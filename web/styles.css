@@ -178,6 +178,14 @@ h1 { font-size: 28px; font-weight: 750; letter-spacing: -1.1px; line-height: 1.2
 .legend-title span { float: right; letter-spacing: 0; }
 .legend-bar { height: 7px; border-radius: 4px; background: linear-gradient(90deg, #28104e, #653575, #b24973, #f09149, #f6e879); box-shadow: 0 0 0 1px #ffffff0a; }
 .legend-labels { display: flex; justify-content: space-between; color: #dce5f0; font-size: 10px; margin-top: 5px; font-variant-numeric: tabular-nums; }
+#model-canvas { background: #638c99; }
+#model-canvas:not(.hidden) ~ :is(.model-hint, .model-chip, .temperature-legend) {
+  color: #eaf1f6;
+  background: #172936;
+  border-radius: 7px;
+}
+#model-canvas:not(.hidden) ~ .model-hint { padding: 5px 8px; }
+#model-canvas:not(.hidden) ~ .temperature-legend { padding: 8px 9px; }
 .timeline { display: flex; gap: 14px; align-items: center; padding: 16px 19px 12px; }
 .play { width: 35px; height: 35px; border-radius: 50%; background: #edf2ff; color: var(--blue); border: 1px solid #dfe8ff; display: grid; place-items: center; font-size: 12px; flex-shrink: 0; }
 .play:hover:not(:disabled) { background: #dde7ff; border-color: #bdcfff; box-shadow: 0 3px 8px #315cf21a; transform: scale(1.04); }
@@ -218,6 +226,10 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
 .project-panel { max-width: 1200px; margin: 0 auto; padding: 38px 30px 46px; }
 #e11-source, #e11-provenance { overflow-wrap: anywhere; }
 .e11-section { height: clamp(240px, 42vw, 420px); }
+.e11-model-stage { background: #638c99; padding: 0; }
+.e11-model-stage canvas { cursor: grab; touch-action: none; }
+.e11-model-stage canvas:active { cursor: grabbing; }
+#e11-model-legend { padding-top: 12px; }
 .project-intro { max-width: 840px; font-size: 14px; line-height: 1.8; color: var(--muted); margin: 15px 0 27px; }
 .project-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .info-card { padding: 25px; }
@@ -292,6 +304,7 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
 .terrain-stage { position: relative; height: clamp(350px, 63vh, 620px); overflow: hidden; background: radial-gradient(ellipse at 50% 47%, #1b4050, #0d1d32 76%); }
 .terrain-stage canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
 .terrain-stage canvas:active { cursor: grabbing; }
+.terrain-stage .terrain-objects { position: absolute; inset: 0; pointer-events: none; }
 .terrain-north, .terrain-scale, .terrain-hint { position: absolute; color: #e7f1f5; pointer-events: none; font-size: 11px; }
 .terrain-north { top: 16px; right: 18px; display: grid; justify-items: center; gap: 4px; background: #0d1d32c9; padding: 8px 12px; border-radius: 10px; }
 .terrain-north span { font-size: 22px; line-height: 1; }
@@ -303,6 +316,8 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
 .beacon-label { background: #09262b; border: 1px solid #76efd0; border-radius: 9px; padding: 8px 12px; font-size: 12px; font-weight: 650; white-space: nowrap; }
 .beacon-light { height: clamp(58px, 12vh, 125px); width: 10px; background: linear-gradient(transparent, #9df9e2 68%, #e4fff8); box-shadow: 0 12px 24px #55ffd486; }
 .beacon-dot { width: 16px; height: 8px; margin-bottom: -4px; border-radius: 50%; background: #dbfff4; box-shadow: 0 0 14px 5px #43ffccbd; }
+.terrain-beacon.is-close .beacon-light { height: 38px; width: 5px; }
+.terrain-beacon.is-close .beacon-dot { width: 9px; height: 5px; margin-bottom: -2px; }
 .terrain-beacon:hover .beacon-label, .terrain-beacon:focus-visible .beacon-label { background: #145350; }
 .terrain-beacon:focus-visible { outline: 2px solid #eafff9; outline-offset: 5px; border-radius: 8px; }
 .terrain-credits { padding: 16px 19px; color: var(--muted); font-size: 11px; line-height: 1.6; }

@@ -54,6 +54,9 @@ def test_snapshot_feeds_boundaries_and_exports_vtk(tmp_path):
     assert summary["core"]["depth_to_boundary_m"] == pytest.approx(np.nanmax(cells["depth_to_boundary_m"]))
     viewer = json.loads((out / "visor_e11.json").read_text(encoding="utf-8"))
     assert viewer["times_h"] == pytest.approx([0.0, 6.0, 12.0, 12.1])
+    assert len(viewer["boundary_frames"]) == len(viewer["times_h"])
+    assert viewer["boundary_frames"][0]["h_w_m2k"] == pytest.approx(summary["boundaries_at_t0"]["top"]["h_w_m2k"])
+    assert viewer["boundary_frames"][0]["air_c"] == pytest.approx(hourly["temperature_2m"][16])
     assert viewer["history"]["t_h"][-1] == pytest.approx(12.1)
     assert final["fields"]["TimeValue"] == pytest.approx(12.1)
     # El JSON conserva orden C y redondea la temperatura a 0,001 °C.
@@ -106,3 +109,25 @@ def test_exposed_and_depth_helpers():
     assert exposed.sum() == 26 and not exposed[2, 2, 2]
     depth = weather_3d.surface_depth(concrete, exposed, (1.0, 1.0, 1.0))
     assert depth[2, 2, 2] == 1.0 and depth[1, 1, 1] == 0.0
+
+
+def test_pyvista_surfaces_keep_active_frame_indices():
+    pytest.importorskip("pyvista")
+    from thermal3d.pyvista_export import export_surfaces
+
+    material = np.zeros((3, 2, 2), dtype=np.uint8)
+    material[1:, 0, 0] = 1
+    material[0, :, 1] = 2
+    spacing = (0.25, 0.5, 0.75)
+    origin = (-1, 0.5, -2)
+    result = export_surfaces(material, spacing, origin)
+    cells = np.argwhere(material > 0)
+    for surface in result["surfaces"]:
+        vertices = np.asarray(surface["points_m"])
+        for face, index in zip(surface["triangles"], surface["frame_indices"]):
+            cell = cells[index]
+            assert material[tuple(cell)] == surface["material"]
+            low = np.array(origin) + cell * spacing
+            assert np.all(vertices[face] >= low)
+            assert np.all(vertices[face] <= low + spacing)
+        assert len(surface["triangles"]) == 20  # Dos voxeles juntos, diez caras expuestas.

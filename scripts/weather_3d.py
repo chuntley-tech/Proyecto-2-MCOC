@@ -234,18 +234,26 @@ def run(args, config):
         raise ValueError("Use un factor de malla entre 1 y 4")
     series, metadata, start = load_weather(args, config)
     model = build_model(config, series, start, args.hours, args.coarsen)
+    p, grid = model["p"], model["grid"]
+    concrete = grid["concrete"]
+    material = np.where(concrete, MATERIAL["hormigon"], np.where(grid["soil"], MATERIAL["suelo"], MATERIAL["aire"]))
+    mesh = None
+    if getattr(args, "pyvista", False):
+        from thermal3d.pyvista_export import export_surfaces
+
+        try:
+            mesh = export_surfaces(material, p.spacing_m, model["origin_m"])
+        except ModuleNotFoundError as error:
+            raise ValueError("Instala la opción 3D con python -m pip install -r requirements-pyvista.txt") from error
     out = Path(args.out) / (Path(metadata["folder"]).name if metadata.get("folder") else "sintetico")
     (out / "vtk").mkdir(parents=True, exist_ok=True)
     plot_weather(out / "clima_snapshot.png", series, metadata, start, args.hours)
 
-    p, grid = model["p"], model["grid"]
     c = prepare(p)
     limit = min(c.general_dt_s, c.local_dt_s)
     every = args.every * HOUR
     dt = every / math.ceil(every / min(0.9 * limit, args.max_dt))
     places = locate_core_and_surface(model)
-    concrete = grid["concrete"]
-    material = np.where(concrete, MATERIAL["hormigon"], np.where(grid["soil"], MATERIAL["suelo"], MATERIAL["aire"]))
     hydration = CosineHydration(config["concrete"]["qmax_w_m3"], config["concrete"]["hydration_duration_s"])
     source_mask = concrete.astype(float) * (0.0 if args.no_hydration else 1.0)
 
@@ -337,7 +345,17 @@ def run(args, config):
         "history": history,
         "wind_m_s": [functions["wind_10m_m_s"](time * HOUR) for time in history["t_h"]],
         "solar_w_m2": [functions["shortwave_w_m2"](time * HOUR) for time in history["t_h"]],
+        "boundary_frames": [
+            {"air_c": functions["air_c"](time * HOUR), "wind_m_s": functions["wind_10m_m_s"](time * HOUR),
+             "solar_w_m2": functions["shortwave_w_m2"](time * HOUR),
+             "h_w_m2k": model["faces"]["top"].film_h_w_m2k(time * HOUR),
+             "top_sol_air_c": model["faces"]["top"].sol_air_c(time * HOUR),
+             "side_sol_air_c": model["faces"]["side"].sol_air_c(time * HOUR)}
+            for time, _ in frames
+        ],
     }
+    if mesh is not None:
+        viewer["mesh_3d"] = mesh
     with (out / "visor_e11.json").open("w", encoding="utf-8") as stream:
         json.dump(viewer, stream, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
     with open(out / "trayectorias.csv", "w", encoding="utf-8") as stream:
@@ -374,6 +392,7 @@ def main(argv=None):
     parser.add_argument("--coarsen", type=int, default=1, help="2 = voxeles de 0,5 m (vista rápida)")
     parser.add_argument("--no-hydration", action="store_true")
     parser.add_argument("--synthetic", action="store_true", help="serie SINTÉTICA, solo para probar sin snapshot")
+    parser.add_argument("--pyvista", action="store_true", help="incluye una malla 3D de PyVista para el visor HTML")
     parser.add_argument("--out", default=str(ROOT_DIR / "results" / "weather_3d"))
     args = parser.parse_args(argv)
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))

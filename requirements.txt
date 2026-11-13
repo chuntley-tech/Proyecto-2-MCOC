@@ -1,6 +1,7 @@
 # Entorno probado: Python 3.12.7, Windows x64.
 # Dependencias directas: numpy, matplotlib, pytest, ifcopenshell.
 # Se fijan también las dependencias transitivas para recrear el entorno.
+# Exportación opcional de mallas E11: requirements-pyvista.txt.
 colorama==0.4.6
 contourpy==1.4.0
 cycler==0.12.1

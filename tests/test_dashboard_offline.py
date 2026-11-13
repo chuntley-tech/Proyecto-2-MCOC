@@ -212,6 +212,45 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert output.stat().st_size < 5_000_000
 
 
+def test_terrain_detail_uses_ifc_and_cows_at_map_scale(pack):
+    models = pack["meta"]["terrain_foundation"]
+    vertices = np.concatenate([model["vertices_m"] for model in models])
+    assert len(models) == pack["meta"]["ifc"]["components"]
+    np.testing.assert_allclose(np.ptp(vertices, axis=0), pack["meta"]["ifc"]["lengths_m"], atol=1e-6)
+    np.testing.assert_allclose(vertices.min(axis=0) + vertices.max(axis=0),
+                               [0, 0, pack["meta"]["ifc"]["lengths_m"][2]], atol=1e-6)
+
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node opcional para comprobar el zoom y la geometría del terreno")
+    source = (ROOT / "web/terrain.js").read_text(encoding="utf-8")
+    check = """
+const assert = require('node:assert/strict');
+const cow = terrainCow(12, -8, 2, 0.5);
+const heights = cow.flatMap(face => face.points.map(p => p[2]));
+assert.equal(Math.min(...heights), 2);
+assert.equal(Math.max(...heights), 3.5);
+const canvas = {getBoundingClientRect: () => ({width:800, height:450})};
+const view = Object.assign(Object.create(TerrainView.prototype), {canvas, extent:18000, zoom:1, scheduleDraw() {}});
+view.zoomBy(10000);
+assert.equal(view.zoom, view.detailZoom());
+assert.equal(view.zoom * 360 / view.extent, 12);
+let fills = 0;
+const context = {setTransform(){}, clearRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, closePath(){}, stroke(){}, fill(){ fills++; }};
+const beacon = {style:{}, classList:{toggle(){}}};
+Object.assign(view, {objectCanvas:{}, objectContext:context, beacon, objects:cow, foundationHeight:3.3});
+const project = (x,y,z) => [400 + x*12, 252 + (y-z)*12, y+z];
+view.drawObjects(project, false, 800, 450, 1);
+assert.equal(fills, 0);
+assert.equal(beacon.style.top, '252px');
+view.drawObjects(project, true, 800, 450, 1);
+assert.equal(fills, cow.length);
+assert.equal(beacon.style.top, '212.4px');
+"""
+    subprocess.run([node, "-"], input=source + check, text=True, encoding="utf-8",
+                   cwd=ROOT, check=True, timeout=20)
+
+
 def test_portable_rejects_unstable_step(pack):
     node=shutil.which("node")
     if not node:

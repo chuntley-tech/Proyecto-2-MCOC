@@ -26,6 +26,20 @@ sondas superficiales, temperatura máxima y aire. Los gráficos de viento y
 radiación muestran los insumos del cálculo. El encabezado identifica el
 pronóstico o la serie sintética y, cuando corresponde, el hash del snapshot.
 
+Para agregar la vista 3D interactiva al mismo archivo:
+
+```powershell
+python -m pip install -r requirements-pyvista.txt
+python -m scripts.weather_3d --pyvista
+```
+
+PyVista extrae las superficies del hormigón y del suelo y conserva la celda
+de origen de cada triángulo. El navegador colorea esa malla con el campo de
+temperaturas del instante seleccionado. El mismo control actualiza los cortes,
+los gráficos y los valores de aire, viento, radiación, coeficiente convectivo
+`h` y temperatura sol-aire. Para explorar un resultado guardado en el HTML
+portátil basta el navegador y el JSON exportado. PyVista se usa al exportar.
+
 ## Guion: lo que pedirá el ayudante
 
 | Pedido | Qué mostrar |

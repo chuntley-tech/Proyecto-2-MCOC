@@ -221,7 +221,7 @@
   </section>
   <section id="panel-weather" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-weather">
     <h1>Clima y temperaturas · E11</h1>
-    <p class="project-intro">Abre el archivo <code>visor_e11.json</code> generado con <code>python -m scripts.weather_3d</code>. Para un ejemplo sin pronóstico, agrega <code>--synthetic --coarsen 2</code>.</p>
+    <p class="project-intro">Abre el archivo <code>visor_e11.json</code>. Genera un resultado con malla 3D mediante <code>python -m scripts.weather_3d --pyvista</code>.</p>
     <article class="card">
       <div class="card-heading">
         <div><h2>Simulación guardada</h2><p id="e11-source" role="status">Selecciona un resultado E11.</p></div>
@@ -230,6 +230,17 @@
       <p id="e11-provenance" class="scope-note"></p>
     </article>
     <div id="e11-results" class="hidden">
+      <section class="card height-card">
+        <div class="card-heading"><div><h2>Clima aplicado al modelo</h2><p id="e11-weather-time"></p></div></div>
+        <div class="chart-legend" id="e11-weather-values"></div>
+        <div class="slice-control"><label for="e11-time">Tiempo guardado</label><input id="e11-time" type="range" min="0" max="0" value="0"><output id="e11-time-label"></output></div>
+      </section>
+      <section id="e11-model" class="card height-card hidden">
+        <div class="card-heading"><div><h2>Campo térmico 3D</h2><p id="e11-model-source"></p></div>
+          <button id="e11-camera-reset" class="secondary" type="button">Restablecer vista</button></div>
+        <div class="chart-stage e11-section e11-model-stage"><canvas id="e11-model-canvas" aria-label="Vista tridimensional de la temperatura"></canvas></div>
+        <p id="e11-model-legend" class="scope-note"></p>
+      </section>
       <section class="card height-card">
         <div class="card-heading">
           <div><h2>Corte de la fundación y del suelo</h2><p id="e11-cut-details"></p></div>
@@ -241,7 +252,6 @@
         </div>
         <div class="chart-stage e11-section"><canvas id="e11-map" aria-label="Corte de temperaturas del dominio 3D"></canvas></div>
         <div class="slice-control"><label for="e11-position">Posición del corte</label><input id="e11-position" type="range" min="0" max="0" value="0"><output id="e11-position-label"></output></div>
-        <div class="slice-control"><label for="e11-time">Tiempo guardado</label><input id="e11-time" type="range" min="0" max="0" value="0"><output id="e11-time-label"></output></div>
         <p id="e11-field-note" class="scope-note"></p>
       </section>
       <section class="card height-card">
@@ -267,11 +277,13 @@
           <button id="terrain-zoom-out" class="icon-button" type="button" aria-label="Alejar terreno">−</button>
           <output id="terrain-zoom-level" aria-label="Nivel de acercamiento">1,0×</output>
           <button id="terrain-zoom-in" class="icon-button" type="button" aria-label="Acercar terreno">+</button>
+          <button id="terrain-focus" class="secondary" type="button">Acercar al punto G8</button>
           <button id="terrain-reset" class="secondary" type="button">Restablecer vista</button>
         </div>
       </div>
       <div class="terrain-stage">
         <canvas aria-label="Relieve tridimensional del entorno del punto docente G8"></canvas>
+        <canvas class="terrain-objects" aria-hidden="true"></canvas>
         <p id="terrain-imagery-credit" class="terrain-imagery-credit hidden"><a href="https://cloudless.eox.at/" target="_blank" rel="noopener noreferrer">EOxCloudless</a> by EOX IT Services GmbH<br>Contains modified Copernicus Sentinel data 2016 · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
         <div class="terrain-north" aria-label="Norte"><b>N</b><span aria-hidden="true">↑</span></div>
         <p id="terrain-status" class="terrain-status" role="status">Preparando el relieve…</p>
@@ -284,7 +296,7 @@
       <div class="terrain-credits">
         <p id="terrain-details">Recorte de 18 × 18 km · relieve vertical ×3 para facilitar la lectura.</p>
         <p id="terrain-layer-status" aria-live="polite">La vista automática muestra el satélite al alejarse y resalta el relieve al acercarse.</p>
-        <p>El marcador ubica el punto meteorológico docente G8. La cota mostrada es una estimación del modelo de superficie. La fundación se explora a escala de modelo en el simulador.</p>
+        <p>De cerca, el IFC queda centrado en el punto docente y se muestra a la misma escala que las vacas ilustrativas de 1,50 m al lomo. La cota del punto procede del modelo de superficie. <a href="https://www.cattlebreeders-austria.at/breeds/holstein" target="_blank" rel="noopener noreferrer">Referencia de talla Holstein</a>.</p>
         <p>Produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. <a href="https://registry.opendata.aws/copernicus-dem/" target="_blank" rel="noopener noreferrer">Fuente de elevaciones</a> · <a href="https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/DEM/resources/license/License-COPDEM-30.pdf" target="_blank" rel="noopener noreferrer">Licencia</a>.</p>
         <p>Los organismos a cargo del programa Copernicus por ley o por delegación no asumen responsabilidad por el uso de Copernicus WorldDEM-30.</p>
       </div>

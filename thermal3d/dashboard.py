@@ -190,8 +190,13 @@ def metadata():
     high = np.max([m.vertices.max(axis=0) for m in meshes], axis=0)
     defaults.update(dict(zip(("foundation_x_m","foundation_y_m","foundation_height_m"),(high-low).tolist())))
     validate_options(defaults)
+    # Ancla el centro de la planta y la base del IFC al punto docente del mapa.
+    anchor = np.r_[(low[:2] + high[:2]) / 2, low[2]]
+    terrain_foundation = [{"vertices_m": (mesh.vertices - anchor).round(6).tolist(),
+                           "faces": mesh.faces.tolist()} for mesh in meshes]
     return {"defaults": defaults, "ifc": {**source, "lengths_m": (high-low).tolist(), "components": len(meshes)},
             "environment": environment_inputs(),
+            "terrain_foundation": terrain_foundation,
             "data_status": "Ensayos sintéticos para exploración térmica.", "max_steps": 8000}
 
 
