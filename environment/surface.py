@@ -151,12 +151,15 @@ class SurfaceExposure:
     h_a_w_m2k: float = 5.7
     h_b_w_m2k_per_m_s: float = 3.8
     wind_exponent: float = 0.14
+    bare_absorptance: Optional[float] = None
 
     def __post_init__(self):
         if self.h_w_m2k is not None and not (math.isfinite(self.h_w_m2k) and self.h_w_m2k > 0):
             raise ValueError(f"{self.name}: h fijo debe ser positivo")
         if not (0 <= self.solar_absorptance <= 1 and 0 <= self.solar_factor <= 1):
             raise ValueError(f"{self.name}: absortancia y factor solar entre 0 y 1")
+        if self.bare_absorptance is not None and not 0 <= self.bare_absorptance <= 1:
+            raise ValueError(f"{self.name}: absortancia desnuda entre 0 y 1")
         if not (math.isfinite(self.max_wind_m_s) and self.max_wind_m_s >= 0):
             raise ValueError(f"{self.name}: viento máximo no válido")
         if not (math.isfinite(self.h_a_w_m2k) and self.h_a_w_m2k > 0
@@ -199,7 +202,10 @@ class SurfaceExposure:
 
     def sol_air_c(self, time_s: float) -> float:
         """T_sa = T_aire + a·f·G/h [°C]: el sol entra una sola vez, por la misma película."""
-        absorbed = self.solar_absorptance * self.solar_factor * _value(self.shortwave_w_m2, time_s)
+        alpha = self.solar_absorptance
+        if self.bare_absorptance is not None and not self.layers.layers_at(time_s):
+            alpha = self.bare_absorptance
+        absorbed = alpha * self.solar_factor * _value(self.shortwave_w_m2, time_s)
         return _value(self.air_c, time_s) + absorbed / self.film_h_w_m2k(time_s)
 
     def equivalent_ambient_c(self, time_s: float) -> float:

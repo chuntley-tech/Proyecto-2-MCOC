@@ -1,0 +1,148 @@
+{
+  "source": {
+    "seed": 2026,
+    "hours": 336,
+    "coarsen": 2,
+    "snapshot": "2026-11-13T1522Z_forecast",
+    "distributions": {
+      "status": "Distribuciones uniformes independientes de ejemplo docente. Rangos supuestos sin calibración experimental.",
+      "uniform": {
+        "placement_c": [
+          18,
+          22
+        ],
+        "theta_inf_c": [
+          40,
+          50
+        ],
+        "tau_h": [
+          24,
+          36
+        ]
+      }
+    }
+  },
+  "summary": {
+    "manifest_sha256": "3e811a915003dd47918b17411e1ec597f74821322e2283eb77ad994e16831b00",
+    "samples": 4,
+    "tmax_c": {
+      "threshold_c": 70.0,
+      "mean_c": 67.40658065430013,
+      "percentiles_c": {
+        "p05": 65.18713254006516,
+        "p50": 66.47004451276257,
+        "p95": 70.9371793666877
+      },
+      "exceedances": 1,
+      "exceedance_fraction": 0.25
+    },
+    "delta_t_max_c": {
+      "threshold_c": 20.0,
+      "mean_c": 44.575833191247476,
+      "percentiles_c": {
+        "p05": 41.18747384609158,
+        "p50": 44.15999313871034,
+        "p95": 48.546368609955366
+      },
+      "exceedances": 4,
+      "exceedance_fraction": 1.0
+    },
+    "any_exceedances": 4,
+    "any_exceedance_fraction": 1.0,
+    "max_energy_balance_relative": 1.4321169585181298e-15
+  },
+  "runs": [
+    {
+      "sample_id": 0,
+      "manifest_sha256": "3e811a915003dd47918b17411e1ec597f74821322e2283eb77ad994e16831b00",
+      "parameters": {
+        "placement_c": 18.715739254701745,
+        "theta_inf_c": 46.39913165715154,
+        "tau_h": 29.60722081372182
+      },
+      "metrics": {
+        "tmax_c": 67.58613018573097,
+        "tmax_time_h": 80.5,
+        "delta_t_max_c": 46.729946358443826,
+        "delta_t_time_h": 48.0,
+        "steps": 2016,
+        "hours": 336.0,
+        "energy_balance_relative": 1.4321169585181298e-15,
+        "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+        "weather_sha256": "6179996cfaf6cbca6f1175d64cfa7782a3939f8394a436d175ab082fdc523afe",
+        "weather_kind": "forecast",
+        "start_utc": "2026-11-13T16:00Z",
+        "tail_hours": 0
+      }
+    },
+    {
+      "sample_id": 1,
+      "manifest_sha256": "3e811a915003dd47918b17411e1ec597f74821322e2283eb77ad994e16831b00",
+      "parameters": {
+        "placement_c": 19.48200210843219,
+        "theta_inf_c": 43.54917334309651,
+        "tau_h": 33.48621895023918
+      },
+      "metrics": {
+        "tmax_c": 65.15769260481886,
+        "tmax_time_h": 85.33333333333333,
+        "delta_t_max_c": 41.590039918976856,
+        "delta_t_time_h": 48.0,
+        "steps": 2016,
+        "hours": 336.0,
+        "energy_balance_relative": 8.671998194917061e-16,
+        "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+        "weather_sha256": "6179996cfaf6cbca6f1175d64cfa7782a3939f8394a436d175ab082fdc523afe",
+        "weather_kind": "forecast",
+        "start_utc": "2026-11-13T16:00Z",
+        "tail_hours": 0
+      }
+    },
+    {
+      "sample_id": 2,
+      "manifest_sha256": "3e811a915003dd47918b17411e1ec597f74821322e2283eb77ad994e16831b00",
+      "parameters": {
+        "placement_c": 21.620575346708694,
+        "theta_inf_c": 41.77353191823049,
+        "tau_h": 31.833417632221582
+      },
+      "metrics": {
+        "tmax_c": 65.35395883979416,
+        "tmax_time_h": 82.66666666666667,
+        "delta_t_max_c": 41.116432774405936,
+        "delta_t_time_h": 48.0,
+        "steps": 2016,
+        "hours": 336.0,
+        "energy_balance_relative": 4.564093894975952e-16,
+        "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+        "weather_sha256": "6179996cfaf6cbca6f1175d64cfa7782a3939f8394a436d175ab082fdc523afe",
+        "weather_kind": "forecast",
+        "start_utc": "2026-11-13T16:00Z",
+        "tail_hours": 0
+      }
+    },
+    {
+      "sample_id": 3,
+      "manifest_sha256": "3e811a915003dd47918b17411e1ec597f74821322e2283eb77ad994e16831b00",
+      "parameters": {
+        "placement_c": 19.193211069422276,
+        "theta_inf_c": 49.66962200162391,
+        "tau_h": 35.03820192644734
+      },
+      "metrics": {
+        "tmax_c": 71.52854098685654,
+        "tmax_time_h": 82.33333333333333,
+        "delta_t_max_c": 48.866913713163285,
+        "delta_t_time_h": 48.0,
+        "steps": 2016,
+        "hours": 336.0,
+        "energy_balance_relative": 8.121580977770738e-16,
+        "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+        "weather_sha256": "6179996cfaf6cbca6f1175d64cfa7782a3939f8394a436d175ab082fdc523afe",
+        "weather_kind": "forecast",
+        "start_utc": "2026-11-13T16:00Z",
+        "tail_hours": 0
+      }
+    }
+  ]
+}

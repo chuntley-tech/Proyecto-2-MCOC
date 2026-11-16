@@ -21,6 +21,7 @@
     <button id="tab-terrain" role="tab" aria-selected="false" aria-controls="panel-terrain" tabindex="-1" type="button">Terreno 3D</button>
     <button id="tab-weather" role="tab" aria-selected="false" aria-controls="panel-weather" tabindex="-1" type="button">Clima 3D · E11</button>
     <button id="tab-monte-carlo" role="tab" aria-selected="false" aria-controls="panel-monte-carlo" tabindex="-1" type="button">Monte Carlo</button>
+    <button id="tab-plans" role="tab" aria-selected="false" aria-controls="panel-plans" tabindex="-1" type="button">Decisión G8</button>
   </nav>
   <div class="workspace" id="panel-laboratory" role="tabpanel" aria-labelledby="tab-laboratory">
     <aside class="sidebar">
@@ -185,7 +186,7 @@
       </section>
       <section class="charts">
         <article class="card"><div class="card-heading"><div><h2 id="slice-title">Corte de temperatura</h2><p id="slice-caption">Valores de las celdas calculadas</p></div><select id="slice-plane" aria-label="Plano de corte"><option value="xz">Plano XZ</option><option value="xy">Plano XY</option><option value="yz">Plano YZ</option></select></div><div class="chart-stage"><canvas id="slice-canvas" aria-label="Mapa o perfil de temperatura del corte"></canvas><div id="slice-tooltip" class="tooltip hidden"></div></div><div class="slice-control"><label for="slice-slider">Posición</label><input id="slice-slider" type="range" min="0" max="0" value="0"><span id="slice-position">—</span></div></article>
-        <article class="card"><div class="card-heading"><div><h2>Evolución de temperaturas</h2><p id="history-caption">Historia de los estados guardados</p></div><span class="mini-tag">°C</span></div><div class="chart-stage"><canvas id="history-canvas" aria-label="Gráfico de evolución temporal"></canvas></div><div class="chart-legend" id="history-legend"><span><i class="blue"></i>Central</span><span><i class="orange"></i>Máxima</span><span><i class="purple"></i>Media</span></div></article>
+        <article class="card"><div class="card-heading"><div><h2>Evolución de temperaturas</h2><p id="history-caption">Historia de los estados guardados</p></div><span class="mini-tag">°C</span></div><div class="chart-stage"><canvas id="history-canvas" aria-label="Gráfico de evolución temporal"></canvas></div><div class="chart-legend" id="history-legend"></div><output id="history-range" class="history-range">ΔT (máxima − mínima) —</output></article>
       </section>
 
       <section class="card height-card">
@@ -206,9 +207,9 @@
     <h1>Fundación de hormigón masivo · Cuatro Vientos</h1>
     <p class="project-intro">Proyecto universitario de la Universidad de los Andes: diseñar, justificar y defender un plan de construcción por vertidas para una fundación de aerogenerador.</p>
     <div class="project-grid">
-      <article class="card info-card"><h2>Caso docente G8</h2><p>Llanquihue, Región de Los Lagos. Caso húmedo y frío del sur: el enfriamiento superficial y la diferencia núcleo–superficie son relevantes.</p><p>Punto meteorológico oficial: latitud −41.222539°, longitud −73.295603°. Es un punto docente representativo; no se presenta como la ubicación exacta de una fundación real.</p><p>Los cálculos del visor son ensayos sintéticos; no incorporan observaciones meteorológicas reales.</p></article>
+      <article class="card info-card"><h2>Caso docente G8</h2><p>Llanquihue, Región de Los Lagos. Caso húmedo y frío del sur: el enfriamiento superficial y la diferencia núcleo–superficie son relevantes.</p><p>Punto meteorológico oficial: latitud −41.222539°, longitud −73.295603°. Es un punto docente representativo; no se presenta como la ubicación exacta de una fundación real.</p><p>El Simulador térmico usa ensayos sintéticos. Decisión G8 combina un pronóstico archivado y ocho fuentes de hidratación obtenidas por inversión de datos de ensayo.</p></article>
       <article class="card info-card"><h2>Modelo BIM de referencia</h2><p>Envolvente nominal de 18 × 18 m y altura de 3,30 m. Tres objetos IFC identificables: zócalo octagonal, transición inclinada y cilindro superior de diámetro 7 m; cada tramo tiene 1,10 m nominal.</p><p>Los tres componentes BIM no equivalen automáticamente a tres vertidas constructivas. El visor permite definir otra cantidad de capas.</p><p id="project-ifc">Geometría IFC incluida al generar este archivo.</p></article>
-      <article class="card info-card"><h2>Flujo del proyecto</h2><p>Bonsai / Blender → IFC → IfcOpenShell → voxelización → solver térmico propio en grilla cartesiana → visualización.</p><p>El solver Python es independiente de Blender. El HTML portátil incluye una captura voxelizada del IFC y un núcleo numérico JavaScript contrastado con Python.</p><p>Monte Carlo, HPC y decisión constructiva forman parte del objetivo general; este visor se centra en explorar geometría y difusión térmica.</p></article>
+      <article class="card info-card"><h2>Flujo del proyecto</h2><p>Bonsai / Blender → IFC → IfcOpenShell → voxelización → solver térmico propio en grilla cartesiana → visualización.</p><p>El solver Python es independiente de Blender. El HTML portátil incluye una captura voxelizada del IFC y un núcleo numérico JavaScript contrastado con Python.</p><p>En Decisión G8 se comparan cronogramas y riesgo conjunto con los resultados de la campaña Python. La pestaña Monte Carlo permite explorar lotes del modelo docente.</p></article>
       <article class="card info-card"><h2>Física y parámetros</h2><p>Balance: ρ cₚ ∂T/∂t = ∇·(k∇T) + Q(t). k es conductividad, ρ densidad, cₚ calor específico y α = k/(ρcₚ) difusividad.</p><p>1D nodal; 2D/3D centrado en celdas, Euler explícito y límites de estabilidad general y local. Bordes Dirichlet, Neumann y Robin, con flujo entrante positivo.</p><p>Qmax del visor: 1300 W/m³, supuesto sintético elegido por el usuario. El pulso tiene duración editable; Qmax no es una temperatura.</p></article>
       <article class="card info-card"><h2>Dimensiones y vertidas</h2><p>El modo original utiliza las dimensiones del IFC. El modo editable escala su geometría en X, Y y Z y recalcula distancias, áreas, volúmenes, estabilidad y temperaturas.</p><p>La malla conserva su cantidad de celdas: al escalar cambian sus tamaños físicos. La resolución elegida corresponde al IFC de referencia.</p><p>Las vertidas son capas de igual altura, no de igual volumen. Se identifican por el centro de cada voxel; sus volúmenes son aproximaciones de la grilla. El modo simultáneo coloca todas desde t = 0; el modo por etapas usa el cronograma y la temperatura de cada capa, con fuente por edad local y superficies expuestas temporales.</p></article>
       <article class="card info-card"><h2>Criterios y referencias del curso</h2><p>Criterios docentes: temperatura máxima 70 °C y diferencia núcleo–superficie de 20 °C durante 14 días. El visor no certifica su cumplimiento ni sustituye una evaluación constructiva.</p><p>Referencia geométrica: Ju y Lei (2019), <em>Actual Temperature Evolution of Thick Raft Concrete Foundations and Cracking Risk Analysis</em>, DOI 10.1155/2019/7029671. Referencia chilena: ICH, <em>Especificación para Hormigón Masivo Estructural</em> (julio de 2019), Anexo 4 sobre el método de Schmidt.</p><p>Las guías G00–G08 y difusión térmica están en el repositorio. Los parámetros de ensayo no representan una mezcla de hormigón calibrada.</p></article>
@@ -220,19 +221,69 @@
       <article class="card info-card"><h2>Cómo interpretar los resultados</h2><p>Dirichlet prescribe la temperatura en la <strong>cara</strong>; el centro de la celda puede tener otra temperatura. Neumann positivo aporta calor hacia el hormigón. Robin intercambia calor según la temperatura superficial y el ambiente; la condición de la base se configura por separado.</p><p>La máxima, mínima y media se calculan sobre el hormigón activo de cada instante. La sonda central corresponde a la posición indicada; muestra «—» antes de colocarse. Las curvas contienen estados guardados: su máximo no garantiza capturar el pico continuo entre ellos.</p><p>La voxelización clasifica centros, aproxima fronteras escalonadas y estima volumen como Nceldas · ΔxΔyΔz. Refinar la grilla ayuda a estudiar ese error. La estabilidad y un residuo energético pequeño verifican aspectos numéricos; la precisión física requiere propiedades, bordes y cinética contrastados con datos del caso.</p></article>
     </div>
   </section>
+  <section id="panel-plans" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-plans">
+    <h1>Comparación de planes G8</h1>
+    <p id="plans-status" class="project-intro" role="status">Cargando la campaña guardada…</p>
+    <div id="plans-results" class="hidden">
+      <section class="card">
+        <div class="card-heading"><div><h2>Duración y riesgo térmico</h2><p id="plans-assumptions"></p></div></div>
+        <div class="table-scroll"><table class="project-table">
+          <thead><tr><th>Plan</th><th>Fin desde t₀ [h]</th><th>ΔT máx a 14 días [°C]</th><th>ΔT máx final [°C]</th><th>T &gt; 70 °C</th><th>ΔT &gt; 20 °C</th><th>Unión a 14 días</th><th>Unión final</th><th>Sensibilidad 8 curvas</th><th>Estado</th></tr></thead>
+          <tbody id="plans-rows"></tbody>
+        </table></div>
+        <p class="scope-note">La regla de selección es P(T &gt; 70 °C o ΔT &gt; 20 °C) ≤ 5 %. La duración termina al completar la última vertida.</p>
+        <p class="scope-note">El diferencial usa el máximo del hormigón colocado y la mínima temperatura reconstruida a 25 mm bajo las caras expuestas, ambos del mismo instante. El cálculo principal usa las cuatro curvas SS. La columna de sensibilidad incorpora las cuatro 22A.</p>
+      </section>
+      <section class="charts height-card" id="plans-figures"></section>
+      <section class="card height-card">
+        <div class="card-heading"><div><h2>Escenarios térmicos y cronograma</h2><p id="plan-schedule"></p></div><label>Plan <select id="plan-choice"></select></label></div>
+        <p class="scope-note" id="plan-weather-checks"></p>
+        <div class="table-scroll mc-run-table"><table class="project-table">
+          <thead><tr><th>Curva</th><th>Clima</th><th>Peso principal</th><th>T máx [°C]</th><th>t de T máx [h]</th><th>Ubicación T máx [m]</th><th>ΔT a 14 días [°C]</th><th>ΔT final [°C]</th><th>t de ΔT máx [h]</th><th>Ubicación mínima a 25 mm [m]</th><th>Horizonte [h]</th><th>Tras última vertida [h]</th><th>Relleno climático [h]</th><th>Falla</th></tr></thead>
+          <tbody id="plan-scenarios"></tbody>
+        </table></div>
+      </section>
+      <section id="plans-verification" class="card height-card hidden">
+        <div class="card-heading"><div><h2>Sensibilidad numérica</h2><p id="plans-verification-caption"></p></div></div>
+        <div class="table-scroll"><table class="project-table">
+          <thead><tr><th>Plan y escenario</th><th>Ensayo</th><th>Malla [m]</th><th>Δt máximo solicitado [s]</th><th>T máx [°C]</th><th>ΔT máx [°C]</th><th>Hora y cara de ΔT máx</th><th>Residuo energético</th></tr></thead>
+          <tbody id="plans-verification-rows"></tbody>
+        </table></div>
+        <details id="plans-protection-details">
+          <summary>Retiro de la manta y perfil a 25 mm</summary>
+          <div class="table-scroll"><table class="project-table">
+            <thead><tr><th>Plan</th><th>Hora desde t₀</th><th>Cara más fría</th><th>T máx [°C]</th><th>Mínima a 25 mm [°C]</th><th>ΔT [°C]</th></tr></thead>
+            <tbody id="plans-protection-rows"></tbody>
+          </table></div>
+          <p class="scope-note" id="plans-depth-profiles"></p>
+        </details>
+      </section>
+    </div>
+    <details class="card python-job">
+      <summary>Importar otra comparación</summary>
+      <label class="stacked">Archivo comparison.json<input id="plans-file" type="file" accept=".json,application/json"></label>
+    </details>
+  </section>
   <section id="panel-monte-carlo" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-monte-carlo">
     <h1>Monte Carlo · Fundación G8</h1>
-    <p class="project-intro">Abre <code>aggregate.json</code> para ver el lote. Selecciona también los archivos JSON de <code>runs/</code> para explorar las corridas.</p>
-    <section class="card">
-      <div class="card-heading">
-        <div><h2>Resultados guardados</h2><p id="mc-status" role="status">Selecciona los archivos del lote.</p></div>
-        <div class="view-tools">
-          <label class="stacked">Archivos JSON<input id="mc-files" type="file" accept=".json,application/json" multiple></label>
-          <button id="mc-clear" class="secondary" type="button" disabled>Limpiar lote</button>
+    <p class="portable-example-note project-intro hidden">Para simular un lote nuevo, inicia el visor conectado con <code>abrir_visor.cmd</code>.</p>
+    <p id="mc-example-note" class="project-intro hidden"></p>
+    <form id="mc-python" class="card python-job hidden">
+      <fieldset disabled>
+        <legend>Ejecutar lote con Python</legend>
+        <div class="form-grid python-job-fields">
+          <label>Clima<select name="snapshot"></select></label>
+          <label>Muestras<input name="count" type="number" min="1" max="32" step="1" value="4" required></label>
+          <label>Semilla<input name="seed" type="number" min="0" max="4294967295" step="1" value="2026" required></label>
+          <label>Procesos<input name="workers" type="number" min="1" max="4" step="1" value="2" required></label>
+          <label>Malla<select name="coarsen"><option value="2">Rápida · 0,50 m</option><option value="1">E12 · 0,25 m</option></select></label>
         </div>
-      </div>
-      <p id="mc-error" class="scope-note hidden" role="alert"></p>
-    </section>
+        <p class="hint">Cada muestra simula 14 días con los rangos docentes del proyecto.</p>
+        <button type="submit" class="secondary">Ejecutar Monte Carlo</button>
+      </fieldset>
+      <p class="python-job-status" role="status"></p>
+    </form>
+    <p id="mc-status" class="project-intro" role="status">El ejemplo se carga al abrir esta pestaña.</p>
     <section id="mc-summary" class="card height-card hidden">
       <div class="card-heading"><div><h2>Frecuencia de superación</h2><p>Fracción de las simulaciones del lote que supera cada límite.</p></div></div>
       <div class="table-scroll"><table class="project-table">
@@ -250,14 +301,33 @@
         <tbody id="mc-run-rows"></tbody>
       </table></div>
     </section>
+    <details class="card python-job">
+      <summary>Importar otro lote guardado</summary>
+      <p class="hint">Selecciona aggregate.json y los JSON de runs/.</p>
+      <label class="stacked">Archivos JSON<input id="mc-files" type="file" accept=".json,application/json" multiple></label>
+      <button id="mc-clear" class="secondary" type="button" disabled>Limpiar lote</button>
+      <p id="mc-error" class="scope-note hidden" role="alert"></p>
+    </details>
   </section>
   <section id="panel-weather" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-weather">
     <h1>Clima y temperaturas · E11</h1>
-    <p class="project-intro">Abre el archivo <code>visor_e11.json</code>. Genera un resultado con malla 3D mediante <code>python -m scripts.weather_3d --pyvista</code>.</p>
+    <p class="portable-example-note project-intro hidden">Para simular otro pronóstico, inicia el visor conectado con <code>abrir_visor.cmd</code>.</p>
+    <form id="e11-python" class="card python-job hidden">
+      <fieldset disabled>
+        <legend>Simular clima con Python</legend>
+        <div class="form-grid python-job-fields">
+          <label>Clima<select name="snapshot"></select></label>
+          <label>Duración [h]<input name="hours" type="number" min="1" max="48" step="1" value="48" required></label>
+          <label>Malla<select name="coarsen"><option value="2">Rápida · 0,50 m</option><option value="1">E11 · 0,25 m</option></select></label>
+        </div>
+        <label class="python-job-check"><input name="pyvista" type="checkbox"> Incluir vista 3D de PyVista</label>
+        <button type="submit" class="secondary">Simular clima E11</button>
+      </fieldset>
+      <p class="python-job-status" role="status"></p>
+    </form>
     <article class="card">
       <div class="card-heading">
-        <div><h2>Simulación guardada</h2><p id="e11-source" role="status">Selecciona un resultado E11.</p></div>
-        <label class="stacked">Archivo de resultados<input id="e11-file" type="file" accept=".json,application/json"></label>
+        <div><h2>Resultado de la simulación</h2><p id="e11-source" role="status">El ejemplo se carga al abrir esta pestaña.</p></div>
       </div>
       <p id="e11-provenance" class="scope-note"></p>
     </article>
@@ -296,6 +366,10 @@
         <article class="card"><div class="card-heading"><div><h2>Radiación de onda corta</h2><p>Serie interpolada usada en la temperatura sol-aire</p></div></div><div class="chart-stage"><canvas id="e11-solar" aria-label="Radiación solar frente al tiempo"></canvas></div></article>
       </section>
     </div>
+    <details class="card python-job">
+      <summary>Importar otra simulación guardada</summary>
+      <label class="stacked">Archivo JSON<input id="e11-file" type="file" accept=".json,application/json"></label>
+    </details>
   </section>
   <section id="panel-terrain" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-terrain">
     <div class="eyebrow">EMPLAZAMIENTO DOCENTE · GRUPO 8</div>

@@ -128,3 +128,35 @@ def test_local_server_rejects_foreign_host_and_origin():
     assert not Handler._local_request(foreign)
     other = SimpleNamespace(server=server, headers={"Host":"externo.invalid"})
     assert not Handler._local_request(other)
+
+
+def test_dashboard_jobs_validate_inputs_and_hide_paths(monkeypatch):
+    from scripts import dashboard_jobs
+
+    weather = {"kind":"weather", "snapshot":"synthetic", "coarsen":2, "hours":1, "pyvista":False}
+    monkeypatch.setattr(dashboard_jobs, "_sources", lambda config: {"forecast": {"folder": "data/weather/forecast"}})
+    args = dashboard_jobs._parameters({**weather, "snapshot":"forecast"}, {})
+    assert args.snapshot == "data/weather/forecast" and not args.synthetic
+    with pytest.raises(ValueError, match="pronóstico"):
+        dashboard_jobs._parameters({**weather, "snapshot":"../forecast"}, {})
+    with pytest.raises(ValueError, match="hours"):
+        dashboard_jobs._parameters({**weather, "hours":True}, {})
+
+    def fake_weather(args, config):
+        assert args.synthetic and args.hours == 1 and args.every == 6
+        return args.out, {}
+
+    class ImmediateThread:
+        def __init__(self, target, args):
+            self.target, self.args = target, args
+
+        def start(self):
+            self.target(*self.args)
+
+    monkeypatch.setattr(dashboard_jobs.threading, "Thread", ImmediateThread)
+    monkeypatch.setattr(dashboard_jobs.weather_3d, "run", fake_weather)
+    monkeypatch.setattr(dashboard_jobs, "_jobs", {})
+    job = dashboard_jobs.start(weather)
+    assert job["state"] == "done" and job["completed"] == 1
+    assert job["folder"] == f"results/visor_python/{job['id']}"
+    assert "path" not in job and not dashboard_jobs.RUN_LOCK.locked()

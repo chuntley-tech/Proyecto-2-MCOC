@@ -1,0 +1,61 @@
+{
+  "candidate": "A",
+  "scenario": {
+    "curve": "M4_SS",
+    "climate": "central"
+  },
+  "metrics": {
+    "base": {
+      "grid_spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "dt": 600,
+      "dt_mean_s": 599.108469539376,
+      "hours": 336,
+      "energy_error_relative": 1.7748265573517716e-15,
+      "tmax_c": 64.05479016174048,
+      "tmax_exceeds": false,
+      "tmax_change_c": 0.0,
+      "delta_c": 50.144467548376035,
+      "delta_exceeds": true,
+      "delta_change_c": 0.0
+    },
+    "spatial": {
+      "grid_spacing_m": [
+        0.25,
+        0.25,
+        0.2750000019868215
+      ],
+      "dt": 600,
+      "dt_mean_s": 598.5155863433944,
+      "hours": 336,
+      "energy_error_relative": 1.992476449061528e-16,
+      "tmax_c": 64.13087848031651,
+      "tmax_exceeds": false,
+      "tmax_change_c": 0.07608831857602638,
+      "delta_c": 50.15507877517858,
+      "delta_exceeds": true,
+      "delta_change_c": 0.01061122680254556
+    },
+    "temporal": {
+      "grid_spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "dt": 300.0,
+      "dt_mean_s": 299.7769516728625,
+      "hours": 336,
+      "energy_error_relative": 1.972057374147827e-16,
+      "tmax_c": 64.05184340469263,
+      "tmax_exceeds": false,
+      "tmax_change_c": 0.0029467570478516336,
+      "delta_c": 50.14402935071231,
+      "delta_exceeds": true,
+      "delta_change_c": 0.00043819766372621416
+    }
+  },
+  "scenario_index": 10
+}

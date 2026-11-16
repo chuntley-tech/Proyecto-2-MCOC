@@ -279,6 +279,12 @@ supuestos del caso de laboratorio.
 
 ### Caso determinista E12 y Monte Carlo
 
+La [campaña de decisión G8](docs/CAMPANA_G8.md) compara planes por duración
+y riesgo conjunto con curvas tabuladas, varios miembros meteorológicos y
+el diferencial reconstruido a 25 mm. La familia ampliada ensaya mantas
+laterales y retiros superiores con el cronograma del plan C. El visor
+muestra los dos horizontes y las comprobaciones en **Decisión G8**.
+
 ```powershell
 python -m scripts.e12_case --snapshot data/weather/2026-11-13T1522Z_forecast
 ```

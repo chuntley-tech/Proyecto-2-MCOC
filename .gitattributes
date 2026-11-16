@@ -1,1 +1,8 @@
 *.slurm text eol=lf
+
+# Conservar los bytes usados para verificar la procedencia de la campaña G8.
+/data/hydration/source_terms.txt -text whitespace=-blank-at-eol
+/data/weather/2026-11-16T1645Z_ensemble/ensemble.json -text
+/models/g8_base.ifc text eol=crlf
+/results/final/g8_20261119/manifest.json text eol=crlf
+/results/final/g8_20261119_ampliada/manifest.json text eol=crlf

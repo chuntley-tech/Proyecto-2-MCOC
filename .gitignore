@@ -75,4 +75,8 @@ Desktop.ini
 results/weather_3d/*/vtk/
 results/e12_14d/*/vtk/
 results/monte_carlo/
+results/visor_python/
+results/final/*/runs/
+results/final/g8/
+results/final/g8_final/
 slurm-*.out

@@ -173,7 +173,7 @@ class ConstructionSolution:
 
 
 def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_j_mol=0.0,
-                       source_mask=None, initial_c=None, observe=None):
+                       source_mask=None, initial_c=None, observe=None, observe_domain=None, event_times_s=()):
     """Euler en t_n con reloj de edad por celda y eventos exactos de colocación.
 
     dt_s es un máximo: se reduce por estabilidad, pulso/100 y eventos.
@@ -193,6 +193,8 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
     anterior: toda celda activa pertenece al plan y recibe hidratación.
     observe(t, temperatura, activa) puede extraer métricas en t = 0 y en cada
     paso. Los arreglos son prestados y el observador debe tratarlos como lectura.
+    observe_domain recibe además las conductancias de las caras activas.
+    event_times_s divide el paso en cambios externos, por ejemplo desmolde.
     """
     if isinstance(save_every, bool) or not isinstance(save_every, int) or save_every < 1:
         raise ValueError("save_every debe ser entero positivo")
@@ -227,7 +229,9 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
     temperature = np.where(active, np.where(poured, plan.placement_c, initial), 0.0)
     equivalent_age = np.zeros(p.shape, dtype=float)
     c = prepare(replace(p, active=active, dt_s=1e-30)) if active.any() else None
-    events = np.unique(plan.start_s[poured]) if poured.any() else np.empty(0)
+    events = np.unique(np.r_[plan.start_s[poured], event_times_s])
+    if not np.isfinite(events).all() or np.any(events < 0):
+        raise ValueError("Los eventos deben ser segundos finitos y no negativos")
     times, fields, masks, energies = [], [], [], []
     boundary, sources, placements = [], [], []
     ages = []
@@ -242,6 +246,8 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
     save()
     if observe is not None:
         observe(time, temperature, active)
+    if observe_domain is not None:
+        observe_domain(time, temperature, active, c)
     step = 0
     while time < p.duration_s:
         future = events[events > time]
@@ -264,6 +270,8 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         new = poured & ~active & (plan.start_s <= time)
         changed = bool(new.any())
         if changed:
+            if observe_domain is not None:
+                observe_domain(time, temperature, active, c)
             temperature[new] = plan.placement_c[new]
             equivalent_age[new] = 0.0
             qp += float(np.sum(capacity[new]*temperature[new]))
@@ -272,6 +280,8 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         step += 1
         if observe is not None:
             observe(time, temperature, active)
+        if observe_domain is not None:
+            observe_domain(time, temperature, active, c)
         if changed or step % save_every == 0 or time == p.duration_s:
             save()
     return ConstructionSolution(*(np.asarray(values) for values in

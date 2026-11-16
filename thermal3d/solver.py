@@ -107,6 +107,7 @@ class Coefficients:
     general_dt_s: float
     local_dt_s: float
     fourier_sum: float
+    face_directions: tuple
 
 
 @dataclass(frozen=True)
@@ -198,6 +199,7 @@ def prepare(p):
     if len(p.shape) == 3:
         gz = _interface(active, np.s_[:, :, :-1], np.s_[:, :, 1:], k, volume / spacing[2]**2, diagonal)
     faces = []
+    directions = []
     valid = {"x-", "x+", "y-", "y+"}
     if len(p.shape) == 3:
         valid |= {"z-", "z+"}
@@ -210,7 +212,9 @@ def prepare(p):
         indices[axis] = 0 if face[1] == "-" else -1
         indices = tuple(indices)
         area = volume / spacing[axis]
+        first = len(faces)
         _add_face(faces, diagonal, indices, active[indices], boundary, k, area, spacing[axis], face)
+        directions.extend([face] * (len(faces)-first))
     if p.exposed is not None:
         # Lista corta de caras orientadas, sin iterar por celdas.
         oriented = [(0, np.s_[:-1, ...], np.s_[1:, ...]), (0, np.s_[1:, ...], np.s_[:-1, ...]),
@@ -221,8 +225,10 @@ def prepare(p):
             mask = active[indices] & ~active[neighbor]
             if mask.any():
                 direction = "xyz"[axis] + ("+" if number % 2 == 0 else "-")
+                first = len(faces)
                 _add_face(faces, diagonal, indices, mask, p.exposed, k, volume/spacing[axis], spacing[axis],
                           direction)
+                directions.extend([direction] * (len(faces)-first))
     alpha = k * volume / capacity
     max_alpha = float(alpha) if np.isscalar(alpha) else float(np.max(alpha[active]))
     general_dt = 0.5 / (max_alpha * float(np.sum(1 / spacing**2)))
@@ -234,7 +240,8 @@ def prepare(p):
         raise ValueError(f"Estabilidad general: suma Fo={fourier:.12g} > 0.5; dt={p.dt_s:.12g} s, límite={general_dt:.12g} s")
     if p.dt_s > local_dt:
         raise ValueError(f"Estabilidad local: dt={p.dt_s:.12g} s > C/suma(G)={local_dt:.12g} s")
-    return Coefficients(active, capacity, volume, gx, gy, gz, tuple(faces), general_dt, local_dt, fourier)
+    return Coefficients(active, capacity, volume, gx, gy, gz, tuple(faces), general_dt, local_dt, fourier,
+                        tuple(directions))
 
 
 def _exchange(power, temperature, lower, upper, g):

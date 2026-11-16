@@ -19,7 +19,16 @@ Los cuadros de la serie (`vtk/temperature_XXXX.vti`) se regeneran con
 
 ## Visor HTML
 
-Abre **Clima 3D · E11** y selecciona `visor_e11.json` de la carpeta de resultados.
+Con el servidor local activo (`python -m scripts.serve_dashboard`), entra
+en **Clima 3D · E11**, elige un pronóstico guardado de G8 y pulsa
+**Simular clima E11**. El resultado aparece en la pestaña al terminar y
+se guarda en `results/visor_python/<id>/`. La malla 3D es opcional y
+requiere PyVista en el entorno del servidor. También puedes elegir una
+serie sintética rotulada para practicar sin un pronóstico guardado.
+
+Abre **Clima 3D · E11** para ver automáticamente el ejemplo de 48 h.
+Para cargar otro resultado guardado, usa **Importar otra simulación guardada**
+y selecciona su `visor_e11.json`.
 Puedes cambiar el instante, el plano y su posición, ocultar el suelo o
 saltar al corte por el punto caliente. El gráfico compara núcleo geométrico,
 sondas superficiales, temperatura máxima y aire. Los gráficos de viento y

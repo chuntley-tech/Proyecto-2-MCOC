@@ -149,8 +149,8 @@ def touching(concrete, other, *, exterior=True):
 
 
 # ------------------------------------------------------------------------------------------- modelo
-def build_model(config, series, start, hours, coarsen=1):
-    component, spacing, origin, ifc_sha = load_voxels(coarsen)
+def build_model(config, series, start, hours, coarsen=1, *, voxels=None):
+    component, spacing, origin, ifc_sha = load_voxels(coarsen) if voxels is None else voxels
     soil_cfg, concrete_cfg = config["soil"], config["concrete"]
     soil = SoilModel(depth_m=round(soil_cfg["depth_m"] / spacing[2]) * spacing[2],
                      margin_m=round(soil_cfg["margin_m"] / spacing[0]) * spacing[0],
@@ -175,13 +175,21 @@ def build_model(config, series, start, hours, coarsen=1):
     common = dict(air_c=f["air_c"], wind_10m_m_s=f["wind_10m_m_s"], shortwave_w_m2=f["shortwave_w_m2"],
                   max_wind_m_s=max_wind, wind_height_m=conv["wind_height_m"], wind_exponent=conv["wind_exponent"],
                   h_a_w_m2k=conv["h_a_w_m2k"], h_b_w_m2k_per_m_s=conv["h_b_w_m2k_per_m_s"])
+    side_after = ()
+    if form.get("blanket_after_strip"):
+        side_after = (Layer("manta lateral", form.get("blanket_thickness_m", ins["thickness_m"]),
+                            ins["conductivity_w_mk"]),)
     side = SurfaceExposure(**common, name="costados (moldaje)",
-                           layers=LayerSchedule.formwork_removed_at(form["strip_after_h"] * HOUR, formwork),
+                           layers=LayerSchedule.formwork_removed_at(form["strip_after_h"] * HOUR, formwork, side_after),
+                           bare_absorptance=solar["absorptance_concrete"] if form.get("use_bare_absorptance") else None,
                            solar_absorptance=solar["absorptance_formwork"], solar_factor=solar["side_factor"])
     insulation_start = ins["on_top_from_h"] * HOUR
     insulation = ((0.0, ()),) if insulation_start > 0 else ()
+    insulation += ((insulation_start, (blanket,)),)
+    if "remove_after_h" in ins:
+        insulation += ((ins["remove_after_h"] * HOUR, ()),)
     top = SurfaceExposure(**common, name="caras superiores (manta)",
-                          layers=LayerSchedule(insulation + ((insulation_start, (blanket,)),)),
+                          layers=LayerSchedule(insulation),
                           solar_absorptance=solar["absorptance_concrete"], solar_factor=solar["top_factor"])
     ground = SurfaceExposure(**common, name="terreno descubierto", solar_absorptance=solar["absorptance_concrete"],
                              solar_factor=solar["top_factor"])

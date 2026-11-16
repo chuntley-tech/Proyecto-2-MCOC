@@ -1,0 +1,26 @@
+{
+  "start_utc": "2026-11-19T11:00:00Z",
+  "start_local": "2026-11-19 08:00 America/Santiago",
+  "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+  "weather_sensitivity": true,
+  "hours": 336,
+  "max_hours": 504,
+  "dt_s": 600,
+  "offset_h": 2,
+  "tail_h": 24,
+  "activation_energy_j_mol": 0,
+  "placement_c": 20,
+  "pump_count": 1,
+  "flow_m3_h_per_pump": 40,
+  "minimum_wait_h": 6,
+  "plans": [
+    {"id": "A", "label": "Vertida continua", "fractions": [0,1], "start_h": [0], "strip_h": 72, "top_remove_h": 336, "side_blanket": false},
+    {"id": "B", "label": "Tres vertidas de referencia", "fractions": [0,0.3333333333333333,0.6666666666666666,1], "start_h": [0,24,48], "strip_h": 72, "top_remove_h": 336, "side_blanket": false},
+    {"id": "C", "label": "Tres vertidas con espera mínima", "fractions": [0,0.3333333333333333,0.6666666666666666,1], "wait_h": 6, "strip_h": 96, "top_remove_h": 336, "side_blanket": true},
+    {"id": "D", "label": "Tres vertidas espaciadas y aisladas", "fractions": [0,0.3333333333333333,0.6666666666666666,1], "wait_h": 36, "strip_h": 120, "top_remove_h": 336, "side_blanket": true},
+    {"id": "C1", "label": "C con manta lateral de 50 mm", "fractions": [0,0.3333333333333333,0.6666666666666666,1], "wait_h": 6, "strip_h": 96, "top_remove_h": 336, "side_blanket": true, "side_blanket_m": 0.05},
+    {"id": "C2", "label": "C con retiro superior a 408 h", "fractions": [0,0.3333333333333333,0.6666666666666666,1], "wait_h": 6, "strip_h": 96, "top_remove_h": 408, "side_blanket": true},
+    {"id": "C3", "label": "C con ambas medidas", "fractions": [0,0.3333333333333333,0.6666666666666666,1], "wait_h": 6, "strip_h": 96, "top_remove_h": 408, "side_blanket": true, "side_blanket_m": 0.05}
+  ],
+  "assumptions": "Hora local, caudal, una bomba, espera mínima, colocación y protecciones son supuestos docentes, pendientes de confirmación de la pauta y del equipo. Las curvas son fuentes invertidas en tiempo de ensayo; se aplican por edad cronológica de colocación sin un ajuste de madurez adicional."
+}

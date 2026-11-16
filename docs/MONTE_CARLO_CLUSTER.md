@@ -25,11 +25,18 @@ Cada lote requiere un directorio nuevo para el muestreo. El comando
 
 ## Explorar en el visor HTML
 
-Abre `visor_termico.html` y entra en **Monte Carlo**. Carga `aggregate.json`
-para ver los percentiles y las frecuencias de superación. Puedes añadir los
-JSON que están dentro de `runs/` en el mismo paso o más tarde, y filtrar
-las corridas por cuál de los límites superan. Usa **Limpiar lote** para
-cambiar de manifiesto. La pestaña lee los resultados localmente.
+Abre `visor_termico.html` y entra en **Monte Carlo**. La pestaña muestra
+automáticamente un lote de ejemplo de cuatro simulaciones. Para explorar
+otro lote sin servidor, usa **Importar otro lote guardado** y selecciona
+`aggregate.json` y los archivos de `runs/`. Usa **Limpiar lote** si quieres
+cambiar de manifiesto después de importar.
+
+Con el visor conectado mediante `python -m scripts.serve_dashboard`, el
+formulario **Ejecutar lote con Python** permite elegir el pronóstico guardado,
+la semilla, la cantidad de muestras, la malla y los procesos locales.
+Al terminar, carga el resumen y las corridas automáticamente. El lote
+queda en `results/visor_python/<id>/`, junto con su manifiesto. Para
+ejecutar en el clúster, usa los comandos Slurm de la sección siguiente.
 
 ## Slurm
 

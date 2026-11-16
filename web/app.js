@@ -8,7 +8,7 @@ const jobs=new Map();
 let defaults, meta, data, frame = 0, timer = null, busy = false, lookup, lastHeatmap, calculatedOptions;
 const num = (v, n = 1) => v===null||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('es-CL', { maximumFractionDigits:n, minimumFractionDigits:n });
 const palette = [[40,16,78],[101,53,117],[178,73,115],[240,145,73],[246,232,121]];
-const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3' };
+const colors = { center_c:'#2563eb', max_c:'#f08a38', mean_c:'#8c67c3', min_c:'#15805b' };
 const hiddenPourIds=new Set();
 let pourVisibilityVersion=0;
 
@@ -302,7 +302,7 @@ function profile(id,dark=false) {
   if(!dark){$('slice-position').textContent=data.dimension===1?'Perfil nodal':`y = ${num((y+0.5)*data.spacing_m[1],3)} m`;$('slice-caption').textContent='Temperatura calculada en los nodos / centros del perfil';}
 }
 function historySeries(result) {
-  const series=Object.entries(colors).map(([key,color])=>({name:{center_c:'Central',max_c:'Máxima',mean_c:'Media'}[key],values:result.history[key],color}));
+  const series=Object.entries(colors).map(([key,color])=>({name:{center_c:'Central',max_c:'Máxima',mean_c:'Media',min_c:'Mínima'}[key],values:result.history[key],color}));
   const o=result.parameters;
   if(o.boundary_type==='dirichlet')series.push({name:`Dirichlet principal: ${o.boundary_c} °C`,values:result.time_s.map(()=>o.boundary_c),color:'#0891b2',dashed:true});
   if(o.bottom_type==='dirichlet')series.push({name:`Dirichlet base: ${o.bottom_c} °C`,values:result.time_s.map(()=>o.bottom_c),color:'#dc2626',dashed:true});
@@ -311,6 +311,10 @@ function historySeries(result) {
 function historyFrameAt(times,fraction) {
   const target=Math.max(0,Math.min(1,fraction))*times.at(-1);
   return times.reduce((best,t,i)=>Math.abs(t-target)<Math.abs(times[best]-target)?i:best,0);
+}
+function historyRange(history,index) {
+  const min=history.min_c[index], max=history.max_c[index];
+  return Number.isFinite(min)&&Number.isFinite(max)?{min,max,delta:max-min}:null;
 }
 function showPourPlan() {
   hiddenPourIds.clear();pourVisibilityVersion++;
@@ -377,6 +381,10 @@ function draw() {
   const series=historySeries(data);
   lineChart('history-canvas',series,data.time_s.map(t=>t/unit),{cursor:data.time_s[frame]/unit,frame,xLabel:days?'Tiempo [días]':'Tiempo [h]'});
   $('history-caption').textContent=`${timeText(data.time_s[frame])} · interior central ${num(data.history.center_c[frame],2)} °C · pulsa el gráfico para recorrer el tiempo`;
+  const range=historyRange(data.history,frame);
+  $('history-range').textContent=range
+    ?`Máxima ${num(range.max,2)} °C · Mínima ${num(range.min,2)} °C · ΔT ${num(range.delta,2)} °C`
+    :'Diferencial pendiente hasta que haya hormigón activo.';
   $('history-legend').replaceChildren(...series.map(s=>{const item=document.createElement('span'),mark=document.createElement('i');mark.style.background=s.color;item.append(mark,document.createTextNode(s.name));return item;}));
   const profiles=heightProfiles(data,frame);
   lineChart('height-canvas',profiles.series,profiles.heights,{xLabel:'Altura [m]',xDecimals:2});
@@ -493,12 +501,13 @@ for(const [id,hide] of [['show-all-pours',false],['hide-all-pours',true]])$(id).
   for(const input of $('pour-visibility-options').querySelectorAll('input'))input.checked=!hide;
   refreshPourVisibility();
 });
-const tabNames = ['laboratory', 'project', 'terrain', 'weather', 'monte-carlo'];
+const tabNames = ['laboratory', 'project', 'terrain', 'weather', 'monte-carlo', 'plans'];
 const mcMetrics = [
   {key:'tmax_c', label:'Temperatura máxima', short:'T máx', limit:70},
   {key:'delta_t_max_c', label:'Diferencial máximo', short:'ΔT máx', limit:20}
 ];
-let mcLot = {hash:null,summary:null,runs:new Map()}, mcLoad = 0;
+const emptyMonteCarlo = () => ({hash:null,summary:null,runs:new Map()});
+let mcLot = emptyMonteCarlo(), mcLoad = 0, mcExample = false;
 
 function mergeMonteCarlo(lot, documents) {
   const next={...lot, runs:new Map(lot.runs)};
@@ -592,7 +601,9 @@ $('mc-files').addEventListener('change',async event=>{
       catch{throw Error(`${file.name}: no se pudo leer como JSON.`);}
     }));
     if(revision!==mcLoad)return;
-    mcLot=mergeMonteCarlo(mcLot,documents);
+    mcLot=mergeMonteCarlo(mcExample?emptyMonteCarlo():mcLot,documents);
+    mcExample=false;
+    $('mc-example-note').classList.add('hidden');
     drawMonteCarlo();
   }catch(problem){
     if(revision!==mcLoad)return;
@@ -603,7 +614,9 @@ $('mc-files').addEventListener('change',async event=>{
 $('mc-filter').addEventListener('change',drawMonteCarlo);
 $('mc-clear').addEventListener('click',()=>{
   mcLoad++;
-  mcLot={hash:null,summary:null,runs:new Map()};
+  mcLot=emptyMonteCarlo();
+  mcExample=false;
+  $('mc-example-note').classList.add('hidden');
   $('mc-filter').value='all';
   $('mc-error').classList.add('hidden');
   drawMonteCarlo();
@@ -791,16 +804,10 @@ function drawE11() {
   lineChart('e11-solar',[{values:e11.solar_w_m2,color:'#c87c08'}],xs,{...options,minY:0,yLabel:'Onda corta [W/m²]'});
 }
 
-$('e11-file').addEventListener('change',async event=>{
-  const file=event.target.files[0];
-  if(!file)return;
-  try{
-    if(file.size>96*1024*1024)throw Error('El resultado supera 96 MB. Exporta menos cuadros o usa una malla más gruesa.');
-    const candidate=validateE11(JSON.parse(await file.text()));
-    if(event.target.files[0]!==file)return;
-    e11=candidate;
+function showE11(result, example=false) {
+    e11=validateE11(result);
     const weather=e11.summary.weather, simulation=e11.summary.simulation;
-    $('e11-source').textContent=`${weather.status} · ${num(e11.times_h.at(-1),2)} h · ${e11.shape.join(' × ')} celdas`;
+    $('e11-source').textContent=`${example?'Ejemplo guardado · ':''}${weather.status} · ${num(e11.times_h.at(-1),2)} h · ${e11.shape.join(' × ')} celdas`;
     $('e11-provenance').textContent=[weather.folder,simulation?.start_utc&&`Inicio ${simulation.start_utc}`,
       weather.retrieved_at&&`Descarga ${weather.retrieved_at}`,weather.sha256&&`SHA-256 clima ${weather.sha256}`,
       simulation?.ifc_sha256&&`SHA-256 IFC ${simulation.ifc_sha256}`].filter(Boolean).join(' · ');
@@ -818,6 +825,16 @@ $('e11-file').addEventListener('change',async event=>{
       $('e11-model-legend').textContent=`Escala fija ${num(e11.low,1)} a ${num(e11.high,1)} °C. La opción Mostrar suelo controla también esta vista.`;
     }
     $('e11-results').classList.remove('hidden');e11SetPlane(e11.summary.core.cell);
+}
+
+$('e11-file').addEventListener('change',async event=>{
+  const file=event.target.files[0];
+  if(!file)return;
+  try{
+    if(file.size>96*1024*1024)throw Error('El resultado supera 96 MB. Exporta menos cuadros o usa una malla más gruesa.');
+    const result=JSON.parse(await file.text());
+    if(event.target.files[0]!==file)return;
+    showE11(result);
   }catch(error){
     if(event.target.files[0]!==file)return;
     e11=null;$('e11-results').classList.add('hidden');$('e11-provenance').textContent='';
@@ -834,6 +851,203 @@ for(const id of ['e11-temperatures','e11-wind','e11-solar'])$(id).addEventListen
   $('e11-time').value=historyFrameAt(e11.times_h,(event.clientX-rect.left-48)/(rect.width-67));
   drawE11();
 });
+
+function bindPythonJob(id, kind, inputs, render) {
+  const jobForm=$(id), fields=jobForm.querySelector('fieldset'), message=jobForm.querySelector('[role="status"]');
+  const snapshot=fields.elements.namedItem('snapshot');
+  const pyvista=fields.elements.namedItem('pyvista');
+  let ready=false, loading=false;
+  jobForm.classList.remove('hidden');
+  jobForm.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(fields.disabled)return;
+    const data=new FormData(jobForm);
+    const payload={kind,snapshot:data.get('snapshot'),coarsen:Number(data.get('coarsen'))};
+    for(const name of inputs)payload[name]=Number(data.get(name));
+    if(pyvista)payload.pyvista=pyvista.checked;
+    fields.disabled=true;
+    message.textContent='Iniciando el cálculo…';
+    try{
+      let job=await request('/api/jobs',payload);
+      const path=`/api/jobs/${job.id}`;
+      while(job.state==='running'){
+        message.textContent=kind==='monte_carlo'?`Simulaciones completas: ${job.completed} de ${job.total}.`:'Resolviendo el campo térmico con el clima seleccionado…';
+        await new Promise(resolve=>setTimeout(resolve,1000));
+        job=await request(path);
+      }
+      if(job.state!=='done')throw Error(job.error||'El cálculo no terminó.');
+      render(await request(path+'/result'));
+      message.textContent=`Cálculo completo · archivos en ${job.folder}`;
+    }catch(error){message.textContent=error.message;}
+    finally{fields.disabled=false;}
+  });
+  return async()=>{
+    if(ready||loading)return;
+    loading=true;
+    try{
+      const available=await request('/api/jobs/options');
+      const choices=available.snapshots.map(source=>new Option(source.id,source.id));
+      snapshot.replaceChildren(...choices,new Option('Serie sintética','synthetic'));
+      if(pyvista){
+        pyvista.disabled=!available.pyvista;
+        pyvista.checked=available.pyvista;
+        if(!available.pyvista)pyvista.parentElement.append(' · complemento no instalado');
+      }
+      fields.disabled=false;
+      message.textContent='';
+      ready=true;
+    }catch(error){message.textContent=`No se pudo consultar el servidor Python. ${error.message}`;}
+    finally{loading=false;}
+  };
+}
+
+function showMonteCarlo(result, example=false){
+  mcLot=mergeMonteCarlo(emptyMonteCarlo(),[
+    {name:'aggregate.json',data:result.summary},...result.runs.map(data=>({name:`Muestra ${data.sample_id}`,data}))]);
+  mcLoad++;
+  mcExample=example;
+  const note=$('mc-example-note');
+  note.classList.toggle('hidden',!example);
+  if(example){
+    const {seed,hours,snapshot}=result.source;
+    note.textContent=`Ejemplo guardado · semilla ${seed} · ${hours/24} días por muestra · pronóstico ${snapshot} · rangos docentes.`;
+  }
+  $('mc-error').classList.add('hidden');
+  $('mc-filter').value='all';
+  drawMonteCarlo();
+}
+
+async function readDashboardExample(section){
+  if(!portable)return request('/api/examples/'+section);
+  const element=$('mcoc-example-'+section);
+  if(!element)throw Error('Genera la campaña y vuelve a exportar el visor.');
+  const encoded=element.textContent.trim();
+  const bytes=Uint8Array.from(atob(encoded),char=>char.charCodeAt(0));
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(stream).json();
+}
+
+const exampleRequests=new Set();
+async function showDashboardExample(section){
+  if(!['weather','monte-carlo'].includes(section)||exampleRequests.has(section))return;
+  exampleRequests.add(section);
+  try{
+    const result=await readDashboardExample(section);
+    if(section==='weather'&&!e11)showE11(result,true);
+    if(section==='monte-carlo'&&!mcLot.hash&&!mcLoad)showMonteCarlo(result,true);
+  }catch(error){
+    exampleRequests.delete(section);
+    if(section==='weather'&&!e11)$('e11-source').textContent='No se pudo cargar el ejemplo. '+error.message;
+    if(section==='monte-carlo'&&!mcLot.hash)$('mc-status').textContent='No se pudo cargar el ejemplo. '+error.message;
+  }
+}
+
+let plansCampaign, plansLoading=false;
+const percent=value=>`${num(value*100,1)} %`;
+function drawPlanScenarios(){
+  if(!plansCampaign)return;
+  const plan=plansCampaign.plans.find(row=>row.id===$('plan-choice').value);
+  $('plan-schedule').textContent=plan.schedule.map(pour=>
+    `V${pour.layer} · ${num(pour.start_h,2)}–${num(pour.finish_h,2)} h · ${num(pour.volume_m3,1)} m³`).join('  |  ')+
+    ` · desmolde ${num(plan.strip_h,0)} h · retiro de manta superior ${num(plan.top_remove_h,0)} h`+
+    (plan.side_blanket?` · manta lateral ${num((plan.side_blanket_m??0.025)*1000,0)} mm`:'');
+  $('plan-weather-checks').textContent=Object.entries(plan.climate_sensitivity??{}).map(([label,row])=>
+    `${label} · ${row.failures}/${row.runs} fallas · T máx ${num(row.max_t_c,2)} °C · ΔT máx ${num(row.max_delta_c,2)} °C`).join(' | ');
+  const rows=$('plan-scenarios');rows.replaceChildren();
+  const xyz=point=>point.xyz_m.map(value=>num(value,3)).join(' / ');
+  for(const scenario of plansCampaign.scenarios.filter(row=>row.plan===plan.id)){
+    monteCarloRow(rows,[scenario.curve,scenario.climate.id,percent(scenario.weight),num(scenario.tmax.value_c,2),
+      num(scenario.tmax.time_h,2),xyz(scenario.tmax),num(scenario.baseline.delta.value_c,2),
+      num(scenario.delta.value_c,2),num(scenario.delta.time_h,2),
+      xyz(scenario.delta.surface),`${num(scenario.hours,0)}${scenario.horizon_open?' · abierto':''}`,
+      num(scenario.hours-plan.duration_h,2),
+      num(scenario.weather_hours[scenario.climate.tail_method??'persistencia']??0,0),scenario.fails?'Sí':'No']);
+  }
+}
+
+function showPlans(bundle){
+  const campaign=bundle.campaign;
+  if(campaign?.format!=='mcoc-final-v1'||!Array.isArray(campaign.plans)||!campaign.plans.length||
+    !Array.isArray(campaign.scenarios))throw Error('El archivo no contiene una comparación G8.');
+  const rows=$('plans-rows');rows.replaceChildren();
+  for(const plan of campaign.plans){
+    const primary=campaign.scenarios.filter(row=>row.plan===plan.id&&row.weight>0);
+    const baseline=Math.max(...primary.map(row=>row.baseline.delta.value_c));
+    monteCarloRow(rows,[`${plan.id} · ${plan.label}`,num(plan.duration_h,2),num(baseline,2),
+      num(plan.max_delta_c,2),percent(plan.prob_tmax),
+      percent(plan.prob_delta),percent(plan.prob_joint_14d),percent(plan.prob_joint),percent(plan.prob_joint_all_curves),
+      plan.id===campaign.selected?'Seleccionado':plan.feasible?'Factible':plan.classification_closed?'Supera 5 %':'Horizonte abierto']);
+  }
+  const {config}=campaign;
+  $('plans-assumptions').textContent=`t₀ ${config.start_local} · ${config.pump_count} bomba(s) · ${config.flow_m3_h_per_pump} m³/h por bomba · espera mínima ${config.minimum_wait_h} h · colocación a ${num(config.placement_c,1)} °C.`;
+  $('plans-status').textContent=(campaign.selected?`Plan ${campaign.selected}: menor duración entre los factibles.`:
+    'La campaña no identificó un plan factible.')+` ${campaign.scenarios.length} combinaciones de plan, hidratación y clima evaluadas.`;
+  const selector=$('plan-choice');
+  selector.replaceChildren(...campaign.plans.map(plan=>new Option(`${plan.id} · ${plan.label}`,plan.id)));
+  selector.value=campaign.selected||campaign.plans.reduce((a,b)=>a.max_delta_c<=b.max_delta_c?a:b).id;
+  $('plans-figures').replaceChildren(...Object.entries(bundle.figures||{}).map(([label,data])=>{
+    const figure=document.createElement('figure'), img=document.createElement('img');
+    figure.className='card plans-figure';
+    img.alt=label;
+    img.loading='lazy';
+    img.src='data:image/png;base64,'+data;
+    figure.append(img);
+    return figure;
+  }));
+  const evidence=campaign.verification;
+  $('plans-verification').classList.toggle('hidden',!evidence);
+  $('plans-verification-rows').replaceChildren();
+  $('plans-protection-rows').replaceChildren();
+  $('plans-protection-details').classList.toggle('hidden',!evidence?.metrics.combined);
+  if(evidence){
+    const profiles=[];
+    $('plans-verification-caption').textContent='Escenario de mayor diferencial para cada plan mostrado.';
+    for(const check of [evidence,...(evidence.additional_cases??[])]){
+      for(const [key,row] of Object.entries(check.metrics)){
+        const label={base:'Base',spatial:'Malla refinada',temporal:'Paso reducido',combined:'Malla y paso refinados'}[key];
+        monteCarloRow($('plans-verification-rows'),[`${check.candidate} · ${check.scenario.curve} · ${check.scenario.climate}`,label,
+          row.grid_spacing_m.map(v=>num(v,3)).join(' × '),num(row.dt,0),
+          num(row.tmax_c,2),num(row.delta_c,2),row.delta_face?`${num(row.delta_h,2)} h · ${row.delta_face}`:'—',
+          row.energy_error_relative.toExponential(2)]);
+      }
+      const refined=check.metrics.combined;
+      if(!refined)continue;
+      for(const row of refined.protection_samples){
+        monteCarloRow($('plans-protection-rows'),[check.candidate,num(row.time_h,2),row.face,num(row.tmax_c,2),
+          num(row.surface_c,2),num(row.delta_c,2)]);
+      }
+      profiles.push(`${check.candidate} (${refined.delta_face}): `+
+        refined.profile_mm_c.map(([depth,temp])=>`${num(depth,1)} mm → ${num(temp,2)} °C`).join(', '));
+    }
+    $('plans-depth-profiles').textContent='Perfil normal al máximo diferencial con malla y paso refinados. '+profiles.join(' · ');
+  }
+  plansCampaign=campaign;
+  $('plans-results').classList.remove('hidden');
+  drawPlanScenarios();
+}
+
+async function openDefaultPlans(){
+  if(plansCampaign||plansLoading)return;
+  plansLoading=true;
+  try{
+    const bundle=await readDashboardExample('plans');
+    if(!plansCampaign)showPlans(bundle);
+  }catch(error){$('plans-status').textContent='La campaña aún no está disponible. '+error.message;}
+  finally{plansLoading=false;}
+}
+$('plan-choice').addEventListener('change',drawPlanScenarios);
+$('plans-file').addEventListener('change',async event=>{
+  const file=event.target.files[0];
+  if(!file)return;
+  try{showPlans({campaign:JSON.parse(await file.text())});}
+  catch(error){$('plans-status').textContent=error.message;}
+});
+
+const pythonJobTabs=portable?{}:{
+  weather:bindPythonJob('e11-python','weather',['hours'],showE11),
+  'monte-carlo':bindPythonJob('mc-python','monte_carlo',['count','seed','workers'],showMonteCarlo)
+};
+if(portable)for(const note of document.querySelectorAll('.portable-example-note'))note.classList.remove('hidden');
 let terrainView, terrainLoading = false;
 
 async function showTerrain() {
@@ -889,6 +1103,9 @@ function selectTab(section) {
   if(section==='laboratory')requestAnimationFrame(draw);
   if(section==='terrain')void showTerrain();
   if(section==='weather')requestAnimationFrame(drawE11);
+  pythonJobTabs[section]?.();
+  void showDashboardExample(section);
+  if(section==='plans')void openDefaultPlans();
 }
 tabNames.forEach((name,index)=>{
   $('tab-'+name).addEventListener('click',()=>selectTab(name));

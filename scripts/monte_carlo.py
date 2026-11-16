@@ -1,7 +1,7 @@
 """Genera, ejecuta y agrega lotes Monte Carlo de E12 sin depender de Slurm."""
 
 import argparse
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from copy import deepcopy
 import hashlib
 import json
@@ -196,6 +196,18 @@ def aggregate(lot):
     return summary
 
 
+def run_local(lot, workers, progress=None):
+    manifest, _ = load_manifest(lot)
+    count = len(manifest["samples"])
+    with ProcessPoolExecutor(max_workers=min(workers, count)) as executor:
+        tasks = [executor.submit(worker, lot, index) for index in range(count)]
+        for done, task in enumerate(as_completed(tasks), 1):
+            task.result()
+            if progress is not None:
+                progress(done)
+    return count
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -223,11 +235,7 @@ def main():
             worker(args.lot, args.index)
             print(result_path(args.lot, args.index))
         elif args.command == "local":
-            manifest, _ = load_manifest(args.lot)
-            count = len(manifest["samples"])
-            with ProcessPoolExecutor(max_workers=args.workers) as executor:
-                for _ in executor.map(worker, [args.lot] * count, range(count)):
-                    pass
+            count = run_local(args.lot, args.workers)
             print(f"Resultados disponibles: {count}")
         else:
             print(json.dumps(aggregate(args.lot), indent=2))

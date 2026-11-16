@@ -1,0 +1,1673 @@
+{
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "hours": 336,
+    "max_hours": 504,
+    "dt_s": 600,
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 20,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "A",
+        "label": "Vertida continua",
+        "fractions": [
+          0,
+          1
+        ],
+        "start_h": [
+          0
+        ],
+        "strip_h": 72,
+        "top_remove_h": 336,
+        "side_blanket": false,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 12.110312587494652,
+            "duration_h": 12.110312587494652,
+            "volume_m3": 484.4125034997861
+          }
+        ],
+        "duration_h": 12.110312587494652
+      },
+      {
+        "id": "B",
+        "label": "Tres vertidas de referencia",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "start_h": [
+          0,
+          24,
+          48
+        ],
+        "strip_h": 72,
+        "top_remove_h": 336,
+        "side_blanket": false,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 24.0,
+            "finish_h": 27.729687526946268,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 48.0,
+            "finish_h": 49.058750007649266,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 49.058750007649266
+      },
+      {
+        "id": "C",
+        "label": "Tres vertidas con espera mínima",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "wait_h": 6,
+        "strip_h": 96,
+        "top_remove_h": 336,
+        "side_blanket": true,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      },
+      {
+        "id": "D",
+        "label": "Tres vertidas espaciadas e aisladas",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "wait_h": 36,
+        "strip_h": 120,
+        "top_remove_h": 336,
+        "side_blanket": true,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 43.321875052899124,
+            "finish_h": 47.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 83.05156257984538,
+            "finish_h": 84.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 84.11031258749465
+      }
+    ],
+    "assumptions": "Hora local, caudal, una bomba, espera mínima, colocación y protecciones son supuestos docentes, pendientes de confirmación de la pauta y del equipo. Las curvas son fuentes invertidas en tiempo de ensayo; se aplican por edad cronológica de colocación sin un ajuste de madurez adicional."
+  },
+  "environment": {
+    "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+    "site": {
+      "latitude": -41.222539,
+      "longitude": -73.295603,
+      "source": "config/case_g8.json (punto meteorológico docente, Llanquihue)"
+    },
+    "construction": {
+      "start_local": "2026-11-27T04:00",
+      "timezone": "America/Santiago",
+      "start_utc": "2026-11-27T07:00Z",
+      "days_after_start": 14,
+      "note": "Inicio tomado del ejemplo de la guía G08. Se supone hora local de Chile (UTC−3 en noviembre, horario de verano)."
+    },
+    "weather": {
+      "snapshot_root": "data/weather",
+      "decision_time_utc": null,
+      "tail_method": "auto",
+      "note": "decision_time_utc = null usa la hora actual como corte. Si falta parte del pronóstico al final, auto usa reanálisis del mismo sitio descargado al corte o persistencia. Cada hora queda marcada."
+    },
+    "convection": {
+      "h_a_w_m2k": 5.7,
+      "h_b_w_m2k_per_m_s": 3.8,
+      "wind_height_m": 2.0,
+      "wind_exponent": 0.14,
+      "source": "Correlación de Jürges/McAdams h = 5,7 + 3,8 v (superficies exteriores); perfil de viento potencial con exponente 1/7 para terreno abierto."
+    },
+    "solar": {
+      "absorptance_concrete": 0.65,
+      "absorptance_formwork": 0.6,
+      "top_factor": 1.0,
+      "side_factor": 0.35,
+      "source": "Absortancia típica de hormigón gris 0,6–0,7 (supuesto). Factor lateral 0,35: fracción aproximada de radiación global sobre cara vertical (supuesto docente, sin cálculo de geometría solar)."
+    },
+    "formwork": {
+      "thickness_m": 0.018,
+      "conductivity_w_mk": 0.13,
+      "strip_after_h": 72,
+      "source": "Terciado fenólico 18 mm, k ≈ 0,13 W/(m·K) (valor típico). Retiro a las 72 h: supuesto E10 para la propiedad RetiroMoldaje_h propuesta en la guía G02."
+    },
+    "insulation": {
+      "thickness_m": 0.025,
+      "conductivity_w_mk": 0.04,
+      "on_top_from_h": 0.0,
+      "source": "Manta de curado/aislante 25 mm, k ≈ 0,04 W/(m·K) (valor típico de espuma/fibra). Supuesto de diseño, no especificación del proyecto."
+    },
+    "soil": {
+      "depth_m": 2.2,
+      "margin_m": 1.5,
+      "conductivity_w_mk": 1.39,
+      "density_kg_m3": 1800.0,
+      "specific_heat_j_kgk": 1273.0,
+      "deep_temperature_c": 10.0,
+      "source": "k, ρ, cp: Ju y Lei (2019), guía de difusión §31. Temperatura profunda 10 °C: SUPUESTO (orden de la media anual del aire en Llanquihue), no medido."
+    },
+    "concrete": {
+      "conductivity_w_mk": 2.2,
+      "density_kg_m3": 2400.0,
+      "specific_heat_j_kgk": 900.0,
+      "placement_c": 16.0,
+      "qmax_w_m3": 1300.0,
+      "hydration_duration_s": 172800.0,
+      "source": "Mismos valores sintéticos de construction_g8.json; colocación 16 °C del ejemplo G08. No calibrado."
+    },
+    "demo_section": {
+      "half_width_m": 9.0,
+      "height_m": 3.3,
+      "spacing_m": [
+        0.5,
+        0.275
+      ],
+      "dt_s": 600.0,
+      "note": "Sección vertical 2D x–z por el eje de la fundación, mitad por simetría. Es una sección rectangular simplificada para mostrar las condiciones de borde; la geometría completa está en el modelo 3D."
+    }
+  },
+  "jobs": [
+    {
+      "plan": "A",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "A",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "B",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "C",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M1_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M2_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M3_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M4_SS",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M1_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M2_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M3_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "frío",
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "central",
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "D",
+      "curve": "M4_22A",
+      "climate": {
+        "id": "cálido",
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    }
+  ],
+  "weather": [
+    {
+      "id": "frío",
+      "member": "_member19",
+      "mean_forecast_air_c": 10.72969696969697,
+      "weight": 0.3333333333333333
+    },
+    {
+      "id": "central",
+      "member": "_member29",
+      "mean_forecast_air_c": 11.351515151515152,
+      "weight": 0.3333333333333333
+    },
+    {
+      "id": "cálido",
+      "member": "_member07",
+      "mean_forecast_air_c": 12.00181818181818,
+      "weight": 0.3333333333333333
+    }
+  ],
+  "hydration_audit": {
+    "M1_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 88.148347776,
+      "header_heat_mj_m3": 88.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.135648
+    },
+    "M2_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 95.71522170599998,
+      "header_heat_mj_m3": 95.7,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 94.14901087199999,
+      "header_heat_mj_m3": 94.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 100.166110776,
+      "header_heat_mj_m3": 100.2,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M1_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 61.21202113799998,
+      "header_heat_mj_m3": 61.2,
+      "initial_model_heat_mj_m3": 0.033875999999999996,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M2_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 82.44622566,
+      "header_heat_mj_m3": 82.4,
+      "initial_model_heat_mj_m3": 0.162756,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.288830276,
+      "header_heat_mj_m3": 73.3,
+      "initial_model_heat_mj_m3": 0.070992,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.62834362999999,
+      "header_heat_mj_m3": 73.6,
+      "initial_model_heat_mj_m3": 0.170316,
+      "tail_model_heat_mj_m3": 0.0
+    }
+  },
+  "weather_sha256": "426d1b2272ae95f3cd38066c66d3bb1f50cbafedc4918b63a6ab5d6b61d25edf",
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+  "code_sha256": "b9b09592b349777ef40872a380f1e5566e139f0a0915ecb32bb44000e94e678c"
+}

@@ -206,6 +206,7 @@ input[type=range] { cursor: pointer; accent-color: var(--blue); }
 .chart-legend { display: flex; gap: 8px 16px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 10px; color: var(--muted); min-height: 38px; padding: 9px 12px; }
 .chart-legend span { display: flex; align-items: center; gap: 6px; }
 .chart-legend i { width: 11px; height: 3px; border-radius: 2px; }
+.history-range { display: block; margin: 0 12px 12px; padding: 8px 10px; border-radius: 7px; background: #edf4fa; color: #29445e; font-size: 12px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
 .mini-tag { font-size: 10px; color: var(--muted); background: #f5f7fc; border: 1px solid #ecf0f6; border-radius: 6px; padding: 3px 6px; white-space: nowrap; }
 .calculation-info { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; padding: 18px 19px; margin-top: 17px; }
 .calculation-info p { font-size: 10px; color: var(--muted); margin-top: 6px; }
@@ -222,6 +223,16 @@ input[type=range] { cursor: pointer; accent-color: var(--blue); }
 .mc-run-table thead th { position: sticky; top: 0; }
 .mc-exceeds, #mc-error { color: #9a3412; }
 #mc-status { overflow-wrap: anywhere; }
+.python-job { margin: 14px 0; padding: 14px 18px; }
+.python-job legend { font-weight: 650; }
+.python-job-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); margin: 10px 0; }
+.python-job-check { display: flex; align-items: center; gap: 7px; margin: 8px 0 12px; }
+.python-job-check input { width: auto; }
+.python-job-status { margin-top: 8px; overflow-wrap: anywhere; }
+.python-job-status:empty { display: none; }
+.plans-figure { margin: 0; overflow: hidden; }
+.plans-figure img { display: block; width: 100%; height: auto; }
+#plan-schedule { line-height: 1.55; }
 .scope-note { font-size: 10px; line-height: 1.7; color: var(--muted); padding: 0 19px 18px; }
 footer { font-size: 9px; color: var(--muted); display: flex; justify-content: space-between; padding-top: 22px; gap: 12px; }
 .error { border: 1px solid #f0cdbf; background: #fff5f0; border-radius: 11px; padding: 13px 16px; margin-bottom: 15px; color: #a34a2e; font-size: 12px; }

@@ -7,10 +7,12 @@ Internet ni bibliotecas externas. Regenerarlo incorpora un IFC modificado.
 
 import argparse
 import base64
+import gzip
 import json
 from pathlib import Path
 
 import numpy as np
+from scripts.dashboard_jobs import EXAMPLES, FINAL_BUNDLE, final_example
 
 from thermal3d.dashboard import BOUNDS, ROOT, _grid, _identity, metadata
 
@@ -59,6 +61,13 @@ def build(output):
                 '<script>\n'+terrain+'\n'+app+'\n</script>')
     license_text = (web/"fonts/OFL.txt").read_text(encoding="utf-8").replace("<", "\\u003c")
     embedded += '\n<script id="mcoc-font-license" type="text/plain">'+license_text+'</script>'
+    for key, path in EXAMPLES.items():
+        compressed = base64.b64encode(gzip.compress(path.read_bytes(), mtime=0)).decode("ascii")
+        embedded += f'\n<script id="mcoc-example-{key}" type="text/plain">{compressed}</script>'
+    if (FINAL_BUNDLE / "comparison.json").is_file():
+        raw = json.dumps(final_example(), ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
+        compressed = base64.b64encode(gzip.compress(raw, mtime=0)).decode("ascii")
+        embedded += f'\n<script id="mcoc-example-plans" type="text/plain">{compressed}</script>'
     html = html.replace('</body>', embedded+'\n</body>')
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)

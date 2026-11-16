@@ -40,18 +40,24 @@ def test_dirichlet_curves_use_calculated_case_and_saved_times():
     result = {"time_s":[0,10,20,23], "parameters":{"boundary_type":"dirichlet",
               "boundary_c":20,"bottom_type":"dirichlet","bottom_c":15},
               "history":{"center_c":[40,35,30,29],"max_c":[40,36,31,30],
-                         "mean_c":[30,27,24,23]}}
-    code = "const colors={center_c:'blue',max_c:'orange',mean_c:'purple'};"+helpers
+                         "mean_c":[30,27,24,23], "min_c":[20,17,15,15]}}
+    code = "const colors={center_c:'blue',max_c:'orange',mean_c:'purple',min_c:'green'};"+helpers
     code += "const r="+json.dumps(result)+";const series=historySeries(r);"
-    code += "console.log(JSON.stringify({series,frames:[0,.45,1].map(f=>historyFrameAt(r.time_s,f)),adiabatic:historySeries({...r,parameters:{boundary_type:'neumann',bottom_type:'robin'}}).length}));"
-    output = subprocess.run([node,"-"],input=code,capture_output=True,text=True,check=True,timeout=10)
+    code += """console.log(JSON.stringify({series,frames:[0,.45,1].map(f=>historyFrameAt(r.time_s,f)),
+      range:historyRange(r.history,historyFrameAt(r.time_s,.45)),missing:historyRange({min_c:[null],max_c:[null]},0),
+      adiabatic:historySeries({...r,parameters:{boundary_type:'neumann',bottom_type:'robin'}}).length}));"""
+    output = subprocess.run([node,"-"],input=code,capture_output=True,text=True,encoding="utf-8",check=True,timeout=10)
     actual = json.loads(output.stdout)
     assert actual["series"][0]["values"] == [40,35,30,29]
-    assert actual["series"][3]["values"] == [20]*4
-    assert actual["series"][4]["values"] == [15]*4
-    assert actual["series"][3]["dashed"]
+    assert actual["series"][3]["name"] == "Mínima"
+    assert actual["series"][3]["values"] == [20,17,15,15]
+    assert actual["series"][4]["values"] == [20]*4
+    assert actual["series"][5]["values"] == [15]*4
+    assert actual["series"][4]["dashed"]
+    assert actual["range"] == {"min":17, "max":36, "delta":19}
+    assert actual["missing"] is None
     assert actual["frames"] == [0,1,3]  # Incluye el último paso acortado.
-    assert actual["adiabatic"] == 3  # No inventar una temperatura impuesta.
+    assert actual["adiabatic"] == 4  # No inventar una temperatura impuesta.
 
 
 def test_height_profiles_include_dirichlet_faces_and_multiple_times():

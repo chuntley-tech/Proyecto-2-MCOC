@@ -180,6 +180,7 @@ def fill_tail(series, construction_start, days=14.0, method="persistencia", refe
 
     method:
       * "persistencia": repite el ciclo diario medio de las últimas 72 h del pronóstico.
+      * "bloque72": repite las últimas 72 h consecutivas, con las variables juntas.
       * "climatologia": ciclo diario medio de `reference` (p. ej. reanálisis del mismo
         mes de años anteriores, descargado como snapshot "archive").
       * "conservador": caso frío para curado: aire = mínimo pronosticado − margen,
@@ -189,8 +190,8 @@ def fill_tail(series, construction_start, days=14.0, method="persistencia", refe
     Las horas ya pronosticadas no se modifican. Los huecos internos (null) se
     rellenan por interpolación y se marcan "interpolado".
     """
-    if method not in ("persistencia", "climatologia", "conservador"):
-        raise ValueError("method: persistencia, climatologia o conservador")
+    if method not in ("persistencia", "bloque72", "climatologia", "conservador"):
+        raise ValueError("method: persistencia, bloque72, climatologia o conservador")
     times = series.time_s.copy()
     values = {name: getattr(series, name).copy() for name in FIELDS}
     origin = list(series.origin)
@@ -213,6 +214,10 @@ def fill_tail(series, construction_start, days=14.0, method="persistencia", refe
             raise ValueError("persistencia requiere al menos 24 h pronosticadas")
         cycle = _diurnal(base, last_hours=last)
         extra = {name: cycle[name][hours] for name in FIELDS}
+    elif method == "bloque72":
+        if times.size < 72 or not np.all(np.diff(times[-72:]) == HOUR):
+            raise ValueError("bloque72 requiere 72 horas consecutivas")
+        extra = {name: values[name][-72:][np.arange(new_times.size) % 72] for name in FIELDS}
     elif method == "climatologia":
         if reference is None:
             raise ValueError("climatologia requiere una serie de referencia (reanálisis)")

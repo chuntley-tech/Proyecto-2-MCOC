@@ -6,6 +6,7 @@ el HTML entregado necesita solo un navegador, sin Node ni Python.
 
 from html.parser import HTMLParser
 import base64
+import gzip
 import json
 from pathlib import Path
 import shutil
@@ -192,6 +193,25 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert 'id="tab-project"' in text and 'id="panel-project"' in text
     assert 'id="tab-terrain"' in text and 'id="terrain-beacon"' in text
     assert 'id="tab-monte-carlo"' in text and 'id="mc-files"' in text
+    from scripts.dashboard_jobs import EXAMPLES
+    for name, path in EXAMPLES.items():
+        example = re.search(rf'<script id="mcoc-example-{name}" type="text/plain">([A-Za-z0-9+/=]+)</script>', text)
+        assert example is not None
+        assert gzip.decompress(base64.b64decode(example.group(1))) == path.read_bytes()
+    assert 'id="tab-plans"' in text
+    from scripts.dashboard_jobs import FINAL_BUNDLE
+    if (FINAL_BUNDLE/"comparison.json").is_file():
+        example = re.search(r'<script id="mcoc-example-plans" type="text/plain">([A-Za-z0-9+/=]+)</script>', text)
+        assert example is not None
+        bundle = json.loads(gzip.decompress(base64.b64decode(example.group(1))))
+        campaign = bundle["campaign"]
+        assert campaign["format"] == "mcoc-final-v1"
+        assert {plan["id"] for plan in campaign["plans"]} == {"A", "B", "C", "C1", "C2", "C3", "D"}
+        assert len(campaign["scenarios"]) == 252
+        assert len(campaign["weather_sensitivity"]) == 3
+        assert all("baseline" in row and "profile_mm_c" in row["delta"] for row in campaign["scenarios"])
+        assert campaign["verification"]["metrics"]["combined"]["protection_samples"]
+        assert set(bundle["figures"]) >= {"Cronograma de vertidas", "Historias meteorológicas"}
     embedded_relief = re.search(r'<script id="mcoc-terrain" type="application/json">(.*?)</script>', text, re.S)
     assert embedded_relief is not None
     terrain = json.loads(embedded_relief.group(1))
@@ -210,7 +230,7 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert base64.b64decode(embedded_font.group(1)) == (ROOT/"web/fonts/Inter-Variable.ttf").read_bytes()
     assert 'id="mcoc-font-license"' in text and 'SIL OPEN FONT LICENSE' in text
     assert "font-src data:" in text
-    assert output.stat().st_size < 5_000_000
+    assert output.stat().st_size < 5_100_000  # Incluye la campaña ampliada y sus figuras.
 
 
 def test_terrain_detail_uses_ifc_and_cows_at_map_scale(pack):
