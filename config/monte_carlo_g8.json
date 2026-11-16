@@ -1,0 +1,8 @@
+{
+  "status": "Distribuciones uniformes independientes de ejemplo docente. Rangos supuestos sin calibración experimental.",
+  "uniform": {
+    "placement_c": [18, 22],
+    "theta_inf_c": [40, 50],
+    "tau_h": [24, 36]
+  }
+}

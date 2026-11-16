@@ -277,6 +277,16 @@ La misma carpeta contiene `temperature.pvd` para la serie VTK,
 Consulta [la guía E11](docs/E11_weather_pipeline_3d.md) para los comandos y
 supuestos del caso de laboratorio.
 
+### Caso determinista E12 y Monte Carlo
+
+```powershell
+python -m scripts.e12_case --snapshot data/weather/2026-11-13T1522Z_forecast
+```
+
+El flujo Monte Carlo toma muestras con semilla fija, ejecuta E12 en paralelo
+y agrega temperaturas máximas, diferenciales y frecuencias de superación.
+Consulta la [guía de ejecución local y en Slurm](docs/MONTE_CARLO_CLUSTER.md).
+
 ## Ver las soluciones de temperatura
 
 ```cmd

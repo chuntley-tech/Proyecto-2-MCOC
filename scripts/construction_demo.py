@@ -25,7 +25,8 @@ def run(config_path, output):
     meshes, source = load_ifc_meshes(path, guids)
     grid = voxelize(meshes, cfg["spacing_m"], source)
     plan = build_plan(grid, [Pour(**row) for row in cfg["pours"]])
-    hydration = CosineHydration(**cfg["hydration"])
+    hydration_cfg = cfg["hydration"]
+    hydration = CosineHydration(hydration_cfg["qmax_w_m3"], hydration_cfg["duration_s"])
     bc = cfg["boundary"]
     air = Robin(bc["h_w_m2k"], bc["air_c"])
     faces = {face: air for face in ("x-", "x+", "y-", "y+", "z+")}
