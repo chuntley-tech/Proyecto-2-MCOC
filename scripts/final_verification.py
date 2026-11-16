@@ -8,8 +8,8 @@ from thermal3d.hydration import load_curves
 from thermal3d.vtk_export import write_vti
 
 
-def save(fig, output):
-    fig.savefig(output, dpi=140)
+def save(fig, output, dpi=140):
+    fig.savefig(output, dpi=dpi)
     plt.close(fig)
 
 
@@ -24,7 +24,7 @@ def check_case(chosen, manifest, capture=False):
     variants = {"base": nominal}
     new_mesh, new_dt = job["mesh"]/2, job["dt"]/2
     variants["combined"] = campaign.simulate({**job, "mesh": new_mesh, "dt": new_dt}, config, env, capture=True)[0]
-    if capture:
+    if capture and config.get("verification_refinements", "separate") == "separate":
         variants["spatial"] = campaign.simulate({**job, "mesh": new_mesh}, config, env)
         variants["temporal"] = campaign.simulate({**job, "dt": new_dt}, config, env)
     metrics = {}
@@ -105,7 +105,7 @@ def verify(out):
         ax.set_ylabel(label)
     axes[0].legend()
     axes[-1].set_xlabel("Horas desde t₀ · línea punteada: comienzo del relleno")
-    save(fig,plots/"clima.png")
+    save(fig,plots/"clima.png",dpi=100 if config["max_hours"] > 504 else 140)
 
     history = result["example_history"]
     fig,axes=plt.subplots(2,1,sharex=True,layout="constrained")

@@ -1,0 +1,31 @@
+{
+  "old_manifest_sha256": "9eda990f7e9e396e9cadd0ce544dfe4a0f1850fe4009b2101a48c74551018e55",
+  "new_manifest_sha256": "f99982d89fd46572633877f6fc81364ca4a28b9a6f1f5d07185d0fef1911a32c",
+  "old_code_sha256": "586689e7320f3a87c65d8f217a3de72d94714b788c397014c5ec78211fb0b7fe",
+  "new_code_sha256": "6d9ab3227a5b23040d794205d0b7b3eca3141e6a0c1b5bab088b30122dbced8c",
+  "identical_job_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ]
+}

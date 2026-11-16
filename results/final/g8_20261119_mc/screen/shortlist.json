@@ -1,0 +1,129 @@
+[
+  {
+    "id": "3h-12C-25mm-504h-direct",
+    "label": "3h-12C-25mm-504h-direct",
+    "fractions": [
+      0.0,
+      0.3333333333333333,
+      0.6666666666666666,
+      1.0
+    ],
+    "partition": "equal_height",
+    "wait_h": 6,
+    "placement_c": 12,
+    "strip_h": 96,
+    "top_remove_h": 504,
+    "side_blanket": true,
+    "blanket_stages": [
+      [
+        0,
+        0.025
+      ],
+      [
+        504,
+        0
+      ]
+    ],
+    "schedule": [
+      {
+        "layer": 1,
+        "start_h": 0.0,
+        "finish_h": 7.321875052899122,
+        "duration_h": 7.321875052899122,
+        "volume_m3": 292.8750021159649
+      },
+      {
+        "layer": 2,
+        "start_h": 13.321875052899122,
+        "finish_h": 17.05156257984539,
+        "duration_h": 3.729687526946267,
+        "volume_m3": 149.18750107785067
+      },
+      {
+        "layer": 3,
+        "start_h": 23.05156257984539,
+        "finish_h": 24.11031258749465,
+        "duration_h": 1.0587500076492629,
+        "volume_m3": 42.35000030597051
+      }
+    ],
+    "duration_h": 24.11031258749465
+  },
+  {
+    "id": "C",
+    "label": "Tres vertidas con espera mínima",
+    "fractions": [
+      0,
+      0.3333333333333333,
+      0.6666666666666666,
+      1
+    ],
+    "wait_h": 6,
+    "strip_h": 96,
+    "top_remove_h": 336,
+    "side_blanket": true,
+    "schedule": [
+      {
+        "layer": 1,
+        "start_h": 0.0,
+        "finish_h": 7.321875052899122,
+        "duration_h": 7.321875052899122,
+        "volume_m3": 292.8750021159649
+      },
+      {
+        "layer": 2,
+        "start_h": 13.321875052899122,
+        "finish_h": 17.05156257984539,
+        "duration_h": 3.729687526946267,
+        "volume_m3": 149.18750107785067
+      },
+      {
+        "layer": 3,
+        "start_h": 23.05156257984539,
+        "finish_h": 24.11031258749465,
+        "duration_h": 1.0587500076492629,
+        "volume_m3": 42.35000030597051
+      }
+    ],
+    "duration_h": 24.11031258749465
+  },
+  {
+    "id": "C3",
+    "label": "C con ambas medidas",
+    "fractions": [
+      0,
+      0.3333333333333333,
+      0.6666666666666666,
+      1
+    ],
+    "wait_h": 6,
+    "strip_h": 96,
+    "top_remove_h": 408,
+    "side_blanket": true,
+    "side_blanket_m": 0.05,
+    "schedule": [
+      {
+        "layer": 1,
+        "start_h": 0.0,
+        "finish_h": 7.321875052899122,
+        "duration_h": 7.321875052899122,
+        "volume_m3": 292.8750021159649
+      },
+      {
+        "layer": 2,
+        "start_h": 13.321875052899122,
+        "finish_h": 17.05156257984539,
+        "duration_h": 3.729687526946267,
+        "volume_m3": 149.18750107785067
+      },
+      {
+        "layer": 3,
+        "start_h": 23.05156257984539,
+        "finish_h": 24.11031258749465,
+        "duration_h": 1.0587500076492629,
+        "volume_m3": 42.35000030597051
+      }
+    ],
+    "duration_h": 24.11031258749465
+  }
+]

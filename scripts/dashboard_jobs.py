@@ -16,11 +16,16 @@ EXAMPLES = {
     "weather": mc.ROOT / "results/weather_3d/2026-11-12T0153Z_forecast/visor_e11.json",
     "monte-carlo": mc.ROOT / "results/examples/monte_carlo_g8.json",
 }
-FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_ampliada"
+FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_proteccion"
+if not (FINAL_BUNDLE / "verification.json").is_file():
+    FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_ampliada"
+FINAL_MC = mc.ROOT / "results/final/g8_20261119_mc/base31/comparison.json"
 
 
 def final_example():
     """Empaqueta la campaña verificada y sus figuras para ambas versiones del visor."""
+    if FINAL_MC.is_file():
+        return {"campaign":mc.read_json(FINAL_MC),"figures":{}}
     comparison = FINAL_BUNDLE / "comparison.json"
     campaign = mc.read_json(comparison)
     figures = {}

@@ -1,0 +1,4622 @@
+{
+  "phase": "sample",
+  "variant": "mix",
+  "seed": 20261119,
+  "settings": {
+    "seed": 20261119,
+    "confirmation_seed": 20261219,
+    "samples": 100,
+    "sensitivity_samples": 100,
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "minimum_common_forecast_hours": 72,
+    "dt_s": 1200,
+    "mesh": 2,
+    "end_h": 600,
+    "mix": {
+      "density_kg_m3": 2476,
+      "specific_heat_j_kgk": 1023,
+      "conductivity_w_mk": 2.2
+    },
+    "mix_sensitivity": {
+      "density_kg_m3": 2400,
+      "specific_heat_j_kgk": 900
+    },
+    "hydration_reference_c": 20,
+    "activation_energy_sensitivity_j_mol": 33500,
+    "uniform": {
+      "heat_factor": [
+        0.84,
+        1.2
+      ],
+      "placement_offset_c": [
+        -2,
+        2
+      ],
+      "soil_c": [
+        8,
+        12
+      ]
+    },
+    "screen": {
+      "placement_c": [
+        12,
+        14,
+        16,
+        20
+      ],
+      "blanket_mm": [
+        25,
+        50,
+        100
+      ],
+      "removal_h": [
+        336,
+        408,
+        504
+      ],
+      "partitions": [
+        "3h",
+        "3v",
+        "4h",
+        "5h"
+      ],
+      "removal_modes": [
+        "direct",
+        "staged"
+      ],
+      "curve": "M4_SS",
+      "member": "_member14",
+      "heat_factor": 1,
+      "soil_c": 10,
+      "nominees": 1
+    },
+    "sources": {
+      "curve": "Uniforme discreta M1–M4_SS, y sensibilidad independiente con las ocho curvas de source_terms.txt.",
+      "weather": "Uniforme discreta entre todos los miembros completos en la ventana común posterior a t0.",
+      "heat_factor": "HIPÓTESIS: escalamiento lineal de Q(t) a partir de la sensibilidad del total a beta en la cabecera.",
+      "placement_offset_c": "HIPÓTESIS: variabilidad uniforme en torno a la temperatura nominal de cada plan.",
+      "soil_c": "HIPÓTESIS: rango de temperatura inicial y profunda, sin medición del sitio.",
+      "mix": "Densidad y calor específico de probeta en source_terms.txt. HIPÓTESIS: transferibles a la fundación; conductividad docente.",
+      "hydration_reference_c": "HIPÓTESIS: temperatura de referencia de 20 °C para Arrhenius.",
+      "placement_c_12_14": "HIPÓTESIS: preenfriamiento de materiales con agua fría o hielo. Capacidad de obra por verificar.",
+      "independence": "HIPÓTESIS: independencia entre curvas, clima, factor de calor, colocación y suelo."
+    }
+  },
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 600,
+    "dt_s": 1200,
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 20,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "3h-12C-25mm-504h-direct",
+        "label": "3h-12C-25mm-504h-direct",
+        "fractions": [
+          0.0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ],
+        "partition": "equal_height",
+        "wait_h": 6,
+        "placement_c": 12,
+        "strip_h": 96,
+        "top_remove_h": 504,
+        "side_blanket": true,
+        "blanket_stages": [
+          [
+            0,
+            0.025
+          ],
+          [
+            504,
+            0
+          ]
+        ],
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      },
+      {
+        "id": "C",
+        "label": "Tres vertidas con espera mínima",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "wait_h": 6,
+        "strip_h": 96,
+        "top_remove_h": 336,
+        "side_blanket": true,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      },
+      {
+        "id": "C3",
+        "label": "C con ambas medidas",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "wait_h": 6,
+        "strip_h": 96,
+        "top_remove_h": 408,
+        "side_blanket": true,
+        "side_blanket_m": 0.05,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      }
+    ],
+    "assumptions": "Hora local, caudal, una bomba, espera mínima, colocación y protecciones son supuestos docentes, pendientes de confirmación de la pauta y del equipo. Las curvas son fuentes invertidas en tiempo de ensayo; se aplican por edad cronológica de colocación sin un ajuste de madurez adicional.",
+    "report_21d": true,
+    "mix": {
+      "density_kg_m3": 2400,
+      "specific_heat_j_kgk": 900,
+      "conductivity_w_mk": 2.2
+    },
+    "hydration_reference_c": 20,
+    "common_forecast_hours": 165
+  },
+  "environment": {
+    "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+    "site": {
+      "latitude": -41.222539,
+      "longitude": -73.295603,
+      "source": "config/case_g8.json (punto meteorológico docente, Llanquihue)"
+    },
+    "construction": {
+      "start_local": "2026-11-27T04:00",
+      "timezone": "America/Santiago",
+      "start_utc": "2026-11-27T07:00Z",
+      "days_after_start": 14,
+      "note": "Inicio tomado del ejemplo de la guía G08. Se supone hora local de Chile (UTC−3 en noviembre, horario de verano)."
+    },
+    "weather": {
+      "snapshot_root": "data/weather",
+      "decision_time_utc": null,
+      "tail_method": "auto",
+      "note": "decision_time_utc = null usa la hora actual como corte. Si falta parte del pronóstico al final, auto usa reanálisis del mismo sitio descargado al corte o persistencia. Cada hora queda marcada."
+    },
+    "convection": {
+      "h_a_w_m2k": 5.7,
+      "h_b_w_m2k_per_m_s": 3.8,
+      "wind_height_m": 2.0,
+      "wind_exponent": 0.14,
+      "source": "Correlación de Jürges/McAdams h = 5,7 + 3,8 v (superficies exteriores); perfil de viento potencial con exponente 1/7 para terreno abierto."
+    },
+    "solar": {
+      "absorptance_concrete": 0.65,
+      "absorptance_formwork": 0.6,
+      "top_factor": 1.0,
+      "side_factor": 0.35,
+      "source": "Absortancia típica de hormigón gris 0,6–0,7 (supuesto). Factor lateral 0,35: fracción aproximada de radiación global sobre cara vertical (supuesto docente, sin cálculo de geometría solar)."
+    },
+    "formwork": {
+      "thickness_m": 0.018,
+      "conductivity_w_mk": 0.13,
+      "strip_after_h": 72,
+      "source": "Terciado fenólico 18 mm, k ≈ 0,13 W/(m·K) (valor típico). Retiro a las 72 h: supuesto E10 para la propiedad RetiroMoldaje_h propuesta en la guía G02."
+    },
+    "insulation": {
+      "thickness_m": 0.025,
+      "conductivity_w_mk": 0.04,
+      "on_top_from_h": 0.0,
+      "source": "Manta de curado/aislante 25 mm, k ≈ 0,04 W/(m·K) (valor típico de espuma/fibra). Supuesto de diseño, no especificación del proyecto."
+    },
+    "soil": {
+      "depth_m": 2.2,
+      "margin_m": 1.5,
+      "conductivity_w_mk": 1.39,
+      "density_kg_m3": 1800.0,
+      "specific_heat_j_kgk": 1273.0,
+      "deep_temperature_c": 10.0,
+      "source": "k, ρ, cp: Ju y Lei (2019), guía de difusión §31. Temperatura profunda 10 °C: SUPUESTO (orden de la media anual del aire en Llanquihue), no medido."
+    },
+    "concrete": {
+      "conductivity_w_mk": 2.2,
+      "density_kg_m3": 2400.0,
+      "specific_heat_j_kgk": 900.0,
+      "placement_c": 16.0,
+      "qmax_w_m3": 1300.0,
+      "hydration_duration_s": 172800.0,
+      "source": "Mismos valores sintéticos de construction_g8.json; colocación 16 °C del ejemplo G08. No calibrado."
+    },
+    "demo_section": {
+      "half_width_m": 9.0,
+      "height_m": 3.3,
+      "spacing_m": [
+        0.5,
+        0.275
+      ],
+      "dt_s": 600.0,
+      "note": "Sección vertical 2D x–z por el eje de la fundación, mitad por simetría. Es una sección rectangular simplificada para mostrar las condiciones de borde; la geometría completa está en el modelo 3D."
+    }
+  },
+  "jobs": [
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member30",
+        "id": "_member30"
+      },
+      "heat_factor": 0.9319810108031681,
+      "soil_c": 10.90424276116093,
+      "placement_c": 10.828033791463275,
+      "sample_id": 0,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 0.8519574205742181,
+      "soil_c": 9.92765700151437,
+      "placement_c": 12.340982614086222,
+      "sample_id": 1,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 1.1973965978046688,
+      "soil_c": 11.074790460976587,
+      "placement_c": 11.637494689420114,
+      "sample_id": 2,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.846904504711545,
+      "soil_c": 11.170029905130727,
+      "placement_c": 12.398142211772546,
+      "sample_id": 3,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.9951417747415711,
+      "soil_c": 9.687987519059629,
+      "placement_c": 12.350470246578134,
+      "sample_id": 4,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 0.9299352106354521,
+      "soil_c": 9.142362346878297,
+      "placement_c": 10.509319664044646,
+      "sample_id": 5,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "id": "_member19"
+      },
+      "heat_factor": 0.8833236701838086,
+      "soil_c": 11.5534296685439,
+      "placement_c": 13.928688458964436,
+      "sample_id": 6,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.1768671253549565,
+      "soil_c": 10.665530277063578,
+      "placement_c": 10.295861085234979,
+      "sample_id": 7,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.8675579999023115,
+      "soil_c": 10.80625626148056,
+      "placement_c": 12.460980965973484,
+      "sample_id": 8,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member21",
+        "id": "_member21"
+      },
+      "heat_factor": 1.1948511706032583,
+      "soil_c": 10.443084040858862,
+      "placement_c": 11.362733286902923,
+      "sample_id": 9,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member13",
+        "id": "_member13"
+      },
+      "heat_factor": 1.0543402777878743,
+      "soil_c": 9.056433959890867,
+      "placement_c": 11.596390699213536,
+      "sample_id": 10,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member20",
+        "id": "_member20"
+      },
+      "heat_factor": 0.993871829805123,
+      "soil_c": 8.955572779180223,
+      "placement_c": 12.295438572920087,
+      "sample_id": 11,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member03",
+        "id": "_member03"
+      },
+      "heat_factor": 0.9710002678191891,
+      "soil_c": 9.640426229140685,
+      "placement_c": 10.019757342759402,
+      "sample_id": 12,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 0.858413349302682,
+      "soil_c": 8.6478991065595,
+      "placement_c": 13.122787697669969,
+      "sample_id": 13,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.135473146221017,
+      "soil_c": 10.740840644526822,
+      "placement_c": 12.480634973389467,
+      "sample_id": 14,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.1928855130147658,
+      "soil_c": 10.739321049109641,
+      "placement_c": 11.366701494411355,
+      "sample_id": 15,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.003933429426651,
+      "soil_c": 8.050104264423492,
+      "placement_c": 12.624228601282665,
+      "sample_id": 16,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member17",
+        "id": "_member17"
+      },
+      "heat_factor": 1.0607245112434245,
+      "soil_c": 10.464412621237368,
+      "placement_c": 11.298936430464412,
+      "sample_id": 17,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member13",
+        "id": "_member13"
+      },
+      "heat_factor": 1.0965967795569644,
+      "soil_c": 8.855741540471245,
+      "placement_c": 12.93199209609371,
+      "sample_id": 18,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member03",
+        "id": "_member03"
+      },
+      "heat_factor": 0.9857136841368405,
+      "soil_c": 9.7870774052436,
+      "placement_c": 10.275239249602414,
+      "sample_id": 19,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.9816214597102375,
+      "soil_c": 11.509663507422431,
+      "placement_c": 10.520529221188408,
+      "sample_id": 20,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.1687065134303345,
+      "soil_c": 9.37816448170594,
+      "placement_c": 10.213152402618642,
+      "sample_id": 21,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 1.0842452048394502,
+      "soil_c": 9.526717626832056,
+      "placement_c": 11.818886421034325,
+      "sample_id": 22,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.8463861569591701,
+      "soil_c": 10.311230504116113,
+      "placement_c": 12.47380308076156,
+      "sample_id": 23,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.030073610126908,
+      "soil_c": 10.81541475043954,
+      "placement_c": 12.662970981239308,
+      "sample_id": 24,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member26",
+        "id": "_member26"
+      },
+      "heat_factor": 1.1923232378904904,
+      "soil_c": 9.151488078652921,
+      "placement_c": 13.756102963685306,
+      "sample_id": 25,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member24",
+        "id": "_member24"
+      },
+      "heat_factor": 0.8792484751924599,
+      "soil_c": 11.457439799201644,
+      "placement_c": 11.585613089738604,
+      "sample_id": 26,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.9208751437234921,
+      "soil_c": 11.418617655022896,
+      "placement_c": 12.71088657954801,
+      "sample_id": 27,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.1975611516090197,
+      "soil_c": 10.578446640564689,
+      "placement_c": 13.390254970275095,
+      "sample_id": 28,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member15",
+        "id": "_member15"
+      },
+      "heat_factor": 0.9971361091987503,
+      "soil_c": 11.384386869219801,
+      "placement_c": 12.800058836035692,
+      "sample_id": 29,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member27",
+        "id": "_member27"
+      },
+      "heat_factor": 1.1794073493551314,
+      "soil_c": 10.188322529333359,
+      "placement_c": 13.178170280701028,
+      "sample_id": 30,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 1.025363252143279,
+      "soil_c": 9.386358533475512,
+      "placement_c": 10.041486873819498,
+      "sample_id": 31,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "id": "_member19"
+      },
+      "heat_factor": 1.0958284999097616,
+      "soil_c": 10.186039484493294,
+      "placement_c": 12.05017748911002,
+      "sample_id": 32,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member15",
+        "id": "_member15"
+      },
+      "heat_factor": 0.8767770479076236,
+      "soil_c": 9.156338561319291,
+      "placement_c": 10.181429460435066,
+      "sample_id": 33,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.045992702560369,
+      "soil_c": 9.249242888051413,
+      "placement_c": 13.29334309384797,
+      "sample_id": 34,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 0.8815659749194862,
+      "soil_c": 11.392875639755996,
+      "placement_c": 11.776640496283994,
+      "sample_id": 35,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 1.1846173575190306,
+      "soil_c": 11.422103100722039,
+      "placement_c": 13.71117864911724,
+      "sample_id": 36,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.0313172429047257,
+      "soil_c": 8.64403949919439,
+      "placement_c": 12.259131177883939,
+      "sample_id": 37,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 0.9089543727560503,
+      "soil_c": 10.526943780106238,
+      "placement_c": 10.283063252042554,
+      "sample_id": 38,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 1.1212616520020777,
+      "soil_c": 11.960645005430965,
+      "placement_c": 12.905297867478968,
+      "sample_id": 39,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.1385388023720693,
+      "soil_c": 11.248152236673752,
+      "placement_c": 13.447742553275557,
+      "sample_id": 40,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.100142176832603,
+      "soil_c": 8.200981722105494,
+      "placement_c": 13.40940413718522,
+      "sample_id": 41,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member24",
+        "id": "_member24"
+      },
+      "heat_factor": 1.088818740069692,
+      "soil_c": 8.666368716910918,
+      "placement_c": 13.083594199263583,
+      "sample_id": 42,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.8489535028559375,
+      "soil_c": 10.43597001500929,
+      "placement_c": 10.154199685000307,
+      "sample_id": 43,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member01",
+        "id": "_member01"
+      },
+      "heat_factor": 1.0303780032745835,
+      "soil_c": 8.444936089696117,
+      "placement_c": 13.511301940453148,
+      "sample_id": 44,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.115253423163261,
+      "soil_c": 11.160216616548777,
+      "placement_c": 13.484774060841564,
+      "sample_id": 45,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member23",
+        "id": "_member23"
+      },
+      "heat_factor": 1.1796711147279384,
+      "soil_c": 11.757438916875842,
+      "placement_c": 13.722724726127554,
+      "sample_id": 46,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 1.1774343166816643,
+      "soil_c": 8.871390597429954,
+      "placement_c": 13.331894910769584,
+      "sample_id": 47,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 1.0643024966848948,
+      "soil_c": 11.77283867641651,
+      "placement_c": 12.43673117059601,
+      "sample_id": 48,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member21",
+        "id": "_member21"
+      },
+      "heat_factor": 1.1403238385612826,
+      "soil_c": 11.880327431909082,
+      "placement_c": 10.956372020700208,
+      "sample_id": 49,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.9853921991206482,
+      "soil_c": 9.118698597925844,
+      "placement_c": 12.699405737339331,
+      "sample_id": 50,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member26",
+        "id": "_member26"
+      },
+      "heat_factor": 0.8906498664197257,
+      "soil_c": 9.112132717645588,
+      "placement_c": 11.209407317218986,
+      "sample_id": 51,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.1599514834982554,
+      "soil_c": 11.561356496947568,
+      "placement_c": 13.529680360534265,
+      "sample_id": 52,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 0.9769190533240107,
+      "soil_c": 8.757291806753674,
+      "placement_c": 13.999754654369003,
+      "sample_id": 53,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 1.1628443348895359,
+      "soil_c": 9.406897240899523,
+      "placement_c": 13.103956068675071,
+      "sample_id": 54,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member17",
+        "id": "_member17"
+      },
+      "heat_factor": 1.1037867465959432,
+      "soil_c": 10.906358976758034,
+      "placement_c": 10.293605105023273,
+      "sample_id": 55,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 1.0048291348594556,
+      "soil_c": 10.288883746847098,
+      "placement_c": 11.89304214966829,
+      "sample_id": 56,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member20",
+        "id": "_member20"
+      },
+      "heat_factor": 0.869758730228446,
+      "soil_c": 8.655129754905095,
+      "placement_c": 11.97457146254643,
+      "sample_id": 57,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 0.8811004792992073,
+      "soil_c": 9.521005649310423,
+      "placement_c": 12.804983887118818,
+      "sample_id": 58,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member22",
+        "id": "_member22"
+      },
+      "heat_factor": 0.8628043045887652,
+      "soil_c": 11.87129645170208,
+      "placement_c": 10.833720861875822,
+      "sample_id": 59,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member02",
+        "id": "_member02"
+      },
+      "heat_factor": 1.133988384874928,
+      "soil_c": 10.986439552099096,
+      "placement_c": 13.179124139938995,
+      "sample_id": 60,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.025346729022231,
+      "soil_c": 8.170113207870617,
+      "placement_c": 11.055747620714202,
+      "sample_id": 61,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 0.9747912963263736,
+      "soil_c": 8.549987681551208,
+      "placement_c": 13.286714752425606,
+      "sample_id": 62,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.091744477047708,
+      "soil_c": 9.476004447980666,
+      "placement_c": 12.337364740397447,
+      "sample_id": 63,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member22",
+        "id": "_member22"
+      },
+      "heat_factor": 1.1891376917885397,
+      "soil_c": 9.472037934090906,
+      "placement_c": 11.064764580236478,
+      "sample_id": 64,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.1140803562421868,
+      "soil_c": 11.63080456646784,
+      "placement_c": 12.34268148574196,
+      "sample_id": 65,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.029766542995436,
+      "soil_c": 8.664205145753531,
+      "placement_c": 13.95077672766689,
+      "sample_id": 66,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member02",
+        "id": "_member02"
+      },
+      "heat_factor": 0.932067400459394,
+      "soil_c": 8.225157502103627,
+      "placement_c": 12.974279351638739,
+      "sample_id": 67,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.0611783124596523,
+      "soil_c": 11.880052365718079,
+      "placement_c": 13.122744879184445,
+      "sample_id": 68,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 1.0783273847993284,
+      "soil_c": 9.164875772321125,
+      "placement_c": 13.148189174267554,
+      "sample_id": 69,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 0.9387367990377151,
+      "soil_c": 11.507142469816529,
+      "placement_c": 11.278499009593292,
+      "sample_id": 70,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.005990961312091,
+      "soil_c": 9.822179851359149,
+      "placement_c": 11.556463384253004,
+      "sample_id": 71,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 0.9729666575242792,
+      "soil_c": 8.049585580035256,
+      "placement_c": 10.90342264182716,
+      "sample_id": 72,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member30",
+        "id": "_member30"
+      },
+      "heat_factor": 1.1428263288372085,
+      "soil_c": 10.034550648843165,
+      "placement_c": 10.657947751270342,
+      "sample_id": 73,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.8558929308029174,
+      "soil_c": 10.920595408404761,
+      "placement_c": 10.63493723351339,
+      "sample_id": 74,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 0.9540506318076083,
+      "soil_c": 8.360071276146114,
+      "placement_c": 11.405865805819877,
+      "sample_id": 75,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member01",
+        "id": "_member01"
+      },
+      "heat_factor": 1.1627251957640823,
+      "soil_c": 11.806483275633218,
+      "placement_c": 13.242849240330198,
+      "sample_id": 76,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.8874342631590233,
+      "soil_c": 9.97697244838516,
+      "placement_c": 13.192879375099428,
+      "sample_id": 77,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.140236703994515,
+      "soil_c": 10.375528286460701,
+      "placement_c": 10.826224085181087,
+      "sample_id": 78,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1495672260715295,
+      "soil_c": 11.741972050200726,
+      "placement_c": 13.9818512608255,
+      "sample_id": 79,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 0.8912353664809479,
+      "soil_c": 9.619459737391823,
+      "placement_c": 12.592137707251595,
+      "sample_id": 80,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1772286939478405,
+      "soil_c": 9.074073940228573,
+      "placement_c": 12.063903113490131,
+      "sample_id": 81,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 1.1634250717993564,
+      "soil_c": 10.995248177216245,
+      "placement_c": 11.075892985937848,
+      "sample_id": 82,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1708617178293907,
+      "soil_c": 8.548167653657007,
+      "placement_c": 10.126799725263544,
+      "sample_id": 83,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 1.198973613184274,
+      "soil_c": 9.027490151579167,
+      "placement_c": 13.969031053603599,
+      "sample_id": 84,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member23",
+        "id": "_member23"
+      },
+      "heat_factor": 0.9516265340715808,
+      "soil_c": 9.686737583338141,
+      "placement_c": 12.932102462698499,
+      "sample_id": 85,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.8652656257585141,
+      "soil_c": 11.227173906474968,
+      "placement_c": 13.17484826776729,
+      "sample_id": 86,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 0.8858689087540111,
+      "soil_c": 8.35509100315372,
+      "placement_c": 12.806018664173116,
+      "sample_id": 87,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.0116161314045478,
+      "soil_c": 10.611100023617958,
+      "placement_c": 12.816027999358102,
+      "sample_id": 88,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 1.1443806988531766,
+      "soil_c": 8.657598676901348,
+      "placement_c": 11.387991147194818,
+      "sample_id": 89,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 0.8452263012592696,
+      "soil_c": 11.597415881936566,
+      "placement_c": 13.772757287972624,
+      "sample_id": 90,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.9560985966025245,
+      "soil_c": 8.614546147964715,
+      "placement_c": 13.796974755611636,
+      "sample_id": 91,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member27",
+        "id": "_member27"
+      },
+      "heat_factor": 0.8525249312597379,
+      "soil_c": 9.421537456513583,
+      "placement_c": 11.582561629334858,
+      "sample_id": 92,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.0269483443293725,
+      "soil_c": 11.682384680296241,
+      "placement_c": 13.71538199762886,
+      "sample_id": 93,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.1218057152781367,
+      "soil_c": 9.747596738972774,
+      "placement_c": 12.847974115091304,
+      "sample_id": 94,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.9381477930573336,
+      "soil_c": 8.538899562511007,
+      "placement_c": 11.395639188097997,
+      "sample_id": 95,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 0.9008005479433866,
+      "soil_c": 9.570781531951562,
+      "placement_c": 11.693472208484414,
+      "sample_id": 96,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.063187028430153,
+      "soil_c": 9.894650826660989,
+      "placement_c": 11.819257251304188,
+      "sample_id": 97,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 1.0568164562031217,
+      "soil_c": 11.170530426145344,
+      "placement_c": 11.798336759548707,
+      "sample_id": 98,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "3h-12C-25mm-504h-direct",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.0622364524853898,
+      "soil_c": 9.698445945057673,
+      "placement_c": 11.169590138672334,
+      "sample_id": 99,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member30",
+        "id": "_member30"
+      },
+      "heat_factor": 0.9319810108031681,
+      "soil_c": 10.90424276116093,
+      "placement_c": 18.828033791463277,
+      "sample_id": 0,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 0.8519574205742181,
+      "soil_c": 9.92765700151437,
+      "placement_c": 20.340982614086222,
+      "sample_id": 1,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 1.1973965978046688,
+      "soil_c": 11.074790460976587,
+      "placement_c": 19.637494689420112,
+      "sample_id": 2,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.846904504711545,
+      "soil_c": 11.170029905130727,
+      "placement_c": 20.398142211772544,
+      "sample_id": 3,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.9951417747415711,
+      "soil_c": 9.687987519059629,
+      "placement_c": 20.350470246578134,
+      "sample_id": 4,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 0.9299352106354521,
+      "soil_c": 9.142362346878297,
+      "placement_c": 18.509319664044646,
+      "sample_id": 5,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "id": "_member19"
+      },
+      "heat_factor": 0.8833236701838086,
+      "soil_c": 11.5534296685439,
+      "placement_c": 21.928688458964437,
+      "sample_id": 6,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.1768671253549565,
+      "soil_c": 10.665530277063578,
+      "placement_c": 18.29586108523498,
+      "sample_id": 7,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.8675579999023115,
+      "soil_c": 10.80625626148056,
+      "placement_c": 20.460980965973484,
+      "sample_id": 8,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member21",
+        "id": "_member21"
+      },
+      "heat_factor": 1.1948511706032583,
+      "soil_c": 10.443084040858862,
+      "placement_c": 19.362733286902923,
+      "sample_id": 9,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member13",
+        "id": "_member13"
+      },
+      "heat_factor": 1.0543402777878743,
+      "soil_c": 9.056433959890867,
+      "placement_c": 19.596390699213536,
+      "sample_id": 10,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member20",
+        "id": "_member20"
+      },
+      "heat_factor": 0.993871829805123,
+      "soil_c": 8.955572779180223,
+      "placement_c": 20.295438572920087,
+      "sample_id": 11,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member03",
+        "id": "_member03"
+      },
+      "heat_factor": 0.9710002678191891,
+      "soil_c": 9.640426229140685,
+      "placement_c": 18.0197573427594,
+      "sample_id": 12,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 0.858413349302682,
+      "soil_c": 8.6478991065595,
+      "placement_c": 21.12278769766997,
+      "sample_id": 13,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.135473146221017,
+      "soil_c": 10.740840644526822,
+      "placement_c": 20.480634973389467,
+      "sample_id": 14,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.1928855130147658,
+      "soil_c": 10.739321049109641,
+      "placement_c": 19.366701494411355,
+      "sample_id": 15,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.003933429426651,
+      "soil_c": 8.050104264423492,
+      "placement_c": 20.624228601282667,
+      "sample_id": 16,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member17",
+        "id": "_member17"
+      },
+      "heat_factor": 1.0607245112434245,
+      "soil_c": 10.464412621237368,
+      "placement_c": 19.298936430464412,
+      "sample_id": 17,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member13",
+        "id": "_member13"
+      },
+      "heat_factor": 1.0965967795569644,
+      "soil_c": 8.855741540471245,
+      "placement_c": 20.931992096093712,
+      "sample_id": 18,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member03",
+        "id": "_member03"
+      },
+      "heat_factor": 0.9857136841368405,
+      "soil_c": 9.7870774052436,
+      "placement_c": 18.275239249602414,
+      "sample_id": 19,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.9816214597102375,
+      "soil_c": 11.509663507422431,
+      "placement_c": 18.520529221188408,
+      "sample_id": 20,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.1687065134303345,
+      "soil_c": 9.37816448170594,
+      "placement_c": 18.21315240261864,
+      "sample_id": 21,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 1.0842452048394502,
+      "soil_c": 9.526717626832056,
+      "placement_c": 19.818886421034325,
+      "sample_id": 22,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.8463861569591701,
+      "soil_c": 10.311230504116113,
+      "placement_c": 20.47380308076156,
+      "sample_id": 23,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.030073610126908,
+      "soil_c": 10.81541475043954,
+      "placement_c": 20.662970981239308,
+      "sample_id": 24,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member26",
+        "id": "_member26"
+      },
+      "heat_factor": 1.1923232378904904,
+      "soil_c": 9.151488078652921,
+      "placement_c": 21.756102963685304,
+      "sample_id": 25,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member24",
+        "id": "_member24"
+      },
+      "heat_factor": 0.8792484751924599,
+      "soil_c": 11.457439799201644,
+      "placement_c": 19.585613089738604,
+      "sample_id": 26,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.9208751437234921,
+      "soil_c": 11.418617655022896,
+      "placement_c": 20.71088657954801,
+      "sample_id": 27,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.1975611516090197,
+      "soil_c": 10.578446640564689,
+      "placement_c": 21.390254970275095,
+      "sample_id": 28,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member15",
+        "id": "_member15"
+      },
+      "heat_factor": 0.9971361091987503,
+      "soil_c": 11.384386869219801,
+      "placement_c": 20.800058836035692,
+      "sample_id": 29,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member27",
+        "id": "_member27"
+      },
+      "heat_factor": 1.1794073493551314,
+      "soil_c": 10.188322529333359,
+      "placement_c": 21.17817028070103,
+      "sample_id": 30,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 1.025363252143279,
+      "soil_c": 9.386358533475512,
+      "placement_c": 18.041486873819498,
+      "sample_id": 31,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "id": "_member19"
+      },
+      "heat_factor": 1.0958284999097616,
+      "soil_c": 10.186039484493294,
+      "placement_c": 20.05017748911002,
+      "sample_id": 32,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member15",
+        "id": "_member15"
+      },
+      "heat_factor": 0.8767770479076236,
+      "soil_c": 9.156338561319291,
+      "placement_c": 18.181429460435066,
+      "sample_id": 33,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.045992702560369,
+      "soil_c": 9.249242888051413,
+      "placement_c": 21.29334309384797,
+      "sample_id": 34,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 0.8815659749194862,
+      "soil_c": 11.392875639755996,
+      "placement_c": 19.776640496283992,
+      "sample_id": 35,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 1.1846173575190306,
+      "soil_c": 11.422103100722039,
+      "placement_c": 21.71117864911724,
+      "sample_id": 36,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.0313172429047257,
+      "soil_c": 8.64403949919439,
+      "placement_c": 20.259131177883937,
+      "sample_id": 37,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 0.9089543727560503,
+      "soil_c": 10.526943780106238,
+      "placement_c": 18.283063252042552,
+      "sample_id": 38,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 1.1212616520020777,
+      "soil_c": 11.960645005430965,
+      "placement_c": 20.905297867478968,
+      "sample_id": 39,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.1385388023720693,
+      "soil_c": 11.248152236673752,
+      "placement_c": 21.447742553275557,
+      "sample_id": 40,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.100142176832603,
+      "soil_c": 8.200981722105494,
+      "placement_c": 21.40940413718522,
+      "sample_id": 41,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member24",
+        "id": "_member24"
+      },
+      "heat_factor": 1.088818740069692,
+      "soil_c": 8.666368716910918,
+      "placement_c": 21.083594199263583,
+      "sample_id": 42,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.8489535028559375,
+      "soil_c": 10.43597001500929,
+      "placement_c": 18.154199685000307,
+      "sample_id": 43,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member01",
+        "id": "_member01"
+      },
+      "heat_factor": 1.0303780032745835,
+      "soil_c": 8.444936089696117,
+      "placement_c": 21.511301940453148,
+      "sample_id": 44,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.115253423163261,
+      "soil_c": 11.160216616548777,
+      "placement_c": 21.484774060841566,
+      "sample_id": 45,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member23",
+        "id": "_member23"
+      },
+      "heat_factor": 1.1796711147279384,
+      "soil_c": 11.757438916875842,
+      "placement_c": 21.722724726127552,
+      "sample_id": 46,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 1.1774343166816643,
+      "soil_c": 8.871390597429954,
+      "placement_c": 21.331894910769584,
+      "sample_id": 47,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 1.0643024966848948,
+      "soil_c": 11.77283867641651,
+      "placement_c": 20.43673117059601,
+      "sample_id": 48,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member21",
+        "id": "_member21"
+      },
+      "heat_factor": 1.1403238385612826,
+      "soil_c": 11.880327431909082,
+      "placement_c": 18.956372020700208,
+      "sample_id": 49,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.9853921991206482,
+      "soil_c": 9.118698597925844,
+      "placement_c": 20.699405737339333,
+      "sample_id": 50,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member26",
+        "id": "_member26"
+      },
+      "heat_factor": 0.8906498664197257,
+      "soil_c": 9.112132717645588,
+      "placement_c": 19.209407317218986,
+      "sample_id": 51,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.1599514834982554,
+      "soil_c": 11.561356496947568,
+      "placement_c": 21.529680360534265,
+      "sample_id": 52,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 0.9769190533240107,
+      "soil_c": 8.757291806753674,
+      "placement_c": 21.999754654369003,
+      "sample_id": 53,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 1.1628443348895359,
+      "soil_c": 9.406897240899523,
+      "placement_c": 21.10395606867507,
+      "sample_id": 54,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member17",
+        "id": "_member17"
+      },
+      "heat_factor": 1.1037867465959432,
+      "soil_c": 10.906358976758034,
+      "placement_c": 18.293605105023275,
+      "sample_id": 55,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 1.0048291348594556,
+      "soil_c": 10.288883746847098,
+      "placement_c": 19.89304214966829,
+      "sample_id": 56,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member20",
+        "id": "_member20"
+      },
+      "heat_factor": 0.869758730228446,
+      "soil_c": 8.655129754905095,
+      "placement_c": 19.97457146254643,
+      "sample_id": 57,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 0.8811004792992073,
+      "soil_c": 9.521005649310423,
+      "placement_c": 20.804983887118816,
+      "sample_id": 58,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member22",
+        "id": "_member22"
+      },
+      "heat_factor": 0.8628043045887652,
+      "soil_c": 11.87129645170208,
+      "placement_c": 18.833720861875822,
+      "sample_id": 59,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member02",
+        "id": "_member02"
+      },
+      "heat_factor": 1.133988384874928,
+      "soil_c": 10.986439552099096,
+      "placement_c": 21.179124139938995,
+      "sample_id": 60,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.025346729022231,
+      "soil_c": 8.170113207870617,
+      "placement_c": 19.0557476207142,
+      "sample_id": 61,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 0.9747912963263736,
+      "soil_c": 8.549987681551208,
+      "placement_c": 21.286714752425606,
+      "sample_id": 62,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.091744477047708,
+      "soil_c": 9.476004447980666,
+      "placement_c": 20.337364740397447,
+      "sample_id": 63,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member22",
+        "id": "_member22"
+      },
+      "heat_factor": 1.1891376917885397,
+      "soil_c": 9.472037934090906,
+      "placement_c": 19.064764580236478,
+      "sample_id": 64,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.1140803562421868,
+      "soil_c": 11.63080456646784,
+      "placement_c": 20.34268148574196,
+      "sample_id": 65,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.029766542995436,
+      "soil_c": 8.664205145753531,
+      "placement_c": 21.95077672766689,
+      "sample_id": 66,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member02",
+        "id": "_member02"
+      },
+      "heat_factor": 0.932067400459394,
+      "soil_c": 8.225157502103627,
+      "placement_c": 20.97427935163874,
+      "sample_id": 67,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.0611783124596523,
+      "soil_c": 11.880052365718079,
+      "placement_c": 21.122744879184445,
+      "sample_id": 68,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 1.0783273847993284,
+      "soil_c": 9.164875772321125,
+      "placement_c": 21.148189174267554,
+      "sample_id": 69,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 0.9387367990377151,
+      "soil_c": 11.507142469816529,
+      "placement_c": 19.27849900959329,
+      "sample_id": 70,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.005990961312091,
+      "soil_c": 9.822179851359149,
+      "placement_c": 19.556463384253004,
+      "sample_id": 71,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 0.9729666575242792,
+      "soil_c": 8.049585580035256,
+      "placement_c": 18.90342264182716,
+      "sample_id": 72,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member30",
+        "id": "_member30"
+      },
+      "heat_factor": 1.1428263288372085,
+      "soil_c": 10.034550648843165,
+      "placement_c": 18.657947751270342,
+      "sample_id": 73,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.8558929308029174,
+      "soil_c": 10.920595408404761,
+      "placement_c": 18.63493723351339,
+      "sample_id": 74,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 0.9540506318076083,
+      "soil_c": 8.360071276146114,
+      "placement_c": 19.40586580581988,
+      "sample_id": 75,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member01",
+        "id": "_member01"
+      },
+      "heat_factor": 1.1627251957640823,
+      "soil_c": 11.806483275633218,
+      "placement_c": 21.242849240330198,
+      "sample_id": 76,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.8874342631590233,
+      "soil_c": 9.97697244838516,
+      "placement_c": 21.19287937509943,
+      "sample_id": 77,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.140236703994515,
+      "soil_c": 10.375528286460701,
+      "placement_c": 18.82622408518109,
+      "sample_id": 78,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1495672260715295,
+      "soil_c": 11.741972050200726,
+      "placement_c": 21.9818512608255,
+      "sample_id": 79,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 0.8912353664809479,
+      "soil_c": 9.619459737391823,
+      "placement_c": 20.592137707251595,
+      "sample_id": 80,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1772286939478405,
+      "soil_c": 9.074073940228573,
+      "placement_c": 20.06390311349013,
+      "sample_id": 81,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 1.1634250717993564,
+      "soil_c": 10.995248177216245,
+      "placement_c": 19.07589298593785,
+      "sample_id": 82,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1708617178293907,
+      "soil_c": 8.548167653657007,
+      "placement_c": 18.12679972526354,
+      "sample_id": 83,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 1.198973613184274,
+      "soil_c": 9.027490151579167,
+      "placement_c": 21.9690310536036,
+      "sample_id": 84,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member23",
+        "id": "_member23"
+      },
+      "heat_factor": 0.9516265340715808,
+      "soil_c": 9.686737583338141,
+      "placement_c": 20.9321024626985,
+      "sample_id": 85,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.8652656257585141,
+      "soil_c": 11.227173906474968,
+      "placement_c": 21.17484826776729,
+      "sample_id": 86,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 0.8858689087540111,
+      "soil_c": 8.35509100315372,
+      "placement_c": 20.806018664173116,
+      "sample_id": 87,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.0116161314045478,
+      "soil_c": 10.611100023617958,
+      "placement_c": 20.816027999358102,
+      "sample_id": 88,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 1.1443806988531766,
+      "soil_c": 8.657598676901348,
+      "placement_c": 19.387991147194818,
+      "sample_id": 89,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 0.8452263012592696,
+      "soil_c": 11.597415881936566,
+      "placement_c": 21.772757287972624,
+      "sample_id": 90,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.9560985966025245,
+      "soil_c": 8.614546147964715,
+      "placement_c": 21.796974755611636,
+      "sample_id": 91,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member27",
+        "id": "_member27"
+      },
+      "heat_factor": 0.8525249312597379,
+      "soil_c": 9.421537456513583,
+      "placement_c": 19.582561629334858,
+      "sample_id": 92,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.0269483443293725,
+      "soil_c": 11.682384680296241,
+      "placement_c": 21.71538199762886,
+      "sample_id": 93,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.1218057152781367,
+      "soil_c": 9.747596738972774,
+      "placement_c": 20.847974115091304,
+      "sample_id": 94,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.9381477930573336,
+      "soil_c": 8.538899562511007,
+      "placement_c": 19.395639188097995,
+      "sample_id": 95,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 0.9008005479433866,
+      "soil_c": 9.570781531951562,
+      "placement_c": 19.693472208484415,
+      "sample_id": 96,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.063187028430153,
+      "soil_c": 9.894650826660989,
+      "placement_c": 19.81925725130419,
+      "sample_id": 97,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 1.0568164562031217,
+      "soil_c": 11.170530426145344,
+      "placement_c": 19.798336759548707,
+      "sample_id": 98,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.0622364524853898,
+      "soil_c": 9.698445945057673,
+      "placement_c": 19.169590138672334,
+      "sample_id": 99,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member30",
+        "id": "_member30"
+      },
+      "heat_factor": 0.9319810108031681,
+      "soil_c": 10.90424276116093,
+      "placement_c": 18.828033791463277,
+      "sample_id": 0,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 0.8519574205742181,
+      "soil_c": 9.92765700151437,
+      "placement_c": 20.340982614086222,
+      "sample_id": 1,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 1.1973965978046688,
+      "soil_c": 11.074790460976587,
+      "placement_c": 19.637494689420112,
+      "sample_id": 2,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.846904504711545,
+      "soil_c": 11.170029905130727,
+      "placement_c": 20.398142211772544,
+      "sample_id": 3,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.9951417747415711,
+      "soil_c": 9.687987519059629,
+      "placement_c": 20.350470246578134,
+      "sample_id": 4,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 0.9299352106354521,
+      "soil_c": 9.142362346878297,
+      "placement_c": 18.509319664044646,
+      "sample_id": 5,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "id": "_member19"
+      },
+      "heat_factor": 0.8833236701838086,
+      "soil_c": 11.5534296685439,
+      "placement_c": 21.928688458964437,
+      "sample_id": 6,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.1768671253549565,
+      "soil_c": 10.665530277063578,
+      "placement_c": 18.29586108523498,
+      "sample_id": 7,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.8675579999023115,
+      "soil_c": 10.80625626148056,
+      "placement_c": 20.460980965973484,
+      "sample_id": 8,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member21",
+        "id": "_member21"
+      },
+      "heat_factor": 1.1948511706032583,
+      "soil_c": 10.443084040858862,
+      "placement_c": 19.362733286902923,
+      "sample_id": 9,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member13",
+        "id": "_member13"
+      },
+      "heat_factor": 1.0543402777878743,
+      "soil_c": 9.056433959890867,
+      "placement_c": 19.596390699213536,
+      "sample_id": 10,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member20",
+        "id": "_member20"
+      },
+      "heat_factor": 0.993871829805123,
+      "soil_c": 8.955572779180223,
+      "placement_c": 20.295438572920087,
+      "sample_id": 11,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member03",
+        "id": "_member03"
+      },
+      "heat_factor": 0.9710002678191891,
+      "soil_c": 9.640426229140685,
+      "placement_c": 18.0197573427594,
+      "sample_id": 12,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 0.858413349302682,
+      "soil_c": 8.6478991065595,
+      "placement_c": 21.12278769766997,
+      "sample_id": 13,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.135473146221017,
+      "soil_c": 10.740840644526822,
+      "placement_c": 20.480634973389467,
+      "sample_id": 14,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.1928855130147658,
+      "soil_c": 10.739321049109641,
+      "placement_c": 19.366701494411355,
+      "sample_id": 15,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.003933429426651,
+      "soil_c": 8.050104264423492,
+      "placement_c": 20.624228601282667,
+      "sample_id": 16,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member17",
+        "id": "_member17"
+      },
+      "heat_factor": 1.0607245112434245,
+      "soil_c": 10.464412621237368,
+      "placement_c": 19.298936430464412,
+      "sample_id": 17,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member13",
+        "id": "_member13"
+      },
+      "heat_factor": 1.0965967795569644,
+      "soil_c": 8.855741540471245,
+      "placement_c": 20.931992096093712,
+      "sample_id": 18,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member03",
+        "id": "_member03"
+      },
+      "heat_factor": 0.9857136841368405,
+      "soil_c": 9.7870774052436,
+      "placement_c": 18.275239249602414,
+      "sample_id": 19,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.9816214597102375,
+      "soil_c": 11.509663507422431,
+      "placement_c": 18.520529221188408,
+      "sample_id": 20,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.1687065134303345,
+      "soil_c": 9.37816448170594,
+      "placement_c": 18.21315240261864,
+      "sample_id": 21,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 1.0842452048394502,
+      "soil_c": 9.526717626832056,
+      "placement_c": 19.818886421034325,
+      "sample_id": 22,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.8463861569591701,
+      "soil_c": 10.311230504116113,
+      "placement_c": 20.47380308076156,
+      "sample_id": 23,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.030073610126908,
+      "soil_c": 10.81541475043954,
+      "placement_c": 20.662970981239308,
+      "sample_id": 24,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member26",
+        "id": "_member26"
+      },
+      "heat_factor": 1.1923232378904904,
+      "soil_c": 9.151488078652921,
+      "placement_c": 21.756102963685304,
+      "sample_id": 25,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member24",
+        "id": "_member24"
+      },
+      "heat_factor": 0.8792484751924599,
+      "soil_c": 11.457439799201644,
+      "placement_c": 19.585613089738604,
+      "sample_id": 26,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.9208751437234921,
+      "soil_c": 11.418617655022896,
+      "placement_c": 20.71088657954801,
+      "sample_id": 27,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.1975611516090197,
+      "soil_c": 10.578446640564689,
+      "placement_c": 21.390254970275095,
+      "sample_id": 28,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member15",
+        "id": "_member15"
+      },
+      "heat_factor": 0.9971361091987503,
+      "soil_c": 11.384386869219801,
+      "placement_c": 20.800058836035692,
+      "sample_id": 29,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member27",
+        "id": "_member27"
+      },
+      "heat_factor": 1.1794073493551314,
+      "soil_c": 10.188322529333359,
+      "placement_c": 21.17817028070103,
+      "sample_id": 30,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 1.025363252143279,
+      "soil_c": 9.386358533475512,
+      "placement_c": 18.041486873819498,
+      "sample_id": 31,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "id": "_member19"
+      },
+      "heat_factor": 1.0958284999097616,
+      "soil_c": 10.186039484493294,
+      "placement_c": 20.05017748911002,
+      "sample_id": 32,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member15",
+        "id": "_member15"
+      },
+      "heat_factor": 0.8767770479076236,
+      "soil_c": 9.156338561319291,
+      "placement_c": 18.181429460435066,
+      "sample_id": 33,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.045992702560369,
+      "soil_c": 9.249242888051413,
+      "placement_c": 21.29334309384797,
+      "sample_id": 34,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 0.8815659749194862,
+      "soil_c": 11.392875639755996,
+      "placement_c": 19.776640496283992,
+      "sample_id": 35,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 1.1846173575190306,
+      "soil_c": 11.422103100722039,
+      "placement_c": 21.71117864911724,
+      "sample_id": 36,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.0313172429047257,
+      "soil_c": 8.64403949919439,
+      "placement_c": 20.259131177883937,
+      "sample_id": 37,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 0.9089543727560503,
+      "soil_c": 10.526943780106238,
+      "placement_c": 18.283063252042552,
+      "sample_id": 38,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 1.1212616520020777,
+      "soil_c": 11.960645005430965,
+      "placement_c": 20.905297867478968,
+      "sample_id": 39,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.1385388023720693,
+      "soil_c": 11.248152236673752,
+      "placement_c": 21.447742553275557,
+      "sample_id": 40,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.100142176832603,
+      "soil_c": 8.200981722105494,
+      "placement_c": 21.40940413718522,
+      "sample_id": 41,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member24",
+        "id": "_member24"
+      },
+      "heat_factor": 1.088818740069692,
+      "soil_c": 8.666368716910918,
+      "placement_c": 21.083594199263583,
+      "sample_id": 42,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.8489535028559375,
+      "soil_c": 10.43597001500929,
+      "placement_c": 18.154199685000307,
+      "sample_id": 43,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member01",
+        "id": "_member01"
+      },
+      "heat_factor": 1.0303780032745835,
+      "soil_c": 8.444936089696117,
+      "placement_c": 21.511301940453148,
+      "sample_id": 44,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.115253423163261,
+      "soil_c": 11.160216616548777,
+      "placement_c": 21.484774060841566,
+      "sample_id": 45,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member23",
+        "id": "_member23"
+      },
+      "heat_factor": 1.1796711147279384,
+      "soil_c": 11.757438916875842,
+      "placement_c": 21.722724726127552,
+      "sample_id": 46,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 1.1774343166816643,
+      "soil_c": 8.871390597429954,
+      "placement_c": 21.331894910769584,
+      "sample_id": 47,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 1.0643024966848948,
+      "soil_c": 11.77283867641651,
+      "placement_c": 20.43673117059601,
+      "sample_id": 48,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member21",
+        "id": "_member21"
+      },
+      "heat_factor": 1.1403238385612826,
+      "soil_c": 11.880327431909082,
+      "placement_c": 18.956372020700208,
+      "sample_id": 49,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.9853921991206482,
+      "soil_c": 9.118698597925844,
+      "placement_c": 20.699405737339333,
+      "sample_id": 50,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member26",
+        "id": "_member26"
+      },
+      "heat_factor": 0.8906498664197257,
+      "soil_c": 9.112132717645588,
+      "placement_c": 19.209407317218986,
+      "sample_id": 51,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.1599514834982554,
+      "soil_c": 11.561356496947568,
+      "placement_c": 21.529680360534265,
+      "sample_id": 52,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 0.9769190533240107,
+      "soil_c": 8.757291806753674,
+      "placement_c": 21.999754654369003,
+      "sample_id": 53,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 1.1628443348895359,
+      "soil_c": 9.406897240899523,
+      "placement_c": 21.10395606867507,
+      "sample_id": 54,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member17",
+        "id": "_member17"
+      },
+      "heat_factor": 1.1037867465959432,
+      "soil_c": 10.906358976758034,
+      "placement_c": 18.293605105023275,
+      "sample_id": 55,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 1.0048291348594556,
+      "soil_c": 10.288883746847098,
+      "placement_c": 19.89304214966829,
+      "sample_id": 56,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member20",
+        "id": "_member20"
+      },
+      "heat_factor": 0.869758730228446,
+      "soil_c": 8.655129754905095,
+      "placement_c": 19.97457146254643,
+      "sample_id": 57,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 0.8811004792992073,
+      "soil_c": 9.521005649310423,
+      "placement_c": 20.804983887118816,
+      "sample_id": 58,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member22",
+        "id": "_member22"
+      },
+      "heat_factor": 0.8628043045887652,
+      "soil_c": 11.87129645170208,
+      "placement_c": 18.833720861875822,
+      "sample_id": 59,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member02",
+        "id": "_member02"
+      },
+      "heat_factor": 1.133988384874928,
+      "soil_c": 10.986439552099096,
+      "placement_c": 21.179124139938995,
+      "sample_id": 60,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.025346729022231,
+      "soil_c": 8.170113207870617,
+      "placement_c": 19.0557476207142,
+      "sample_id": 61,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 0.9747912963263736,
+      "soil_c": 8.549987681551208,
+      "placement_c": 21.286714752425606,
+      "sample_id": 62,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 1.091744477047708,
+      "soil_c": 9.476004447980666,
+      "placement_c": 20.337364740397447,
+      "sample_id": 63,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member22",
+        "id": "_member22"
+      },
+      "heat_factor": 1.1891376917885397,
+      "soil_c": 9.472037934090906,
+      "placement_c": 19.064764580236478,
+      "sample_id": 64,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member11",
+        "id": "_member11"
+      },
+      "heat_factor": 1.1140803562421868,
+      "soil_c": 11.63080456646784,
+      "placement_c": 20.34268148574196,
+      "sample_id": 65,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 1.029766542995436,
+      "soil_c": 8.664205145753531,
+      "placement_c": 21.95077672766689,
+      "sample_id": 66,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member02",
+        "id": "_member02"
+      },
+      "heat_factor": 0.932067400459394,
+      "soil_c": 8.225157502103627,
+      "placement_c": 20.97427935163874,
+      "sample_id": 67,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.0611783124596523,
+      "soil_c": 11.880052365718079,
+      "placement_c": 21.122744879184445,
+      "sample_id": 68,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 1.0783273847993284,
+      "soil_c": 9.164875772321125,
+      "placement_c": 21.148189174267554,
+      "sample_id": 69,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 0.9387367990377151,
+      "soil_c": 11.507142469816529,
+      "placement_c": 19.27849900959329,
+      "sample_id": 70,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.005990961312091,
+      "soil_c": 9.822179851359149,
+      "placement_c": 19.556463384253004,
+      "sample_id": 71,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "id": "_member08"
+      },
+      "heat_factor": 0.9729666575242792,
+      "soil_c": 8.049585580035256,
+      "placement_c": 18.90342264182716,
+      "sample_id": 72,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member30",
+        "id": "_member30"
+      },
+      "heat_factor": 1.1428263288372085,
+      "soil_c": 10.034550648843165,
+      "placement_c": 18.657947751270342,
+      "sample_id": 73,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member12",
+        "id": "_member12"
+      },
+      "heat_factor": 0.8558929308029174,
+      "soil_c": 10.920595408404761,
+      "placement_c": 18.63493723351339,
+      "sample_id": 74,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "",
+        "id": "control"
+      },
+      "heat_factor": 0.9540506318076083,
+      "soil_c": 8.360071276146114,
+      "placement_c": 19.40586580581988,
+      "sample_id": 75,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member01",
+        "id": "_member01"
+      },
+      "heat_factor": 1.1627251957640823,
+      "soil_c": 11.806483275633218,
+      "placement_c": 21.242849240330198,
+      "sample_id": 76,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 0.8874342631590233,
+      "soil_c": 9.97697244838516,
+      "placement_c": 21.19287937509943,
+      "sample_id": 77,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.140236703994515,
+      "soil_c": 10.375528286460701,
+      "placement_c": 18.82622408518109,
+      "sample_id": 78,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1495672260715295,
+      "soil_c": 11.741972050200726,
+      "placement_c": 21.9818512608255,
+      "sample_id": 79,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "id": "_member07"
+      },
+      "heat_factor": 0.8912353664809479,
+      "soil_c": 9.619459737391823,
+      "placement_c": 20.592137707251595,
+      "sample_id": 80,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1772286939478405,
+      "soil_c": 9.074073940228573,
+      "placement_c": 20.06390311349013,
+      "sample_id": 81,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member04",
+        "id": "_member04"
+      },
+      "heat_factor": 1.1634250717993564,
+      "soil_c": 10.995248177216245,
+      "placement_c": 19.07589298593785,
+      "sample_id": 82,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 1.1708617178293907,
+      "soil_c": 8.548167653657007,
+      "placement_c": 18.12679972526354,
+      "sample_id": 83,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 1.198973613184274,
+      "soil_c": 9.027490151579167,
+      "placement_c": 21.9690310536036,
+      "sample_id": 84,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member23",
+        "id": "_member23"
+      },
+      "heat_factor": 0.9516265340715808,
+      "soil_c": 9.686737583338141,
+      "placement_c": 20.9321024626985,
+      "sample_id": 85,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member09",
+        "id": "_member09"
+      },
+      "heat_factor": 0.8652656257585141,
+      "soil_c": 11.227173906474968,
+      "placement_c": 21.17484826776729,
+      "sample_id": 86,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member16",
+        "id": "_member16"
+      },
+      "heat_factor": 0.8858689087540111,
+      "soil_c": 8.35509100315372,
+      "placement_c": 20.806018664173116,
+      "sample_id": 87,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.0116161314045478,
+      "soil_c": 10.611100023617958,
+      "placement_c": 20.816027999358102,
+      "sample_id": 88,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 1.1443806988531766,
+      "soil_c": 8.657598676901348,
+      "placement_c": 19.387991147194818,
+      "sample_id": 89,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member10",
+        "id": "_member10"
+      },
+      "heat_factor": 0.8452263012592696,
+      "soil_c": 11.597415881936566,
+      "placement_c": 21.772757287972624,
+      "sample_id": 90,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.9560985966025245,
+      "soil_c": 8.614546147964715,
+      "placement_c": 21.796974755611636,
+      "sample_id": 91,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member27",
+        "id": "_member27"
+      },
+      "heat_factor": 0.8525249312597379,
+      "soil_c": 9.421537456513583,
+      "placement_c": 19.582561629334858,
+      "sample_id": 92,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.0269483443293725,
+      "soil_c": 11.682384680296241,
+      "placement_c": 21.71538199762886,
+      "sample_id": 93,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "id": "_member14"
+      },
+      "heat_factor": 1.1218057152781367,
+      "soil_c": 9.747596738972774,
+      "placement_c": 20.847974115091304,
+      "sample_id": 94,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member06",
+        "id": "_member06"
+      },
+      "heat_factor": 0.9381477930573336,
+      "soil_c": 8.538899562511007,
+      "placement_c": 19.395639188097995,
+      "sample_id": 95,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member18",
+        "id": "_member18"
+      },
+      "heat_factor": 0.9008005479433866,
+      "soil_c": 9.570781531951562,
+      "placement_c": 19.693472208484415,
+      "sample_id": 96,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member28",
+        "id": "_member28"
+      },
+      "heat_factor": 1.063187028430153,
+      "soil_c": 9.894650826660989,
+      "placement_c": 19.81925725130419,
+      "sample_id": 97,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member05",
+        "id": "_member05"
+      },
+      "heat_factor": 1.0568164562031217,
+      "soil_c": 11.170530426145344,
+      "placement_c": 19.798336759548707,
+      "sample_id": 98,
+      "mesh": 2,
+      "dt": 1200
+    },
+    {
+      "plan": "C3",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "id": "_member29"
+      },
+      "heat_factor": 1.0622364524853898,
+      "soil_c": 9.698445945057673,
+      "placement_c": 19.169590138672334,
+      "sample_id": 99,
+      "mesh": 2,
+      "dt": 1200
+    }
+  ],
+  "weather_members": [
+    "",
+    "_member01",
+    "_member02",
+    "_member03",
+    "_member04",
+    "_member05",
+    "_member06",
+    "_member07",
+    "_member08",
+    "_member09",
+    "_member10",
+    "_member11",
+    "_member12",
+    "_member13",
+    "_member14",
+    "_member15",
+    "_member16",
+    "_member17",
+    "_member18",
+    "_member19",
+    "_member20",
+    "_member21",
+    "_member22",
+    "_member23",
+    "_member24",
+    "_member25",
+    "_member26",
+    "_member27",
+    "_member28",
+    "_member29",
+    "_member30"
+  ],
+  "excluded_weather_members": [],
+  "common_forecast_hours": 165,
+  "hydration_audit": {
+    "M1_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 88.148347776,
+      "header_heat_mj_m3": 88.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.135648
+    },
+    "M2_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 95.71522170599998,
+      "header_heat_mj_m3": 95.7,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 94.14901087199999,
+      "header_heat_mj_m3": 94.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 100.166110776,
+      "header_heat_mj_m3": 100.2,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M1_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 61.21202113799998,
+      "header_heat_mj_m3": 61.2,
+      "initial_model_heat_mj_m3": 0.033875999999999996,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M2_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 82.44622566,
+      "header_heat_mj_m3": 82.4,
+      "initial_model_heat_mj_m3": 0.162756,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.288830276,
+      "header_heat_mj_m3": 73.3,
+      "initial_model_heat_mj_m3": 0.070992,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.62834362999999,
+      "header_heat_mj_m3": 73.6,
+      "initial_model_heat_mj_m3": 0.170316,
+      "tail_model_heat_mj_m3": 0.0
+    }
+  },
+  "weather_sha256": "426d1b2272ae95f3cd38066c66d3bb1f50cbafedc4918b63a6ab5d6b61d25edf",
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+  "code_sha256": "6d9ab3227a5b23040d794205d0b7b3eca3141e6a0c1b5bab088b30122dbced8c",
+  "numpy_version": "2.5.4"
+}

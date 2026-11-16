@@ -13,7 +13,7 @@ GAS_CONSTANT_J_MOL_K = 8.31446261815324
 REFERENCE_TEMPERATURE_K = 293.15
 
 
-def arrhenius_factor(temperature_c, activation_energy_j_mol):
+def arrhenius_factor(temperature_c, activation_energy_j_mol, reference_c=20.0):
     """d(te)/dt a referencia 20 °C; Ea en J/mol y R en J/(mol·K).
 
     No se recortan factores: temperaturas no físicas o desbordamientos se
@@ -22,11 +22,12 @@ def arrhenius_factor(temperature_c, activation_energy_j_mol):
     if (not np.isfinite(activation_energy_j_mol) or activation_energy_j_mol < 0):
         raise ValueError("Ea debe ser finita no negativa [J/mol]")
     kelvin = np.asarray(temperature_c, dtype=float)+273.15
-    if not np.all(np.isfinite(kelvin)) or np.any(kelvin <= 0):
+    reference_k = reference_c + 273.15
+    if not np.isfinite(reference_k) or reference_k <= 0 or not np.all(np.isfinite(kelvin)) or np.any(kelvin <= 0):
         raise ValueError("Arrhenius requiere temperaturas finitas mayores que -273.15 °C")
     with np.errstate(over="ignore", invalid="ignore"):
         factor = np.exp(-activation_energy_j_mol/GAS_CONSTANT_J_MOL_K
-                        *(1/kelvin-1/REFERENCE_TEMPERATURE_K))
+                        *(1/kelvin-1/reference_k))
     if not np.all(np.isfinite(factor)) or np.any(factor <= 0):
         raise ValueError("Factor de Arrhenius fuera del rango numérico")
     return factor
@@ -173,7 +174,8 @@ class ConstructionSolution:
 
 
 def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_j_mol=0.0,
-                       source_mask=None, initial_c=None, observe=None, observe_domain=None, event_times_s=()):
+                       source_mask=None, initial_c=None, observe=None, observe_domain=None, event_times_s=(),
+                       hydration_reference_c=20.0):
     """Euler en t_n con reloj de edad por celda y eventos exactos de colocación.
 
     dt_s es un máximo: se reduce por estabilidad, pulso/100 y eventos.
@@ -200,7 +202,7 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         raise ValueError("save_every debe ser entero positivo")
     if callable(p.source_w_m3) or np.any(np.asarray(p.source_w_m3) != 0):
         raise ValueError("Usar solo hidratación; source_w_m3 debe ser cero")
-    arrhenius_factor(np.array([20.0]), activation_energy_j_mol)
+    arrhenius_factor(np.array([20.0]), activation_energy_j_mol, hydration_reference_c)
     geometric = np.ones(p.shape, bool) if p.active is None else p.active
     poured = plan.vertida_id > 0
     if source_mask is None:
@@ -254,8 +256,9 @@ def solve_construction(p, plan, hydration, save_every=100, *, activation_energy_
         event = float(future[0]) if future.size else p.duration_s
         limit = min(c.general_dt_s, c.local_dt_s)*0.8 if c is not None else np.inf
         reacting = active & reactive
-        factor = arrhenius_factor(temperature[reacting], activation_energy_j_mol)
-        age_limit = hydration.duration_s/(100*max(1.0, float(factor.max()) if factor.size else 1.0))
+        factor = (arrhenius_factor(temperature[reacting], activation_energy_j_mol, hydration_reference_c)
+                  if activation_energy_j_mol else 1.0)
+        age_limit = hydration.duration_s / (100 * max(1.0, float(np.max(factor, initial=1.0))))
         end = min(time+p.dt_s, time+limit, time+age_limit, event, p.duration_s)
         if end <= time:
             raise ValueError("Paso temporal menor que la precisión del reloj")

@@ -59,6 +59,7 @@ class Parameters:
     active: np.ndarray | None = None
     source_w_m3: object = 0.0
     exposed: object = None
+    vertical_face_resistance_m2k_w: np.ndarray | None = None
 
     def __post_init__(self):
         counts = np.asarray(self.shape)
@@ -82,6 +83,11 @@ class Parameters:
             _evaluate(self.source_w_m3, 0.0)
         if self.exposed is not None:
             _check_any_boundary(self.exposed, "exposed")
+        if self.vertical_face_resistance_m2k_w is not None:
+            resistance = np.asarray(self.vertical_face_resistance_m2k_w, dtype=float)
+            if (counts.size != 3 or resistance.shape != (*self.shape[:2], self.shape[2]-1)
+                    or not np.isfinite(resistance).all() or np.any(resistance < 0)):
+                raise ValueError("La resistencia vertical debe ser finita, no negativa y definida por cara interna 3D")
 
     @property
     def spacing_m(self):
@@ -142,11 +148,14 @@ def effective_h(h_w_m2k, *resistances_m2k_w):
     return 0.0 if h_w_m2k == 0 else 1 / (1/h_w_m2k + sum(resistances_m2k_w))
 
 
-def _interface(active, lower, upper, k, geometric_factor, diagonal):
+def _interface(active, lower, upper, k, geometric_factor, diagonal, *, delta=None, resistance=None):
     """Una cara interna intercambia la misma potencia con signos opuestos."""
     # Dos medias celdas: media armónica; con material escalar no se altera la API.
     conductivity = k if np.isscalar(k) else 2 * k[lower] * k[upper] / (k[lower] + k[upper])
     g = conductivity * geometric_factor * (active[lower] & active[upper])
+    if resistance is not None:
+        # A/(Δ/k_armónica + R'') conserva la misma potencia en ambas celdas.
+        g /= 1 + conductivity * np.asarray(resistance) / delta
     diagonal[lower] += g
     diagonal[upper] += g
     return g
@@ -197,7 +206,8 @@ def prepare(p):
     gy = _interface(active, np.s_[:, :-1, ...], np.s_[:, 1:, ...], k, volume / spacing[1]**2, diagonal)
     gz = None
     if len(p.shape) == 3:
-        gz = _interface(active, np.s_[:, :, :-1], np.s_[:, :, 1:], k, volume / spacing[2]**2, diagonal)
+        gz = _interface(active, np.s_[:, :, :-1], np.s_[:, :, 1:], k, volume / spacing[2]**2, diagonal,
+                        delta=spacing[2], resistance=p.vertical_face_resistance_m2k_w)
     faces = []
     directions = []
     valid = {"x-", "x+", "y-", "y+"}

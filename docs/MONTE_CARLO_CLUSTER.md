@@ -1,4 +1,71 @@
-# Monte Carlo de E12 en el clúster
+# Monte Carlo final G8 (E13/E14)
+
+El flujo de decisión usa `scripts.final_mc` para congelar muestras y
+agregar resultados y `scripts.final_campaign` para resolver el balance
+térmico. `config/monte_carlo_final_g8.json` documenta los rangos, las
+fuentes y la semilla.
+
+## Ejecución local
+
+```sh
+ROOT=results/final/g8_20261119_mc
+python -m scripts.final_mc screen "$ROOT/screen"
+python -m scripts.final_campaign local "$ROOT/screen" --workers 8
+python -m scripts.final_mc aggregate "$ROOT/screen"
+python -m scripts.final_mc sample "$ROOT/base31" --shortlist "$ROOT/screen/shortlist.json"
+python -m scripts.final_campaign local "$ROOT/base31" --workers 8
+python -m scripts.final_mc aggregate "$ROOT/base31"
+```
+
+Para las sensibilidades, repetir los tres últimos comandos en directorios
+distintos con `--variant curves`, `--variant mix` o `--variant ea` en
+`sample`. Cada sensibilidad usa 100 realizaciones por plan con las mismas
+secuencias de clima, suelo, calor y colocación. La sensibilidad de curvas
+modifica el conjunto discreto a partir de la misma semilla.
+
+Si el lote base identifica una alternativa factible, preparar un lote
+independiente con `python -m scripts.final_mc confirm "$ROOT/confirm" --shortlist "$ROOT/screen/shortlist.json" --plan ID`.
+Ejecutarlo y agregarlo con los mismos comandos. El JSON fija la semilla
+de confirmación.
+
+## Job array y agregación en Slurm
+
+Después de preparar el lote, ejecutar desde la raíz del repositorio.
+
+```sh
+LOT=results/final/g8_20261119_mc/base31
+COUNT=$(python -c 'import json,sys; print(len(json.load(open(sys.argv[1],encoding="utf-8"))["jobs"]))' "$LOT/manifest.json")
+JOB=$(sbatch --parsable --array="0-$((COUNT-1))%8" scripts/final_campaign.slurm "$LOT")
+sbatch --dependency="afterok:${JOB%%;*}" --wrap="python -m scripts.final_mc aggregate '$LOT'"
+```
+
+Cada índice identifica un plan y una realización. El manifiesto congela
+las entradas, los índices, la versión de NumPy y las huellas del código,
+IFC, curvas y clima. El agregador exige un resultado compatible por índice
+antes de escribir `comparison.json`.
+
+## Tres mallas del escenario crítico
+
+Después de agregar el lote base, usar el identificador del candidato
+nuevo en la segunda variable. Cada salida conserva la realización
+completa y las coordenadas del máximo diferencial.
+
+```sh
+LOT=results/final/g8_20261119_mc/base31
+CANDIDATO=3h-12C-25mm-504h-direct
+for PLAN in C3 "$CANDIDATO"; do
+    for MALLA in 2 1 0.5; do
+        python -m scripts.final_mc_refinement "$LOT" --plan "$PLAN" --mesh "$MALLA"
+    done
+done
+python -m scripts.final_mc_refinement "$LOT"
+```
+
+Los factores 2, 1 y 0,5 corresponden a Δx de 0,50, 0,25 y 0,125 m.
+El paso máximo común es 600 s frente a 1200 s en el lote. El orden
+observado se informa si las diferencias decrecen monótonamente.
+
+## Flujo histórico E12
 
 El lote usa la geometría IFC, el pronóstico y el plan de tres vertidas de E12.
 Por muestra cambia la temperatura de colocación común a las tres capas y los

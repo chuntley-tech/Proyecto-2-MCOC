@@ -944,13 +944,33 @@ async function showDashboardExample(section){
 
 let plansCampaign, plansLoading=false;
 const percent=value=>`${num(value*100,1)} %`;
+function drawPlansMC(){
+  const period=$('plans-mc-period').value;
+  const rows=$('plans-mc-rows');
+  rows.replaceChildren();
+  const risk=value=>`${value.failures}/${value.n} · ${percent(value.p)} [${value.ci95.map(percent).join('–')}]`;
+  for(const plan of plansCampaign.plans){
+    const row=plan.statistics[period];
+    monteCarloRow(rows,[plan.id,num(plan.duration_h,2),num(row.tmax.p95,2),num(row.delta.p95,2),
+      risk(row.tmax),risk(row.delta),risk(row.joint),row.open_horizons??'—',
+      plan.feasible?'Cumple en el lote':'Sin cumplimiento demostrado']);
+  }
+}
+
 function drawPlanScenarios(){
   if(!plansCampaign)return;
   const plan=plansCampaign.plans.find(row=>row.id===$('plan-choice').value);
+  const stagedBlanket=stages=>stages.map(([hour,thickness])=>
+    `${num(hour/24,1)} d → ${num(thickness*1000,2)} mm`).join(' / ');
+  const protection=plan.blanket_stages
+    ? ` · ${plan.blanket_core_stages?'perímetro y costados':'manta superior y lateral'} · ${stagedBlanket(plan.blanket_stages)}`+
+      (plan.blanket_core_stages?` · cubierta central · ${stagedBlanket(plan.blanket_core_stages)}`:'')+
+      ` · R de subbase ${num(plan.subbase_r_m2k_w??0,2)} m²·K/W`
+    : ` · retiro de manta superior ${num(plan.top_remove_h,0)} h`+
+      (plan.side_blanket?` · manta lateral ${num((plan.side_blanket_m??0.025)*1000,0)} mm`:'');
   $('plan-schedule').textContent=plan.schedule.map(pour=>
     `V${pour.layer} · ${num(pour.start_h,2)}–${num(pour.finish_h,2)} h · ${num(pour.volume_m3,1)} m³`).join('  |  ')+
-    ` · desmolde ${num(plan.strip_h,0)} h · retiro de manta superior ${num(plan.top_remove_h,0)} h`+
-    (plan.side_blanket?` · manta lateral ${num((plan.side_blanket_m??0.025)*1000,0)} mm`:'');
+    ` · colocación a ${num(plan.placement_c??plansCampaign.config.placement_c,1)} °C · desmolde ${num(plan.strip_h,0)} h`+protection;
   $('plan-weather-checks').textContent=Object.entries(plan.climate_sensitivity??{}).map(([label,row])=>
     `${label} · ${row.failures}/${row.runs} fallas · T máx ${num(row.max_t_c,2)} °C · ΔT máx ${num(row.max_delta_c,2)} °C`).join(' | ');
   const rows=$('plan-scenarios');rows.replaceChildren();
@@ -967,8 +987,20 @@ function drawPlanScenarios(){
 
 function showPlans(bundle){
   const campaign=bundle.campaign;
+  if(campaign?.format==='mcoc-monte-carlo-v1'&&Array.isArray(campaign.plans)&&campaign.plans.length){
+    plansCampaign=campaign;
+    $('plans-results').classList.add('hidden');
+    $('plans-mc-results').classList.remove('hidden');
+    $('plans-status').textContent=campaign.selected
+      ? `Plan ${campaign.selected}: cumple en el lote ${campaign.phase==='confirm'?'de confirmación':'evaluado'}.`
+      : `Sin plan factible demostrado. Mejor alternativa relativa: ${campaign.best_relative}.`;
+    $('plans-mc-label').textContent=`Semilla ${campaign.seed} · ${campaign.weather_members.length} miembros · ${campaign.common_forecast_hours} h de pronóstico común`;
+    drawPlansMC();
+    return;
+  }
   if(campaign?.format!=='mcoc-final-v1'||!Array.isArray(campaign.plans)||!campaign.plans.length||
     !Array.isArray(campaign.scenarios))throw Error('El archivo no contiene una comparación G8.');
+  $('plans-mc-results').classList.add('hidden');
   const rows=$('plans-rows');rows.replaceChildren();
   for(const plan of campaign.plans){
     const primary=campaign.scenarios.filter(row=>row.plan===plan.id&&row.weight>0);
@@ -1036,6 +1068,7 @@ async function openDefaultPlans(){
   finally{plansLoading=false;}
 }
 $('plan-choice').addEventListener('change',drawPlanScenarios);
+$('plans-mc-period').addEventListener('change',drawPlansMC);
 $('plans-file').addEventListener('change',async event=>{
   const file=event.target.files[0];
   if(!file)return;

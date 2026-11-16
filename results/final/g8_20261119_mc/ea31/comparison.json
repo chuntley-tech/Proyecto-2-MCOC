@@ -1,0 +1,663 @@
+{
+  "format": "mcoc-monte-carlo-v1",
+  "manifest_sha256": "8681a8a83bd20c1ec5c7564fff58b0e27d42dc9717d76a6f086fa9c6f7ef0440",
+  "phase": "sample",
+  "variant": "ea",
+  "seed": 20261119,
+  "selected": null,
+  "best_relative": "3h-12C-25mm-504h-direct",
+  "plans": [
+    {
+      "id": "3h-12C-25mm-504h-direct",
+      "label": "3h-12C-25mm-504h-direct",
+      "fractions": [
+        0.0,
+        0.3333333333333333,
+        0.6666666666666666,
+        1.0
+      ],
+      "partition": "equal_height",
+      "wait_h": 6,
+      "placement_c": 12,
+      "strip_h": 96,
+      "top_remove_h": 504,
+      "side_blanket": true,
+      "blanket_stages": [
+        [
+          0,
+          0.025
+        ],
+        [
+          504,
+          0
+        ]
+      ],
+      "schedule": [
+        {
+          "layer": 1,
+          "start_h": 0.0,
+          "finish_h": 7.321875052899122,
+          "duration_h": 7.321875052899122,
+          "volume_m3": 292.8750021159649
+        },
+        {
+          "layer": 2,
+          "start_h": 13.321875052899122,
+          "finish_h": 17.05156257984539,
+          "duration_h": 3.729687526946267,
+          "volume_m3": 149.18750107785067
+        },
+        {
+          "layer": 3,
+          "start_h": 23.05156257984539,
+          "finish_h": 24.11031258749465,
+          "duration_h": 1.0587500076492629,
+          "volume_m3": 42.35000030597051
+        }
+      ],
+      "duration_h": 24.11031258749465,
+      "statistics": {
+        "day14": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 44.474977285491306,
+            "p50": 51.441634574884276,
+            "p95": 59.61103205633087
+          },
+          "delta": {
+            "failures": 96,
+            "n": 100,
+            "p": 0.96,
+            "ci95": [
+              0.9007428432873406,
+              0.9889955060138118
+            ],
+            "p05": 20.26420915121819,
+            "p50": 25.586080402774755,
+            "p95": 30.55870124922861
+          },
+          "joint": {
+            "failures": 96,
+            "n": 100,
+            "p": 0.96,
+            "ci95": [
+              0.9007428432873406,
+              0.9889955060138118
+            ]
+          },
+          "open_horizons": null
+        },
+        "day21": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 44.474977285491306,
+            "p50": 51.441634574884276,
+            "p95": 59.61103205633087
+          },
+          "delta": {
+            "failures": 96,
+            "n": 100,
+            "p": 0.96,
+            "ci95": [
+              0.9007428432873406,
+              0.9889955060138118
+            ],
+            "p05": 20.316918168408975,
+            "p50": 25.586080402774755,
+            "p95": 30.55870124922861
+          },
+          "joint": {
+            "failures": 96,
+            "n": 100,
+            "p": 0.96,
+            "ci95": [
+              0.9007428432873406,
+              0.9889955060138118
+            ]
+          },
+          "open_horizons": null
+        },
+        "final": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 44.474977285491306,
+            "p50": 51.441634574884276,
+            "p95": 59.61103205633087
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 23.575627443448283,
+            "p50": 28.243333299646913,
+            "p95": 33.404570646578875
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": 0
+        }
+      },
+      "feasible": false
+    },
+    {
+      "id": "C",
+      "label": "Tres vertidas con espera mínima",
+      "fractions": [
+        0,
+        0.3333333333333333,
+        0.6666666666666666,
+        1
+      ],
+      "wait_h": 6,
+      "strip_h": 96,
+      "top_remove_h": 336,
+      "side_blanket": true,
+      "schedule": [
+        {
+          "layer": 1,
+          "start_h": 0.0,
+          "finish_h": 7.321875052899122,
+          "duration_h": 7.321875052899122,
+          "volume_m3": 292.8750021159649
+        },
+        {
+          "layer": 2,
+          "start_h": 13.321875052899122,
+          "finish_h": 17.05156257984539,
+          "duration_h": 3.729687526946267,
+          "volume_m3": 149.18750107785067
+        },
+        {
+          "layer": 3,
+          "start_h": 23.05156257984539,
+          "finish_h": 24.11031258749465,
+          "duration_h": 1.0587500076492629,
+          "volume_m3": 42.35000030597051
+        }
+      ],
+      "duration_h": 24.11031258749465,
+      "statistics": {
+        "day14": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 52.25521796249567,
+            "p50": 59.41933692530655,
+            "p95": 67.69294093949634
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 29.07569772545575,
+            "p50": 34.42747630890688,
+            "p95": 40.70625171456416
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": null
+        },
+        "day21": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 52.25521796249567,
+            "p50": 59.41933692530655,
+            "p95": 67.69294093949634
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 30.99997410324577,
+            "p50": 36.54848870105347,
+            "p95": 42.02186774048055
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": null
+        },
+        "final": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 52.25521796249567,
+            "p50": 59.41933692530655,
+            "p95": 67.69294093949634
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 30.99997410324577,
+            "p50": 36.54848870105347,
+            "p95": 42.02186774048055
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": 0
+        }
+      },
+      "feasible": false
+    },
+    {
+      "id": "C3",
+      "label": "C con ambas medidas",
+      "fractions": [
+        0,
+        0.3333333333333333,
+        0.6666666666666666,
+        1
+      ],
+      "wait_h": 6,
+      "strip_h": 96,
+      "top_remove_h": 408,
+      "side_blanket": true,
+      "side_blanket_m": 0.05,
+      "schedule": [
+        {
+          "layer": 1,
+          "start_h": 0.0,
+          "finish_h": 7.321875052899122,
+          "duration_h": 7.321875052899122,
+          "volume_m3": 292.8750021159649
+        },
+        {
+          "layer": 2,
+          "start_h": 13.321875052899122,
+          "finish_h": 17.05156257984539,
+          "duration_h": 3.729687526946267,
+          "volume_m3": 149.18750107785067
+        },
+        {
+          "layer": 3,
+          "start_h": 23.05156257984539,
+          "finish_h": 24.11031258749465,
+          "duration_h": 1.0587500076492629,
+          "volume_m3": 42.35000030597051
+        }
+      ],
+      "duration_h": 24.11031258749465,
+      "statistics": {
+        "day14": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 52.25521796249567,
+            "p50": 59.41933692530655,
+            "p95": 67.69294093949634
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 29.07569772545575,
+            "p50": 34.42747630890688,
+            "p95": 40.70625171456416
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": null
+        },
+        "day21": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 52.25521796249567,
+            "p50": 59.41933692530655,
+            "p95": 67.69294093949634
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 29.21056445645408,
+            "p50": 34.71020675076933,
+            "p95": 40.70625171456416
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": null
+        },
+        "final": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 52.25521796249567,
+            "p50": 59.41933692530655,
+            "p95": 67.69294093949634
+          },
+          "delta": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ],
+            "p05": 29.21056445645408,
+            "p50": 34.71020675076933,
+            "p95": 40.70625171456416
+          },
+          "joint": {
+            "failures": 100,
+            "n": 100,
+            "p": 1.0,
+            "ci95": [
+              0.9637833073548236,
+              1.0
+            ]
+          },
+          "open_horizons": 0
+        }
+      },
+      "feasible": false
+    }
+  ],
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 600,
+    "dt_s": 1200,
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 33500,
+    "placement_c": 20,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "3h-12C-25mm-504h-direct",
+        "label": "3h-12C-25mm-504h-direct",
+        "fractions": [
+          0.0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ],
+        "partition": "equal_height",
+        "wait_h": 6,
+        "placement_c": 12,
+        "strip_h": 96,
+        "top_remove_h": 504,
+        "side_blanket": true,
+        "blanket_stages": [
+          [
+            0,
+            0.025
+          ],
+          [
+            504,
+            0
+          ]
+        ],
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      },
+      {
+        "id": "C",
+        "label": "Tres vertidas con espera mínima",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "wait_h": 6,
+        "strip_h": 96,
+        "top_remove_h": 336,
+        "side_blanket": true,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      },
+      {
+        "id": "C3",
+        "label": "C con ambas medidas",
+        "fractions": [
+          0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1
+        ],
+        "wait_h": 6,
+        "strip_h": 96,
+        "top_remove_h": 408,
+        "side_blanket": true,
+        "side_blanket_m": 0.05,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 7.321875052899122,
+            "duration_h": 7.321875052899122,
+            "volume_m3": 292.8750021159649
+          },
+          {
+            "layer": 2,
+            "start_h": 13.321875052899122,
+            "finish_h": 17.05156257984539,
+            "duration_h": 3.729687526946267,
+            "volume_m3": 149.18750107785067
+          },
+          {
+            "layer": 3,
+            "start_h": 23.05156257984539,
+            "finish_h": 24.11031258749465,
+            "duration_h": 1.0587500076492629,
+            "volume_m3": 42.35000030597051
+          }
+        ],
+        "duration_h": 24.11031258749465
+      }
+    ],
+    "assumptions": "Hora local, caudal, una bomba, espera mínima, colocación y protecciones son supuestos docentes, pendientes de confirmación de la pauta y del equipo. Las curvas son fuentes invertidas en tiempo de ensayo; se aplican por edad cronológica de colocación sin un ajuste de madurez adicional.",
+    "report_21d": true,
+    "mix": {
+      "density_kg_m3": 2476,
+      "specific_heat_j_kgk": 1023,
+      "conductivity_w_mk": 2.2
+    },
+    "hydration_reference_c": 20,
+    "common_forecast_hours": 165
+  },
+  "weather_members": [
+    "",
+    "_member01",
+    "_member02",
+    "_member03",
+    "_member04",
+    "_member05",
+    "_member06",
+    "_member07",
+    "_member08",
+    "_member09",
+    "_member10",
+    "_member11",
+    "_member12",
+    "_member13",
+    "_member14",
+    "_member15",
+    "_member16",
+    "_member17",
+    "_member18",
+    "_member19",
+    "_member20",
+    "_member21",
+    "_member22",
+    "_member23",
+    "_member24",
+    "_member25",
+    "_member26",
+    "_member27",
+    "_member28",
+    "_member29",
+    "_member30"
+  ],
+  "common_forecast_hours": 165,
+  "weather_sha256": "426d1b2272ae95f3cd38066c66d3bb1f50cbafedc4918b63a6ab5d6b61d25edf",
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "code_sha256": "6d9ab3227a5b23040d794205d0b7b3eca3141e6a0c1b5bab088b30122dbced8c",
+  "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44"
+}

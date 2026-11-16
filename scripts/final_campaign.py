@@ -106,6 +106,10 @@ def make_weather(config, member, tail_method="persistencia"):
     series = forecast_member(config["weather_snapshot"], member)
     if not series.start_s <= start <= series.end_s or start < to_epoch(meta["retrieved_at"]):
         raise ValueError("Se requiere un pronóstico disponible antes del inicio y con cobertura inicial")
+    if "common_forecast_hours" in config:
+        stop = np.searchsorted(series.time_s, start+config["common_forecast_hours"]*HOUR)
+        series = replace(series, time_s=series.time_s[:stop], origin=series.origin[:stop],
+                         **{field:getattr(series,field)[:stop] for field in FIELDS})
     return fill_tail(series, start, config["max_hours"]/24, method=tail_method), start
 
 
@@ -156,6 +160,10 @@ def weather_sensitivity(main, ranked):
 
 def read_campaign(path):
     config = mc.read_json(path)
+    return resolve_campaign(config)
+
+
+def resolve_campaign(config):
     start = to_epoch(config["start_utc"])
     if not (to_epoch("2026-11-19T03:00Z") <= start < to_epoch("2026-11-20T03:00Z")):
         raise ValueError("t0 debe pertenecer al jueves 19 de noviembre en Santiago")
@@ -164,11 +172,31 @@ def read_campaign(path):
         raise ValueError("Se requieren 14 días base y un horizonte ampliado posterior")
     geometry = voxels(1)
     for plan in config["plans"]:
-        plan["schedule"] = schedule(plan, config, reference_volumes(plan, config, geometry))
+        volumes = reference_volumes(plan, config, geometry)
+        if plan.get("partition") == "equal_volume":
+            volumes = [sum(volumes)/len(volumes)]*len(volumes)
+        plan["schedule"] = schedule(plan, config, volumes)
         plan["duration_h"] = plan["schedule"][-1]["finish_h"]
+        subbase_resistance = plan.get("subbase_r_m2k_w", 0)
+        if not np.isfinite(subbase_resistance) or subbase_resistance < 0:
+            raise ValueError(f"Plan {plan['id']}: resistencia de subbase inválida")
         if not (plan["duration_h"] <= min(plan["strip_h"], plan["top_remove_h"]) and
                 max(plan["strip_h"], plan["top_remove_h"], plan["duration_h"]) + 72 <= config["max_hours"]):
             raise ValueError(f"Plan {plan['id']}: protección o horizonte incompatible con la colocación")
+        if "blanket_core_stages" in plan and "blanket_stages" not in plan:
+            raise ValueError(f"Plan {plan['id']}: la protección central requiere una periférica")
+        for region in ("blanket_stages", "blanket_core_stages"):
+            if region not in plan:
+                continue
+            stages = np.asarray(plan[region], dtype=float)
+            if stages.ndim != 2 or stages.shape[0] < 2 or stages.shape[1] != 2:
+                raise ValueError(f"Plan {plan['id']}: se requieren pares de hora y espesor")
+            times, thicknesses = stages.T
+            if (not np.isfinite([times, thicknesses]).all() or times[0] != 0
+                    or times[-1] != plan["top_remove_h"] or np.any(np.diff(times) <= 0)
+                    or thicknesses[-1] != 0 or np.any(thicknesses[:-1] <= 0)
+                    or np.any(np.diff(thicknesses) > 0)):
+                raise ValueError(f"Plan {plan['id']}: etapas de manta inválidas")
     return config
 
 
@@ -184,18 +212,33 @@ def temperature_rising(history, horizon):
 def simulate(job, config, env, *, capture=False):
     began = perf_counter()
     plan = next(p for p in config["plans"] if p["id"] == job["plan"])
+    if "placement_c" in job:
+        plan = {**plan, "placement_c": job["placement_c"]}
     climate = job["climate"]
     series, start = make_weather(config, climate["member"], climate.get("tail_method", "persistencia"))
     curves, _ = load_curves(SOURCE, offset_h=config["offset_h"], tail_h=config["tail_h"])
     env = deepcopy(env)
+    env["concrete"].update(config.get("mix", {}))
+    if "soil_c" in job:
+        env["soil"]["deep_temperature_c"] = job["soil_c"]
+    hydration = curves[job["curve"]]
+    if "heat_factor" in job:
+        hydration = replace(hydration, source_w_m3=hydration.source_w_m3*job["heat_factor"])
     env["formwork"].update(strip_after_h=plan["strip_h"], blanket_after_strip=plan["side_blanket"],
                            use_bare_absorptance=True)
     if "side_blanket_m" in plan:
         env["formwork"]["blanket_thickness_m"] = plan["side_blanket_m"]
     env["insulation"]["remove_after_h"] = plan["top_remove_h"]
+    protection_keys = ("blanket_stages", "blanket_core_stages")
+    env["insulation"].update({key: plan[key] for key in protection_keys if key in plan})
+    if "subbase_r_m2k_w" in plan:
+        env["soil"]["subbase_r_m2k_w"] = plan["subbase_r_m2k_w"]
     baseline, maximum_h = config["hours"], config["max_hours"]
     last_event = max(plan["duration_h"], plan["strip_h"], plan["top_remove_h"])
     first_h = baseline if last_event+72 <= baseline else maximum_h
+    day21 = config.get("report_21d", False)
+    if day21:
+        first_h = maximum_h
     critical_fields = {}
     protection_samples = []
 
@@ -205,7 +248,7 @@ def simulate(job, config, env, *, capture=False):
         monitor = CriticalTemperatures(concrete, model["origin_m"], p.spacing_m)
         placement = progressive_plan(model, plan, config)
         pour_cells = [np.flatnonzero(placement.vertida_id == row["layer"]) for row in plan["schedule"]]
-        base = {}
+        checkpoints = {336: {}, 504: {}} if day21 else {baseline: {}}
         core_cell = weather_3d.locate_core_and_surface(model)["core"] if capture else None
         last_hour = -1
         near_removal = (plan["top_remove_h"]*HOUR - job["dt"], plan["top_remove_h"]*HOUR,
@@ -225,21 +268,24 @@ def simulate(job, config, env, *, capture=False):
                 monitor.hourly[hour]["core_c"] = float(temperature[core_cell]) if active[core_cell] else None
             if capture and time in near_removal and monitor.snapshot is not None:
                 protection_samples.append(monitor.snapshot)
-            if time <= baseline*HOUR:
-                base.update(tmax=monitor.tmax, delta=monitor.delta)
+            for checkpoint, peaks in checkpoints.items():
+                if time <= checkpoint*HOUR:
+                    peaks.update(tmax=monitor.tmax, delta=monitor.delta)
             if capture:
                 for key, previous in (("tmax",previous_hot), ("delta",previous_delta)):
                     if getattr(monitor,key) is not previous:
                         critical_fields[key] = np.where(active, temperature, np.nan).astype(np.float32)
 
         # Forzar exactamente t=336 h y los cambios de protección.
-        events = (baseline*HOUR, plan["strip_h"]*HOUR, plan["top_remove_h"]*HOUR)
+        events = (*(checkpoint*HOUR for checkpoint in checkpoints), plan["strip_h"]*HOUR, plan["top_remove_h"]*HOUR,
+                  *(hour*HOUR for key in protection_keys for hour, _ in plan.get(key, ())))
         result = solve_construction(replace(p, dt_s=job["dt"]), placement,
-                                    curves[job["curve"]], save_every=2**31,
+                                    hydration, save_every=2**31,
                                     activation_energy_j_mol=config["activation_energy_j_mol"],
+                                    hydration_reference_c=config.get("hydration_reference_c", 20.0),
                                     source_mask=concrete, initial_c=np.full(p.shape, env["soil"]["deep_temperature_c"]),
                                     observe_domain=observe, event_times_s=(*events, *near_removal))
-        return model, monitor, result, base
+        return model, monitor, result, checkpoints
 
     hours = first_h
     model, monitor, result, base = run(hours)
@@ -255,13 +301,17 @@ def simulate(job, config, env, *, capture=False):
               for k in sorted(set(series.origin))}
     saved_interval = float(np.max(np.diff(result.time_s)))
     row = {**job, "ifc_sha256": ifc, "weather_sha256": series.snapshot["sha256"], "hours": hours,
-           "baseline": base, "tmax": monitor.tmax, "delta": monitor.delta, "horizon_open": bool(open_peak),
+           "baseline": base[baseline], "tmax": monitor.tmax, "delta": monitor.delta, "horizon_open": bool(open_peak),
            "weather_hours": counts, "grid_spacing_m": model["spacing_m"].tolist(),
            "steps": result.step_count, "dt_mean_s": hours*HOUR/result.step_count,
            "run_seconds": perf_counter()-began,
            "max_saved_interval_s": saved_interval,
            "energy_error_relative": float(np.max(np.abs(result.energy_balance_error_j))/
                                           max(1, np.max(np.abs(result.energy_j))))}
+    if day21:
+        row["day21"] = base[504]
+    if day21:
+        row["voxel_pour_volumes_m3"] = reference_volumes(plan, config, voxels(job["mesh"]))
     if capture:
         row["protection_samples"] = protection_samples
         return row, model, monitor, critical_fields
@@ -333,6 +383,8 @@ def task(out, index):
         return saved
     if mc.digest(SOURCE)!=manifest["source_sha256"] or mc.code_fingerprint()!=manifest["code_sha256"]:
         raise ValueError("Cambió el código o la fuente de hidratación de la campaña")
+    if manifest.get("numpy_version", np.__version__) != np.__version__:
+        raise ValueError("La versión de NumPy cambió")
     row = simulate(manifest["jobs"][index], manifest["config"], manifest["environment"])
     if row["ifc_sha256"]!=manifest["ifc_sha256"] or row["weather_sha256"]!=manifest["weather_sha256"]:
         raise ValueError("Cambió el IFC o el pronóstico de la campaña")
@@ -384,7 +436,7 @@ def main():
     parser.add_argument("action", choices=("prepare","run","local","aggregate","verify"))
     parser.add_argument("output",type=Path)
     parser.add_argument("--config",type=Path,default=CONFIG)
-    parser.add_argument("--mesh",type=float,choices=(1,2),default=1)
+    parser.add_argument("--mesh",type=float,choices=(.5,1,2),default=1)
     parser.add_argument("--index",type=int,default=0)
     parser.add_argument("--workers",type=int,default=4)
     args=parser.parse_args()

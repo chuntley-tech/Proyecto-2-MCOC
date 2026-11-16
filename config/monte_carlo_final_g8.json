@@ -1,0 +1,39 @@
+{
+  "seed": 20261119,
+  "confirmation_seed": 20261219,
+  "samples": 100,
+  "sensitivity_samples": 100,
+  "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+  "minimum_common_forecast_hours": 72,
+  "dt_s": 1200,
+  "mesh": 2,
+  "end_h": 600,
+  "mix": {"density_kg_m3": 2476, "specific_heat_j_kgk": 1023, "conductivity_w_mk": 2.2},
+  "mix_sensitivity": {"density_kg_m3": 2400, "specific_heat_j_kgk": 900},
+  "hydration_reference_c": 20,
+  "activation_energy_sensitivity_j_mol": 33500,
+  "uniform": {"heat_factor": [0.84, 1.20], "placement_offset_c": [-2, 2], "soil_c": [8, 12]},
+  "screen": {
+    "placement_c": [12, 14, 16, 20],
+    "blanket_mm": [25, 50, 100],
+    "removal_h": [336, 408, 504],
+    "partitions": ["3h", "3v", "4h", "5h"],
+    "removal_modes": ["direct", "staged"],
+    "curve": "M4_SS",
+    "member": "_member14",
+    "heat_factor": 1,
+    "soil_c": 10,
+    "nominees": 1
+  },
+  "sources": {
+    "curve": "Uniforme discreta M1–M4_SS, y sensibilidad independiente con las ocho curvas de source_terms.txt.",
+    "weather": "Uniforme discreta entre todos los miembros completos en la ventana común posterior a t0.",
+    "heat_factor": "HIPÓTESIS: escalamiento lineal de Q(t) a partir de la sensibilidad del total a beta en la cabecera.",
+    "placement_offset_c": "HIPÓTESIS: variabilidad uniforme en torno a la temperatura nominal de cada plan.",
+    "soil_c": "HIPÓTESIS: rango de temperatura inicial y profunda, sin medición del sitio.",
+    "mix": "Densidad y calor específico de probeta en source_terms.txt. HIPÓTESIS: transferibles a la fundación; conductividad docente.",
+    "hydration_reference_c": "HIPÓTESIS: temperatura de referencia de 20 °C para Arrhenius.",
+    "placement_c_12_14": "HIPÓTESIS: preenfriamiento de materiales con agua fría o hielo. Capacidad de obra por verificar.",
+    "independence": "HIPÓTESIS: independencia entre curvas, clima, factor de calor, colocación y suelo."
+  }
+}

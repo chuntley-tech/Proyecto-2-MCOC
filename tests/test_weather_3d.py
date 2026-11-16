@@ -10,6 +10,8 @@ import pytest
 
 from scripts import view_3d, weather_3d
 from thermal3d.vtk_export import read_vti
+from thermal3d.solver import prepare
+from weather.series import HOUR, synthetic_series
 from weather.open_meteo import build_request
 from weather.snapshots import save_snapshot
 
@@ -131,3 +133,37 @@ def test_pyvista_surfaces_keep_active_frame_indices():
             assert np.all(vertices[face] >= low)
             assert np.all(vertices[face] <= low + spacing)
         assert len(surface["triangles"]) == 20  # Dos voxeles juntos, diez caras expuestas.
+
+
+def test_progressive_blankets_and_subbase_resistance(tmp_path):
+    config = _config(tmp_path)
+    config["insulation"]["blanket_stages"] = [[0, .10], [120, .05], [240, 0]]
+    config["soil"]["subbase_r_m2k_w"] = 2.5
+    geometry = (np.ones((2, 2, 2)), np.array([.5, .5, .55]), np.zeros(3), "test")
+    model = weather_3d.build_model(config, synthetic_series(0, days=12), 0, 264, voxels=geometry)
+    top, side = model["faces"]["top"], model["faces"]["side"]
+    assert top.layers.resistance_at(0) == pytest.approx(.10/.04)
+    assert side.layers.resistance_at(0) == pytest.approx(.10/.04 + .018/.13)
+    assert side.layers.resistance_at(72*HOUR) == pytest.approx(.10/.04)
+    assert side.layers.resistance_at(120*HOUR) == top.layers.resistance_at(120*HOUR) == pytest.approx(.05/.04)
+    assert side.layers.resistance_at(240*HOUR) == top.layers.resistance_at(240*HOUR) == 0
+    params = model["p"]
+    resistance = params.vertical_face_resistance_m2k_w
+    assert np.count_nonzero(resistance) == 4
+    area = .5*.5
+    expected = area / (.55/(2*1.39) + .55/(2*2.2) + 2.5)
+    assert prepare(params).gz[resistance > 0] == pytest.approx(np.repeat(expected,4))
+
+
+def test_central_blanket_uses_thicker_voxel_columns(tmp_path):
+    config = _config(tmp_path)
+    config["insulation"].update(blanket_stages=[[0,.15],[240,0]], blanket_core_stages=[[0,.05],[240,0]])
+    component = np.ones((2,2,4))
+    component[1,:,2:] = 0
+    geometry = (component, np.array([.5,.5,.55]), np.zeros(3), "test")
+    model = weather_3d.build_model(config, synthetic_series(0,days=12), 0, 264, voxels=geometry)
+    regions = {region.name: region for region in model["p"].exposed.regions}
+    central, edge = regions["superior central"], regions["superior periférica"]
+    assert central.cells.sum() == 8 and edge.cells.sum() == 4
+    assert central.boundary.layers.resistance_at(0) == pytest.approx(.05/.04)
+    assert edge.boundary.layers.resistance_at(0) == pytest.approx(.15/.04)

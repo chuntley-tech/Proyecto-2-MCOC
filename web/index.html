@@ -224,6 +224,16 @@
   <section id="panel-plans" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-plans">
     <h1>Comparación de planes G8</h1>
     <p id="plans-status" class="project-intro" role="status">Cargando la campaña guardada…</p>
+    <section id="plans-mc-results" class="card hidden">
+      <div class="card-heading"><div><h2>Estimación Monte Carlo</h2><p id="plans-mc-label"></p></div>
+        <label>Horizonte <select id="plans-mc-period"><option value="final">Final</option><option value="day21">21 días</option><option value="day14">14 días</option></select></label>
+      </div>
+      <div class="table-scroll"><table class="project-table">
+        <thead><tr><th>Plan</th><th>Duración [h]</th><th>T máx p95 [°C]</th><th>ΔT p95 [°C]</th><th>T &gt; 70 °C · IC 95 %</th><th>ΔT &gt; 20 °C · IC 95 %</th><th>Unión · IC 95 %</th><th>Horizontes abiertos</th><th>Estado final</th></tr></thead>
+        <tbody id="plans-mc-rows"></tbody>
+      </table></div>
+      <p class="scope-note">Cumplimiento final con al menos 100 muestras, horizontes cerrados y cota superior del IC conjunto ≤ 5 %.</p>
+    </section>
     <div id="plans-results" class="hidden">
       <section class="card">
         <div class="card-heading"><div><h2>Duración y riesgo térmico</h2><p id="plans-assumptions"></p></div></div>

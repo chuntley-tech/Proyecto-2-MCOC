@@ -76,8 +76,8 @@ $$
   Al agregar hormigón, la cara que pasa a tener vecino activo se convierte
   en interfaz interna. El diferencial usa la máxima y la mínima a 25 mm
   del mismo estado. La aproximación se contrasta con malla refinada.
-- **Horizonte.** Se registra el máximo en 336 h y, cuando corresponde, en
-  hasta 504 h. Se amplía cuando la última vertida o el último retiro deja
+- **Horizonte.** Se registra el máximo en 336 h y, cuando corresponde, hasta
+  el horizonte ampliado de la campaña. Se amplía cuando la última vertida o el último retiro deja
   menos de 72 h, el pico cae en el último día, o la envolvente horaria de
   máximos de un día al siguiente sube más de 0,05 °C. Se comprueban también
   los máximos de cada vertida en esta última condición. Si el criterio sigue activado al
@@ -204,6 +204,196 @@ a 137,5 mm. La tabla del visor muestra también el mínimo superficial
 antes y después del retiro. Su ubicación puede cambiar entre instantes.
 [`verification.json`](../results/final/g8_20261119_ampliada/verification.json)
 
+## Búsqueda de un plan bajo el 5 %
+
+La búsqueda mantiene el IFC, el volumen, una bomba de 40 m³/h, el criterio
+de temperatura y diferencial, las fuentes de hidratación y los pesos.
+Cada piloto se evaluó con M4_SS y el miembro 14 en la malla de
+0,50 × 0,50 × 0,55 m y con un paso máximo de 600 s. Un piloto permite
+comparar variantes. El riesgo sólo se calcula en la enumeración completa.
+Se registraron 29 corridas piloto. Entre los casos con retiro al día 105,
+S7 conserva los 16 °C de colocación del ejemplo de entorno y deja margen
+frente al umbral del diferencial en el piloto.
+
+La primera familia probó mantas y retiro escalonado. La segunda incorporó
+una resistencia de contacto entre hormigón y suelo. La tercera separó la
+cubierta central, sobre columnas de hormigón voxelizado de al menos 2 m,
+de la cubierta periférica y los costados. La subbase se representa con
+una resistencia de área $R''$ en serie con las dos medias celdas, que
+reduce el flujo por la interfaz sin cambiar el volumen ni las propiedades
+del hormigón. Las mantas conservan la conductividad docente de
+0,04 W/(m·K). En los costados se suma la resistencia del moldaje hasta
+desmoldar.
+
+$$
+G_{\mathrm{suelo,hormigón}}=
+\frac{A}{\Delta z/(2k_{\mathrm{suelo}})+R''+\Delta z/(2k_{\mathrm{hormigón}})}.
+$$
+
+[Cribado de variantes](../results/final/g8_20261119_proteccion/cribado.csv) ·
+[Configuración del candidato S7](../config/final_g8_proteccion.json)
+
+S7 coloca a 16 °C en una operación continua. Su resistencia de subbase
+es 2,50 m²·K/W. Las mantas de perímetro y costados empiezan con 175 mm
+efectivos y la cubierta central con 45 mm. Las dos protecciones se
+disminuyen los días 35, 60, 80 y 95, y se retiran el día 105 desde t₀.
+Se conserva la ventana base de 14 días y se simula hasta el día 110,
+incluidos cinco días tras el retiro total. Los espesores son valores
+térmicos equivalentes, con una hipótesis de contacto continuo entre capas.
+
+### Resultado de S7
+
+S7 coloca **484,41 m³ en 12,11 h**. El riesgo conjunto estimado fue
+**0 %**, con cero fallas en los 12 escenarios principales. Las dos
+probabilidades marginales y el riesgo a 14 días fueron 0 %. Al ampliar
+de cuatro a ocho curvas de hidratación, el resultado fue 0 de 24.
+
+| Conjunto | Corridas | Temperatura máxima [°C] | Diferencial máximo a 14 días [°C] | Diferencial máximo hasta 110 días [°C] |
+| --- | ---: | ---: | ---: | ---: |
+| Cálculo principal | 12 | 61,22 | 14,39 | 16,65 |
+| Ocho curvas con los tres miembros principales | 24 | 61,22 | 14,39 | 16,65 |
+| Lote completo, incluidas sensibilidades climáticas | 36 | 61,24 | 15,51 | 17,81 |
+
+El diferencial principal de 16,65 °C ocurrió a las 2541,5 h,
+21,5 h después del retiro final. De las 2640 h simuladas, 165 h
+proceden directamente del pronóstico y 2475 h se completan con el
+escenario meteorológico de cola. [Resultados del lote](../results/final/g8_20261119_proteccion/comparison.json)
+
+El retiro a 105 días y la resistencia de subbase son parte del caso
+evaluado. En obra, la subbase requeriría verificación estructural y
+geotécnica, y la protección requeriría materiales disponibles, medición
+térmica y un programa de retiro validado. Más allá del tramo original
+del pronóstico, se repiten historias del ensamble a modo de escenario
+docente. La persistencia durante varios meses limita la interpretación
+de la probabilidad. En la verificación fina de S7 el escenario principal
+crítico alcanzó 61,33 °C y 17,25 °C de diferencial.
+
+La sensibilidad que repite el bloque meteorológico de 72 horas exige
+comparar máximos de ciclos completos para distinguir un aumento térmico
+de las diferencias entre días dentro del bloque. Se extendieron sus
+cuatro corridas a 2784 h (116 días), conservando la misma historia y
+comparando los dos últimos bloques de 72 h. Un caso se cierra si las
+envolventes comparadas de máxima, diferencial y máxima por vertida no
+aumentan más de 0,05 °C y los máximos globales quedan fuera del último
+bloque. Esta comprobación lleva peso cero en la probabilidad principal.
+Los cuatro casos cerraron y el diferencial máximo se mantuvo en 17,81 °C.
+[Comprobación de los ciclos completos](../results/final/g8_20261119_proteccion/cierre_bloque72.csv)
+
+## Monte Carlo unificado E13/E14
+
+El lote usa el mismo solver, IFC, suelo, protecciones, activación
+progresiva y fuente volumétrica tabulada que la campaña final. Para
+este lote el hormigón usa $\rho=2476$ kg/m³ y $c_p=1023$ J/(kg·K),
+según la cabecera de las probetas. Se supone que son transferibles a la
+fundación. La sensibilidad usa 2400 kg/m³ y 900 J/(kg·K).
+A calor volumétrico igual, 2400/900 aumenta aproximadamente un 17,3 %
+el alza adiabática respecto de 2476/1023. La sensibilidad Arrhenius usa
+$E_a=33500$ J/mol y 20 °C de referencia (**HIPÓTESIS**).
+
+Las muestras combinan curvas SS, integrantes del ensamble, escala
+volumétrica de calor, temperatura de colocación y temperatura profunda
+del suelo. Las 31 trayectorias (30 numeradas y el control) tienen 165 h
+completas en común desde el inicio de obra. Se conserva la asociación de aire, viento y radiación
+de cada miembro y se aplica la cola de persistencia después de la
+ventana común. Los rangos, las semillas y las hipótesis de independencia
+están en el [JSON de Monte Carlo](../config/monte_carlo_final_g8.json).
+[Documentación del ensamble de Open-Meteo](https://open-meteo.com/en/docs/ensemble-api)
+
+El cribado congela 288 planes cruzando temperaturas, espesores,
+tiempos de retiro, particiones y dos modalidades. Las mantas cubren
+superior y lateral desde la colocación. En retiro escalonado se deja
+la mitad del espesor las últimas 48 h. La partición de igual volumen
+interpola el volumen acumulado en la malla de 0,125 m para ubicar
+los cortes. Para el cronograma se divide en tres el volumen de
+referencia de 484,41 m³. El volumen asignado a cada tramo por centros
+de celda se registra por corrida y depende de la resolución.
+
+Se simulan sin alterar su cronograma las referencias C y C3. El
+cribado usa la curva M4_SS, el miembro 14, el calor nominal y suelo
+a 10 °C. Ordena por horizonte cerrado, menor exceso en °C respecto
+del umbral que más se supera, menor duración y diferencial. El primer
+candidato nuevo, C y C3 conforman la lista corta. El cribado aporta
+una clasificación determinista previa, con la probabilidad estimada
+sólo en el lote Monte Carlo.
+
+Se conservan cortes a 336 y 504 h. La campaña usa un horizonte final de
+600 h, cuatro días después del último retiro posible de esta familia.
+Las 435 h posteriores a la ventana común se modelan por persistencia.
+Un horizonte abierto impide declarar cumplimiento. Se reportan p05,
+p50, p95, conteos enteros e IC bilaterales exactos de Clopper–Pearson
+del 95 % para ambas marginales y la unión. La decisión exige una cota
+superior del IC de unión ≤ 5 % y al menos 100 corridas.
+[Comandos locales y Slurm](MONTE_CARLO_CLUSTER.md)
+
+### Resultados del lote base
+
+| Plan | Duración [h] | T máxima p95 [°C] | ΔT p95 [°C] | Fallas conjuntas e IC 95 % final |
+| --- | ---: | ---: | ---: | ---: |
+| Tres capas de igual altura, 12 °C, manta de 25 mm, retiro a 504 h | 24,11 | 57,07 | 33,55 | 100/100 [96,38 %–100 %] |
+| C | 24,11 | 64,55 | 42,28 | 100/100 [96,38 %–100 %] |
+| C3 | 24,11 | 64,55 | 39,19 | 100/100 [96,38 %–100 %] |
+
+El lote de 300 muestras deja los tres planes fuera del 5 %. La mejor
+alternativa relativa excede el límite del diferencial en 13,55 °C en
+el p95 final. Ese plan tenía 95 fallas de 100 a los 14 y 21 días, y 100
+al extender a 600 h. La temperatura de 12 °C es nominal. Con la
+variabilidad adoptada, la colocación de ese plan abarca 10–14 °C.
+
+El cribado prescrito usa al miembro 14, por lo que la incorporación de
+la trayectoria de control al muestreo no cambia sus corridas. En el
+lote base se conservaron resultados preliminares sólo al coincidir
+todas las entradas físicas y el índice de realización. La
+[trazabilidad del reuso](../results/final/g8_20261119_mc/base31/reuse.json)
+registra ambas huellas de manifiesto y los índices conservados.
+[Cribado completo](../results/final/g8_20261119_mc/screen/screen.csv) ·
+[Comparación del lote base](../results/final/g8_20261119_mc/base31/comparison.json)
+
+### Sensibilidades
+
+Cada variante se evaluó con 100 muestras por plan.
+
+| Sensibilidad | Fallas conjuntas del candidato nuevo | Fallas conjuntas de C | Fallas conjuntas de C3 |
+| --- | ---: | ---: | ---: |
+| Ocho curvas de hidratación | 84/100 | 100/100 | 100/100 |
+| Densidad y calor específico 2400/900 | 100/100 | 100/100 | 100/100 |
+| Arrhenius con 33 500 J/mol | 100/100 | 100/100 | 100/100 |
+
+Con 2400/900, C y C3 alcanzaron 71,48 °C de temperatura máxima p95
+y acumularon 10 excedencias de 70 °C por plan. Con Arrhenius,
+ambas referencias alcanzaron 67,69 °C de temperatura máxima p95
+y el diferencial produjo todas las fallas del lote.
+[Ocho curvas](../results/final/g8_20261119_mc/curves31/comparison.json) ·
+[Propiedades 2400/900](../results/final/g8_20261119_mc/mix31/comparison.json) ·
+[Arrhenius](../results/final/g8_20261119_mc/ea31/comparison.json)
+
+### Comprobación con tres mallas
+
+El mayor diferencial del lote base para C3 y el candidato nuevo
+correspondió a la realización 30 en ambos planes. Se reprodujo esa
+realización en tres mallas con paso máximo común de 600 s.
+
+| Plan | Δx [m] | T máxima [°C] | ΔT máxima [°C] |
+| --- | ---: | ---: | ---: |
+| C3 | 0,50 / 0,25 / 0,125 | 65,770 / 66,013 / 66,026 | 40,742 / 38,288 / 38,430 |
+| Candidato nuevo | 0,50 / 0,25 / 0,125 | 58,280 / 58,540 / 58,551 | 34,710 / 34,946 / 35,946 |
+
+Para temperatura máxima, los órdenes observados son 4,19 y 4,65,
+con extrapolaciones de 66,027 y 58,551 °C, respectivamente.
+Son ajustes de estas tres corridas. El diferencial de C3 cambia de
+sentido y el del candidato nuevo presenta diferencias crecientes al
+refinar. En ambos casos queda sin orden útil ni extrapolación de
+Richardson para el diferencial.
+
+Las caras frías reconstruidas miran hacia arriba y cambian de ubicación
+entre mallas. En la más fina, las caras voxelizadas de C3 y del candidato
+nuevo quedan respectivamente a 56 y 44 mm de la superficie triangulada
+del IFC, y a 211 y 86 mm de sus vértices IFC de malla más cercanos.
+En C3 la cara fina aproxima la transición inclinada. En el candidato
+nuevo queda junto al hombro horizontal del zócalo. Estos desplazamientos
+son coherentes con la representación escalonada y explican por qué la
+temperatura reconstruida a 25 mm es sensible a la malla.
+[Resultados de refinamiento](../results/final/g8_20261119_mc/base31/refinement.json)
+
 ## Ejecutar
 
 Editar una copia de `config/final_g8.json` y usar un directorio de campaña
@@ -215,6 +405,10 @@ python -m scripts.final_campaign local results/final/alternativa --workers 4
 python -m scripts.final_campaign aggregate results/final/alternativa
 python -m scripts.final_campaign verify results/final/alternativa
 ```
+
+Para reproducir el candidato con protección por zonas, usar
+`--config config/final_g8_proteccion.json` en `prepare` y un directorio
+propio para este lote. El resto de los comandos es el mismo.
 
 `prepare --mesh 2` permite usar una malla de 0,50 m en la campaña local.
 En ese caso `verify` refina el escenario examinado a la malla de

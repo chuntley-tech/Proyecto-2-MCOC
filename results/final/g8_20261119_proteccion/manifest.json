@@ -1,0 +1,1143 @@
+{
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 2640,
+    "dt_s": 600,
+    "verification_refinements": "combined",
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 16,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "S7",
+        "label": "Una vertida con subbase térmica y retiro escalonado",
+        "fractions": [
+          0,
+          1
+        ],
+        "start_h": [
+          0
+        ],
+        "strip_h": 72,
+        "top_remove_h": 2520,
+        "side_blanket": true,
+        "subbase_r_m2k_w": 2.5,
+        "blanket_stages": [
+          [
+            0,
+            0.175
+          ],
+          [
+            840,
+            0.115
+          ],
+          [
+            1440,
+            0.06
+          ],
+          [
+            1920,
+            0.025
+          ],
+          [
+            2280,
+            0.009
+          ],
+          [
+            2520,
+            0
+          ]
+        ],
+        "blanket_core_stages": [
+          [
+            0,
+            0.045
+          ],
+          [
+            840,
+            0.035
+          ],
+          [
+            1440,
+            0.02
+          ],
+          [
+            1920,
+            0.0125
+          ],
+          [
+            2280,
+            0.00625
+          ],
+          [
+            2520,
+            0
+          ]
+        ],
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 12.110312587494652,
+            "duration_h": 12.110312587494652,
+            "volume_m3": 484.4125034997861
+          }
+        ],
+        "duration_h": 12.110312587494652
+      }
+    ],
+    "assumptions": "Una bomba, caudal, colocación a 16 °C, resistencias y protecciones son hipótesis docentes. La subbase requiere revisión estructural, disponibilidad de material y caracterización térmica. La meteorología se completa por persistencia después de las horas disponibles del ensamble.",
+    "start_local": "2026-11-19T08:00:00-03:00"
+  },
+  "environment": {
+    "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+    "site": {
+      "latitude": -41.222539,
+      "longitude": -73.295603,
+      "source": "config/case_g8.json (punto meteorológico docente, Llanquihue)"
+    },
+    "construction": {
+      "start_local": "2026-11-27T04:00",
+      "timezone": "America/Santiago",
+      "start_utc": "2026-11-27T07:00Z",
+      "days_after_start": 14,
+      "note": "Inicio tomado del ejemplo de la guía G08. Se supone hora local de Chile (UTC−3 en noviembre, horario de verano)."
+    },
+    "weather": {
+      "snapshot_root": "data/weather",
+      "decision_time_utc": null,
+      "tail_method": "auto",
+      "note": "decision_time_utc = null usa la hora actual como corte. Si falta parte del pronóstico al final, auto usa reanálisis del mismo sitio descargado al corte o persistencia. Cada hora queda marcada."
+    },
+    "convection": {
+      "h_a_w_m2k": 5.7,
+      "h_b_w_m2k_per_m_s": 3.8,
+      "wind_height_m": 2.0,
+      "wind_exponent": 0.14,
+      "source": "Correlación de Jürges/McAdams h = 5,7 + 3,8 v (superficies exteriores); perfil de viento potencial con exponente 1/7 para terreno abierto."
+    },
+    "solar": {
+      "absorptance_concrete": 0.65,
+      "absorptance_formwork": 0.6,
+      "top_factor": 1.0,
+      "side_factor": 0.35,
+      "source": "Absortancia típica de hormigón gris 0,6–0,7 (supuesto). Factor lateral 0,35: fracción aproximada de radiación global sobre cara vertical (supuesto docente, sin cálculo de geometría solar)."
+    },
+    "formwork": {
+      "thickness_m": 0.018,
+      "conductivity_w_mk": 0.13,
+      "strip_after_h": 72,
+      "source": "Terciado fenólico 18 mm, k ≈ 0,13 W/(m·K) (valor típico). Retiro a las 72 h: supuesto E10 para la propiedad RetiroMoldaje_h propuesta en la guía G02."
+    },
+    "insulation": {
+      "thickness_m": 0.025,
+      "conductivity_w_mk": 0.04,
+      "on_top_from_h": 0.0,
+      "source": "Manta de curado/aislante 25 mm, k ≈ 0,04 W/(m·K) (valor típico de espuma/fibra). Supuesto de diseño, no especificación del proyecto."
+    },
+    "soil": {
+      "depth_m": 2.2,
+      "margin_m": 1.5,
+      "conductivity_w_mk": 1.39,
+      "density_kg_m3": 1800.0,
+      "specific_heat_j_kgk": 1273.0,
+      "deep_temperature_c": 10.0,
+      "source": "k, ρ, cp: Ju y Lei (2019), guía de difusión §31. Temperatura profunda 10 °C: SUPUESTO (orden de la media anual del aire en Llanquihue), no medido."
+    },
+    "concrete": {
+      "conductivity_w_mk": 2.2,
+      "density_kg_m3": 2400.0,
+      "specific_heat_j_kgk": 900.0,
+      "placement_c": 16.0,
+      "qmax_w_m3": 1300.0,
+      "hydration_duration_s": 172800.0,
+      "source": "Mismos valores sintéticos de construction_g8.json; colocación 16 °C del ejemplo G08. No calibrado."
+    },
+    "demo_section": {
+      "half_width_m": 9.0,
+      "height_m": 3.3,
+      "spacing_m": [
+        0.5,
+        0.275
+      ],
+      "dt_s": 600.0,
+      "note": "Sección vertical 2D x–z por el eje de la fundación, mitad por simetría. Es una sección rectangular simplificada para mostrar las condiciones de borde; la geometría completa está en el modelo 3D."
+    }
+  },
+  "jobs": [
+    {
+      "plan": "S7",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member14",
+        "mean_forecast_air_c": 9.355151515151515,
+        "air_p10_c": 4.04,
+        "wind_on_cold_hours_m_s": 1.5753488372093025,
+        "sun_mean_w_m2": 200.02424242424243,
+        "id": "frío y ventoso",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member08",
+        "mean_forecast_air_c": 12.029090909090908,
+        "air_p10_c": 6.58,
+        "wind_on_cold_hours_m_s": 1.2399999999999998,
+        "sun_mean_w_m2": 326.2181818181818,
+        "id": "cálido y soleado",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central · bloque de 72 h",
+        "weight": 0,
+        "tail_method": "bloque72"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member14",
+        "mean_forecast_air_c": 9.355151515151515,
+        "air_p10_c": 4.04,
+        "wind_on_cold_hours_m_s": 1.5753488372093025,
+        "sun_mean_w_m2": 200.02424242424243,
+        "id": "frío y ventoso",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member08",
+        "mean_forecast_air_c": 12.029090909090908,
+        "air_p10_c": 6.58,
+        "wind_on_cold_hours_m_s": 1.2399999999999998,
+        "sun_mean_w_m2": 326.2181818181818,
+        "id": "cálido y soleado",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central · bloque de 72 h",
+        "weight": 0,
+        "tail_method": "bloque72"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member14",
+        "mean_forecast_air_c": 9.355151515151515,
+        "air_p10_c": 4.04,
+        "wind_on_cold_hours_m_s": 1.5753488372093025,
+        "sun_mean_w_m2": 200.02424242424243,
+        "id": "frío y ventoso",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member08",
+        "mean_forecast_air_c": 12.029090909090908,
+        "air_p10_c": 6.58,
+        "wind_on_cold_hours_m_s": 1.2399999999999998,
+        "sun_mean_w_m2": 326.2181818181818,
+        "id": "cálido y soleado",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central · bloque de 72 h",
+        "weight": 0,
+        "tail_method": "bloque72"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.08333333333333333,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member14",
+        "mean_forecast_air_c": 9.355151515151515,
+        "air_p10_c": 4.04,
+        "wind_on_cold_hours_m_s": 1.5753488372093025,
+        "sun_mean_w_m2": 200.02424242424243,
+        "id": "frío y ventoso",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member08",
+        "mean_forecast_air_c": 12.029090909090908,
+        "air_p10_c": 6.58,
+        "wind_on_cold_hours_m_s": 1.2399999999999998,
+        "sun_mean_w_m2": 326.2181818181818,
+        "id": "cálido y soleado",
+        "weight": 0,
+        "tail_method": "persistencia"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_SS",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central · bloque de 72 h",
+        "weight": 0,
+        "tail_method": "bloque72"
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0.0,
+      "sensitivity_weight": 0.0
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_22A",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_22A",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M1_22A",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_22A",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_22A",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M2_22A",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_22A",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_22A",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M3_22A",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_22A",
+      "climate": {
+        "member": "_member19",
+        "mean_forecast_air_c": 10.72969696969697,
+        "air_p10_c": 6.1,
+        "wind_on_cold_hours_m_s": 1.8259523809523805,
+        "sun_mean_w_m2": 280.27878787878785,
+        "id": "frío",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_22A",
+      "climate": {
+        "member": "_member29",
+        "mean_forecast_air_c": 11.351515151515152,
+        "air_p10_c": 5.94,
+        "wind_on_cold_hours_m_s": 1.5199999999999998,
+        "sun_mean_w_m2": 281.4969696969697,
+        "id": "central",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    },
+    {
+      "plan": "S7",
+      "curve": "M4_22A",
+      "climate": {
+        "member": "_member07",
+        "mean_forecast_air_c": 12.00181818181818,
+        "air_p10_c": 7.48,
+        "wind_on_cold_hours_m_s": 1.809523809523809,
+        "sun_mean_w_m2": 310.55151515151516,
+        "id": "cálido",
+        "weight": 0.3333333333333333
+      },
+      "mesh": 2.0,
+      "dt": 600,
+      "weight": 0,
+      "sensitivity_weight": 0.041666666666666664
+    }
+  ],
+  "weather": [
+    {
+      "member": "_member19",
+      "mean_forecast_air_c": 10.72969696969697,
+      "air_p10_c": 6.1,
+      "wind_on_cold_hours_m_s": 1.8259523809523805,
+      "sun_mean_w_m2": 280.27878787878785,
+      "id": "frío",
+      "weight": 0.3333333333333333
+    },
+    {
+      "member": "_member29",
+      "mean_forecast_air_c": 11.351515151515152,
+      "air_p10_c": 5.94,
+      "wind_on_cold_hours_m_s": 1.5199999999999998,
+      "sun_mean_w_m2": 281.4969696969697,
+      "id": "central",
+      "weight": 0.3333333333333333
+    },
+    {
+      "member": "_member07",
+      "mean_forecast_air_c": 12.00181818181818,
+      "air_p10_c": 7.48,
+      "wind_on_cold_hours_m_s": 1.809523809523809,
+      "sun_mean_w_m2": 310.55151515151516,
+      "id": "cálido",
+      "weight": 0.3333333333333333
+    }
+  ],
+  "weather_sensitivity": [
+    {
+      "member": "_member14",
+      "mean_forecast_air_c": 9.355151515151515,
+      "air_p10_c": 4.04,
+      "wind_on_cold_hours_m_s": 1.5753488372093025,
+      "sun_mean_w_m2": 200.02424242424243,
+      "id": "frío y ventoso",
+      "weight": 0,
+      "tail_method": "persistencia"
+    },
+    {
+      "member": "_member08",
+      "mean_forecast_air_c": 12.029090909090908,
+      "air_p10_c": 6.58,
+      "wind_on_cold_hours_m_s": 1.2399999999999998,
+      "sun_mean_w_m2": 326.2181818181818,
+      "id": "cálido y soleado",
+      "weight": 0,
+      "tail_method": "persistencia"
+    },
+    {
+      "member": "_member29",
+      "mean_forecast_air_c": 11.351515151515152,
+      "air_p10_c": 5.94,
+      "wind_on_cold_hours_m_s": 1.5199999999999998,
+      "sun_mean_w_m2": 281.4969696969697,
+      "id": "central · bloque de 72 h",
+      "weight": 0,
+      "tail_method": "bloque72"
+    }
+  ],
+  "weather_member_summary": [
+    {
+      "member": "_member14",
+      "mean_forecast_air_c": 9.355151515151515,
+      "air_p10_c": 4.04,
+      "wind_on_cold_hours_m_s": 1.5753488372093025,
+      "sun_mean_w_m2": 200.02424242424243
+    },
+    {
+      "member": "_member23",
+      "mean_forecast_air_c": 10.206666666666667,
+      "air_p10_c": 4.560000000000001,
+      "wind_on_cold_hours_m_s": 1.3014285714285716,
+      "sun_mean_w_m2": 286.91515151515154
+    },
+    {
+      "member": "_member12",
+      "mean_forecast_air_c": 10.690909090909091,
+      "air_p10_c": 5.34,
+      "wind_on_cold_hours_m_s": 1.454888888888889,
+      "sun_mean_w_m2": 267.58181818181816
+    },
+    {
+      "member": "_member19",
+      "mean_forecast_air_c": 10.72969696969697,
+      "air_p10_c": 6.1,
+      "wind_on_cold_hours_m_s": 1.8259523809523805,
+      "sun_mean_w_m2": 280.27878787878785
+    },
+    {
+      "member": "_member10",
+      "mean_forecast_air_c": 10.979393939393939,
+      "air_p10_c": 5.820000000000001,
+      "wind_on_cold_hours_m_s": 1.700666666666667,
+      "sun_mean_w_m2": 299.4969696969697
+    },
+    {
+      "member": "_member02",
+      "mean_forecast_air_c": 10.989090909090908,
+      "air_p10_c": 6.04,
+      "wind_on_cold_hours_m_s": 1.314318181818182,
+      "sun_mean_w_m2": 284.93939393939394
+    },
+    {
+      "member": "_member11",
+      "mean_forecast_air_c": 11.016363636363637,
+      "air_p10_c": 5.34,
+      "wind_on_cold_hours_m_s": 1.1595238095238096,
+      "sun_mean_w_m2": 288.8787878787879
+    },
+    {
+      "member": "_member03",
+      "mean_forecast_air_c": 11.081212121212122,
+      "air_p10_c": 6.38,
+      "wind_on_cold_hours_m_s": 1.3554761904761905,
+      "sun_mean_w_m2": 297.4909090909091
+    },
+    {
+      "member": "_member21",
+      "mean_forecast_air_c": 11.104848484848485,
+      "air_p10_c": 5.860000000000001,
+      "wind_on_cold_hours_m_s": 1.2721428571428572,
+      "sun_mean_w_m2": 250.2969696969697
+    },
+    {
+      "member": "_member16",
+      "mean_forecast_air_c": 11.113939393939393,
+      "air_p10_c": 5.9,
+      "wind_on_cold_hours_m_s": 1.5971428571428568,
+      "sun_mean_w_m2": 297.4060606060606
+    },
+    {
+      "member": "_member27",
+      "mean_forecast_air_c": 11.187878787878788,
+      "air_p10_c": 5.94,
+      "wind_on_cold_hours_m_s": 1.21,
+      "sun_mean_w_m2": 330.1515151515151
+    },
+    {
+      "member": "_member15",
+      "mean_forecast_air_c": 11.204242424242423,
+      "air_p10_c": 6.6,
+      "wind_on_cold_hours_m_s": 1.5779069767441862,
+      "sun_mean_w_m2": 246.64242424242425
+    },
+    {
+      "member": "_member01",
+      "mean_forecast_air_c": 11.216969696969699,
+      "air_p10_c": 6.14,
+      "wind_on_cold_hours_m_s": 1.4279545454545455,
+      "sun_mean_w_m2": 288.91515151515154
+    },
+    {
+      "member": "_member24",
+      "mean_forecast_air_c": 11.32969696969697,
+      "air_p10_c": 6.5,
+      "wind_on_cold_hours_m_s": 1.720909090909091,
+      "sun_mean_w_m2": 279.8545454545455
+    },
+    {
+      "member": "_member18",
+      "mean_forecast_air_c": 11.33090909090909,
+      "air_p10_c": 6.3,
+      "wind_on_cold_hours_m_s": 1.2926190476190476,
+      "sun_mean_w_m2": 294.2969696969697
+    },
+    {
+      "member": "_member29",
+      "mean_forecast_air_c": 11.351515151515152,
+      "air_p10_c": 5.94,
+      "wind_on_cold_hours_m_s": 1.5199999999999998,
+      "sun_mean_w_m2": 281.4969696969697
+    },
+    {
+      "member": "_member17",
+      "mean_forecast_air_c": 11.385454545454545,
+      "air_p10_c": 5.920000000000001,
+      "wind_on_cold_hours_m_s": 1.2802380952380954,
+      "sun_mean_w_m2": 328.2060606060606
+    },
+    {
+      "member": "_member09",
+      "mean_forecast_air_c": 11.409696969696972,
+      "air_p10_c": 6.260000000000001,
+      "wind_on_cold_hours_m_s": 1.22,
+      "sun_mean_w_m2": 274.75151515151515
+    },
+    {
+      "member": "_member30",
+      "mean_forecast_air_c": 11.43030303030303,
+      "air_p10_c": 6.14,
+      "wind_on_cold_hours_m_s": 1.1564285714285716,
+      "sun_mean_w_m2": 295.1151515151515
+    },
+    {
+      "member": "_member04",
+      "mean_forecast_air_c": 11.524242424242424,
+      "air_p10_c": 7.0,
+      "wind_on_cold_hours_m_s": 1.6245238095238097,
+      "sun_mean_w_m2": 304.2969696969697
+    },
+    {
+      "member": "_member20",
+      "mean_forecast_air_c": 11.531515151515151,
+      "air_p10_c": 5.4,
+      "wind_on_cold_hours_m_s": 1.321818181818182,
+      "sun_mean_w_m2": 307.73333333333335
+    },
+    {
+      "member": "_member22",
+      "mean_forecast_air_c": 11.701212121212123,
+      "air_p10_c": 6.4,
+      "wind_on_cold_hours_m_s": 1.1342857142857146,
+      "sun_mean_w_m2": 304.03636363636366
+    },
+    {
+      "member": "_member25",
+      "mean_forecast_air_c": 11.733333333333334,
+      "air_p10_c": 6.68,
+      "wind_on_cold_hours_m_s": 1.8154761904761902,
+      "sun_mean_w_m2": 308.03636363636366
+    },
+    {
+      "member": "_member06",
+      "mean_forecast_air_c": 11.93090909090909,
+      "air_p10_c": 7.3,
+      "wind_on_cold_hours_m_s": 1.430869565217391,
+      "sun_mean_w_m2": 305.07878787878786
+    },
+    {
+      "member": "_member05",
+      "mean_forecast_air_c": 11.975151515151515,
+      "air_p10_c": 6.6,
+      "wind_on_cold_hours_m_s": 1.2492857142857143,
+      "sun_mean_w_m2": 268.8787878787879
+    },
+    {
+      "member": "_member13",
+      "mean_forecast_air_c": 11.993333333333332,
+      "air_p10_c": 7.0,
+      "wind_on_cold_hours_m_s": 1.4711904761904762,
+      "sun_mean_w_m2": 315.09090909090907
+    },
+    {
+      "member": "_member07",
+      "mean_forecast_air_c": 12.00181818181818,
+      "air_p10_c": 7.48,
+      "wind_on_cold_hours_m_s": 1.809523809523809,
+      "sun_mean_w_m2": 310.55151515151516
+    },
+    {
+      "member": "_member08",
+      "mean_forecast_air_c": 12.029090909090908,
+      "air_p10_c": 6.58,
+      "wind_on_cold_hours_m_s": 1.2399999999999998,
+      "sun_mean_w_m2": 326.2181818181818
+    },
+    {
+      "member": "_member26",
+      "mean_forecast_air_c": 12.215757575757578,
+      "air_p10_c": 7.3,
+      "wind_on_cold_hours_m_s": 1.2707142857142857,
+      "sun_mean_w_m2": 320.27272727272725
+    },
+    {
+      "member": "_member28",
+      "mean_forecast_air_c": 12.226666666666668,
+      "air_p10_c": 7.18,
+      "wind_on_cold_hours_m_s": 1.2755813953488373,
+      "sun_mean_w_m2": 279.5030303030303
+    }
+  ],
+  "hydration_audit": {
+    "M1_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 88.148347776,
+      "header_heat_mj_m3": 88.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.135648
+    },
+    "M2_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 95.71522170599998,
+      "header_heat_mj_m3": 95.7,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 94.14901087199999,
+      "header_heat_mj_m3": 94.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 100.166110776,
+      "header_heat_mj_m3": 100.2,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M1_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 61.21202113799998,
+      "header_heat_mj_m3": 61.2,
+      "initial_model_heat_mj_m3": 0.033875999999999996,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M2_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 82.44622566,
+      "header_heat_mj_m3": 82.4,
+      "initial_model_heat_mj_m3": 0.162756,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.288830276,
+      "header_heat_mj_m3": 73.3,
+      "initial_model_heat_mj_m3": 0.070992,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.62834362999999,
+      "header_heat_mj_m3": 73.6,
+      "initial_model_heat_mj_m3": 0.170316,
+      "tail_model_heat_mj_m3": 0.0
+    }
+  },
+  "weather_sha256": "426d1b2272ae95f3cd38066c66d3bb1f50cbafedc4918b63a6ab5d6b61d25edf",
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+  "code_sha256": "87c4673c43c4563819b979aec5cc61b9f2e20afbddfd427aab9d48b2139807ea"
+}

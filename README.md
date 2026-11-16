@@ -284,6 +284,13 @@ y riesgo conjunto con curvas tabuladas, varios miembros meteorológicos y
 el diferencial reconstruido a 25 mm. La familia ampliada ensaya mantas
 laterales y retiros superiores con el cronograma del plan C. El visor
 muestra los dos horizontes y las comprobaciones en **Decisión G8**.
+La búsqueda posterior estudia una vertida continua a 16 °C con aislamiento
+por zonas y retiro gradual. Su configuración y supuestos están en la misma guía.
+
+El [Monte Carlo final E13/E14](docs/MONTE_CARLO_CLUSTER.md) usa las curvas
+tabuladas y la física de la campaña G8. **Decisión G8** muestra los
+percentiles, los incumplimientos y los intervalos de confianza del lote
+base a 14 días, 21 días y al final del horizonte.
 
 ```powershell
 python -m scripts.e12_case --snapshot data/weather/2026-11-13T1522Z_forecast
@@ -355,7 +362,9 @@ Para ensayar otras condiciones de intercambio o resoluciones:
 
 ## Pruebas y resultados reproducibles
 
-**Verificación del 4 de noviembre de 2026: 228 pruebas aprobadas en 135.91 s.**
+**Verificación del 16 de noviembre de 2026.** Se aprobaron 285 pruebas,
+incluidas reproducibilidad de Monte Carlo, intervalos exactos y exportación
+del visor portátil. La batería térmica de referencia se ejecutó aparte.
 
 ```cmd
 .venv\Scripts\python.exe -m pytest -q

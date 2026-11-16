@@ -200,19 +200,25 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
         assert gzip.decompress(base64.b64decode(example.group(1))) == path.read_bytes()
     assert 'id="tab-plans"' in text
     assert '<dialog' not in text and '<h2 id="arcade-title">' in text
-    from scripts.dashboard_jobs import FINAL_BUNDLE
-    if (FINAL_BUNDLE/"comparison.json").is_file():
+    from scripts.dashboard_jobs import FINAL_BUNDLE, FINAL_MC
+    if FINAL_MC.is_file() or (FINAL_BUNDLE/"comparison.json").is_file():
         example = re.search(r'<script id="mcoc-example-plans" type="text/plain">([A-Za-z0-9+/=]+)</script>', text)
         assert example is not None
         bundle = json.loads(gzip.decompress(base64.b64decode(example.group(1))))
         campaign = bundle["campaign"]
-        assert campaign["format"] == "mcoc-final-v1"
-        assert {plan["id"] for plan in campaign["plans"]} == {"A", "B", "C", "C1", "C2", "C3", "D"}
-        assert len(campaign["scenarios"]) == 252
-        assert len(campaign["weather_sensitivity"]) == 3
-        assert all("baseline" in row and "profile_mm_c" in row["delta"] for row in campaign["scenarios"])
-        assert campaign["verification"]["metrics"]["combined"]["protection_samples"]
-        assert set(bundle["figures"]) >= {"Cronograma de vertidas", "Historias meteorológicas"}
+        if FINAL_MC.is_file():
+            assert campaign == json.loads(FINAL_MC.read_text(encoding="utf-8"))
+            assert campaign["format"] == "mcoc-monte-carlo-v1"
+            assert 'id="plans-mc-period"' in text
+        else:
+            assert campaign["format"] == "mcoc-final-v1"
+            manifest = json.loads((FINAL_BUNDLE/"manifest.json").read_text(encoding="utf-8"))
+            assert {plan["id"] for plan in campaign["plans"]} == {plan["id"] for plan in manifest["config"]["plans"]}
+            assert len(campaign["scenarios"]) == len(manifest["jobs"])
+            assert len(campaign["weather_sensitivity"]) == 3
+            assert all("baseline" in row and "profile_mm_c" in row["delta"] for row in campaign["scenarios"])
+            assert campaign["verification"]["metrics"]["combined"]["protection_samples"]
+            assert set(bundle["figures"]) >= {"Cronograma de vertidas", "Historias meteorológicas"}
     embedded_relief = re.search(r'<script id="mcoc-terrain" type="application/json">(.*?)</script>', text, re.S)
     assert embedded_relief is not None
     terrain = json.loads(embedded_relief.group(1))

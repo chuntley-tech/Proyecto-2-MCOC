@@ -6,3 +6,5 @@
 /models/g8_base.ifc text eol=crlf
 /results/final/g8_20261119/manifest.json text eol=crlf
 /results/final/g8_20261119_ampliada/manifest.json text eol=crlf
+/results/final/g8_20261119_proteccion/manifest.json text eol=crlf
+/results/final/g8_20261119_mc/*/manifest.json text eol=crlf

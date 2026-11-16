@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 import json
 import math
 from pathlib import Path
+from dataclasses import replace
 
 import matplotlib
 matplotlib.use("Agg")
@@ -175,33 +176,56 @@ def build_model(config, series, start, hours, coarsen=1, *, voxels=None):
     common = dict(air_c=f["air_c"], wind_10m_m_s=f["wind_10m_m_s"], shortwave_w_m2=f["shortwave_w_m2"],
                   max_wind_m_s=max_wind, wind_height_m=conv["wind_height_m"], wind_exponent=conv["wind_exponent"],
                   h_a_w_m2k=conv["h_a_w_m2k"], h_b_w_m2k_per_m_s=conv["h_b_w_m2k_per_m_s"])
+
+    def blanket_layers(stages):
+        return LayerSchedule(tuple((hour*HOUR, (Layer("manta aislante", thickness, ins["conductivity_w_mk"]),)
+                                    if thickness else ()) for hour, thickness in stages))
+
     side_after = ()
     if form.get("blanket_after_strip"):
         side_after = (Layer("manta lateral", form.get("blanket_thickness_m", ins["thickness_m"]),
                             ins["conductivity_w_mk"]),)
+    side_layers = LayerSchedule.formwork_removed_at(form["strip_after_h"] * HOUR, formwork, side_after)
+    if "blanket_stages" in ins:
+        insulation = blanket_layers(ins["blanket_stages"])
+        strip_s = form["strip_after_h"] * HOUR
+        side_layers = LayerSchedule(tuple((time, ((formwork,) if time < strip_s else ())
+                                           + insulation.layers_at(time))
+                                          for time in sorted({strip_s, 0, *insulation.change_times_s})))
     side = SurfaceExposure(**common, name="costados (moldaje)",
-                           layers=LayerSchedule.formwork_removed_at(form["strip_after_h"] * HOUR, formwork, side_after),
+                           layers=side_layers,
                            bare_absorptance=solar["absorptance_concrete"] if form.get("use_bare_absorptance") else None,
                            solar_absorptance=solar["absorptance_formwork"], solar_factor=solar["side_factor"])
-    insulation_start = ins["on_top_from_h"] * HOUR
-    insulation = ((0.0, ()),) if insulation_start > 0 else ()
-    insulation += ((insulation_start, (blanket,)),)
-    if "remove_after_h" in ins:
-        insulation += ((ins["remove_after_h"] * HOUR, ()),)
+    if "blanket_stages" not in ins:
+        insulation_start = ins["on_top_from_h"] * HOUR
+        stages = ((0.0, ()),) if insulation_start > 0 else ()
+        stages += ((insulation_start, (blanket,)),)
+        if "remove_after_h" in ins:
+            stages += ((ins["remove_after_h"] * HOUR, ()),)
+        insulation = LayerSchedule(stages)
     top = SurfaceExposure(**common, name="caras superiores (manta)",
-                          layers=LayerSchedule(insulation),
+                          layers=insulation,
                           solar_absorptance=solar["absorptance_concrete"], solar_factor=solar["top_factor"])
     ground = SurfaceExposure(**common, name="terreno descubierto", solar_absorptance=solar["absorptance_concrete"],
                              solar_factor=solar["top_factor"])
     concrete, soil_mask = grid["concrete"], grid["soil"]
+    subbase_resistance = soil_cfg.get("subbase_r_m2k_w", 0)
+    contact_resistance = None
+    if subbase_resistance:
+        contact_resistance = np.where(soil_mask[:, :, :-1] & concrete[:, :, 1:], subbase_resistance, 0)
+    top_regions = (Region(top, frozenset({"z+"}), concrete, "superior"),)
+    if "blanket_core_stages" in ins:
+        thick_columns = (concrete.sum(axis=2)*spacing[2] >= 2.0)[:, :, None]
+        core_top = replace(top, name="protección superior central", layers=blanket_layers(ins["blanket_core_stages"]))
+        top_regions = (Region(top, frozenset({"z+"}), concrete & ~thick_columns, "superior periférica"),
+                       Region(core_top, frozenset({"z+"}), concrete & thick_columns, "superior central"))
     exposed = SurfaceMap((Region(side, frozenset({"x-", "x+", "y-", "y+"}), concrete, "costados"),
-                          Region(top, frozenset({"z+"}), concrete, "superior"),
-                          Region(ground, frozenset({"z+"}), soil_mask, "terreno")))
+                          *top_regions, Region(ground, frozenset({"z+"}), soil_mask, "terreno")))
     p = Parameters(shape=grid["shape"], lengths_m=grid["lengths_m"], conductivity_w_mk=grid["conductivity_w_mk"],
                    density_kg_m3=grid["density_kg_m3"], specific_heat_j_kgk=grid["specific_heat_j_kgk"],
                    dt_s=60.0, duration_s=end, boundaries={key: exposed for key in ("x-", "x+", "y-", "y+", "z+")}
                    | {"z-": grid["base"]},
-                   active=grid["active"], exposed=exposed)
+                   active=grid["active"], exposed=exposed, vertical_face_resistance_m2k_w=contact_resistance)
     origin_global = origin + np.asarray(grid["origin_shift_m"])
     return {"p": p, "grid": grid, "component": comp, "faces": {"side": side, "top": top, "ground": ground},
             "origin_m": origin_global, "ifc_sha256": ifc_sha, "spacing_m": spacing}
