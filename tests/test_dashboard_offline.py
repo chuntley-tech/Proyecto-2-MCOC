@@ -199,6 +199,7 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
         assert example is not None
         assert gzip.decompress(base64.b64decode(example.group(1))) == path.read_bytes()
     assert 'id="tab-plans"' in text
+    assert '<dialog' not in text and '<h2 id="arcade-title">' in text
     from scripts.dashboard_jobs import FINAL_BUNDLE
     if (FINAL_BUNDLE/"comparison.json").is_file():
         example = re.search(r'<script id="mcoc-example-plans" type="text/plain">([A-Za-z0-9+/=]+)</script>', text)
@@ -231,6 +232,146 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert 'id="mcoc-font-license"' in text and 'SIL OPEN FONT LICENSE' in text
     assert "font-src data:" in text
     assert output.stat().st_size < 5_100_000  # Incluye la campaña ampliada y sus figuras.
+
+
+def test_arcade_sequence_and_gameplay():
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node opcional para comprobar la activación y el juego")
+    source = (ROOT / "web/app.js").read_text(encoding="utf-8")
+    arcade = source[source.index("(() => {\n  const sequence ="):]
+    checks = """
+const assert = require('node:assert/strict');
+const callbacks = {}, timers = [], classes = new Set(), children = [];
+let clock = 0, cleared = false, playerFocused = false;
+const window = {matchMedia: () => ({matches: false}), addEventListener(name, cb) {callbacks[name] = cb;}};
+const performance = {now: () => clock};
+const setTimeout = cb => timers.push(cb);
+const requestAnimationFrame = cb => cb;
+const cancelAnimationFrame = () => {cleared = true;};
+const focusOrigin = {isConnected: true, focus() {playerFocused = true;}};
+function element() {
+  return {
+    events: {},
+    focus() {},
+    showModal() {this.open = true;},
+    close() {this.open = false; this.events.close();},
+    remove() {children.splice(children.indexOf(this), 1);},
+    setAttribute() {},
+    addEventListener(name, cb) {this.events[name] = cb;},
+    getContext: () => null,
+    querySelector(selector) {
+      this.nodes ??= {};
+      return this.nodes[selector] ??= element();
+    },
+  };
+}
+const document = {
+  addEventListener(name, cb) {callbacks[name] = cb;},
+  documentElement: {classList: {add: value => classes.add(value), remove: value => classes.delete(value)}},
+  activeElement: focusOrigin,
+  body: {append: node => children.push(node)},
+  createElement: element,
+};
+function press(key, props = {}) {
+  clock += 100;
+  const event = {key, preventDefault() {this.prevented = true;}, stopPropagation() {}, ...props};
+  callbacks.keydown(event);
+  return event;
+}
+const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft','ArrowRight',
+              'ArrowLeft', 'ArrowRight', 'B', 'a', 'Enter'];
+"""
+    exposed = arcade.removesuffix("})();\n") + (
+        "return {maze, moves, playerHome, stepFrom, newGame, tick, interpolated, releaseDelays, stepMs};})();"
+    )
+    expectations = """
+const engine = """ + exposed + """
+assert.equal(children.length, 0);
+code.slice(0,-1).forEach(key => press(key));
+assert.equal(timers.length, 0);
+press('Enter', {target: {closest: () => true}});
+assert.equal(timers.length, 0);
+press('ArrowUp');
+clock += 4000;
+code.slice(1).forEach(key => press(key));
+assert.equal(timers.length, 0);
+press('ArrowUp', {repeat: true});
+code.slice(1).forEach(key => press(key));
+assert.equal(timers.length, 0);
+press('ArrowUp'); press('x');
+code.slice(1).forEach(key => press(key));
+assert.equal(timers.length, 0);
+code.slice(0,-1).forEach(key => assert(!press(key).prevented));
+assert(press('Enter').prevented);
+assert(classes.has('visor-transition'));
+assert.equal(children.length, 0);
+timers.shift()();
+assert.equal(classes.size, 0);
+assert.equal(children.length, 1);
+assert(children[0].open);
+children[0].events.keydown({key: 'Escape', preventDefault() {}});
+assert.equal(children.length, 0);
+assert(cleared && playerFocused);
+code.forEach(key => press(key));
+assert.equal(timers.length, 1);
+
+const {maze, moves, playerHome, stepFrom, newGame, tick, interpolated, releaseDelays, stepMs} = engine;
+assert(maze.every(row => row.length === maze[0].length));
+assert.deepEqual(stepFrom([0,8], moves.ArrowLeft), [28,8]);
+assert.equal(stepFrom([14,5], moves.ArrowDown), null);
+assert.deepEqual(interpolated([0,8],[28,8],.5),[-.5,8]);
+assert.deepEqual(interpolated([10,11],[9,11],.5),[9.5,11]);
+const reachable = new Set(), todo = [playerHome];
+while (todo.length) {
+  const pos = todo.pop();
+  if (reachable.has(String(pos))) continue;
+  reachable.add(String(pos));
+  todo.push(...Object.values(moves).map(move => stepFrom(pos,move)).filter(Boolean));
+}
+const game = newGame();
+for (const key of game.pellets.keys()) {
+  assert(reachable.has(String([key%maze[0].length, Math.floor(key/maze[0].length)])));
+}
+game.phase = 'playing';
+game.wanted = moves.ArrowLeft;
+tick(game);
+assert.deepEqual(game.player,[9,11]);
+assert.equal(game.score,10);
+assert(Object.values(moves).filter(move => stepFrom(playerHome, move)).length >= 3);
+assert.deepEqual(releaseDelays.map(ticks => ticks*stepMs),[4050,6000,8100,10050]);
+const release = newGame(), exits = [];
+release.phase = 'playing';
+release.player = [14,8]; // Aísla las salidas de la persecución durante el ensayo.
+for (let i=0; i<100; i++) {
+  tick(release);
+  for (const ghost of release.ghosts) {
+    if (release.ticks < ghost.releaseAt) assert.deepEqual(ghost.position,ghost.home);
+    if (ghost.outside && exits[ghost.index] === undefined) exits[ghost.index] = release.ticks;
+  }
+}
+assert.deepEqual(exits.map(ticks => ticks*stepMs),[4950,6900,9600,11550]);
+game.player = [2,1]; game.wanted = moves.ArrowLeft;
+Object.assign(game.ghosts[0],{position:[1,1],outside:true});
+tick(game);
+assert.equal(game.score,260);
+assert(Math.abs(game.power*stepMs-6500) <= stepMs/2);
+assert.equal(game.lives,3);
+game.power = 0;
+Object.assign(game.ghosts[1],{position:game.player,outside:true});
+tick(game);
+assert.equal(game.lives,2);
+assert.equal(game.phase,'ready');
+game.ghosts = [];
+game.player = playerHome;
+game.wanted = moves.ArrowLeft;
+game.pellets = new Map([[11*maze[0].length+9,'.']]);
+game.phase = 'playing';
+tick(game);
+assert.equal(game.phase,'won');
+"""
+    subprocess.run([node, "-"], input=checks + expectations, text=True, encoding="utf-8",
+                   cwd=ROOT, check=True, timeout=20)
 
 
 def test_terrain_detail_uses_ifc_and_cows_at_map_scale(pack):

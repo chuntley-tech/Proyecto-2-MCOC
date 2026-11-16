@@ -1170,3 +1170,339 @@ window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setT
     await calculate();
   } catch(error){showError(error.message);state(portable?'Revisa el mensaje del navegador.':'El servidor local debe estar en ejecución.');$('connection').textContent='Sin conexión';$('stage-placeholder').classList.add('hidden');}
 })();
+
+(() => {
+  const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    'ArrowLeft', 'ArrowRight', 'b', 'a', 'Enter'];
+  const moves = {ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0]};
+  const maze = [
+    '#############################',
+    '#o............#............o#',
+    '#..###..####..#..####..###..#',
+    '#.............#.............#',
+    '#.####.####.......####.####.#',
+    '#......#.............#......#',
+    '####.#.#...###=###...#.#.####',
+    '####.#.....#     #.....#.####',
+    '.....#.###.#     #.###.#.....',
+    '####.#.....#     #.....#.####',
+    '####.#..##.#######.##..#.####',
+    '#.........P.................#',
+    '#.####.####.......####.####.#',
+    '#.............#.............#',
+    '#..###..####..#..####..###..#',
+    '#o............#............o#',
+    '#############################',
+  ];
+  const width = maze[0].length, height = maze.length, tile = 24;
+  const colors = ['#ff627c','#ffa1cd','#74e3ff','#ffc074'];
+  const stepMs = 150, powerSteps = Math.round(6500/stepMs);
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const playerHome = [10,11];
+  const ghostDoor = [14,6], ghostExit = [14,5];
+  const ghostHomes = [[12,7],[16,7],[12,9],[16,9]];
+  const releaseDelays = [4000,6000,8000,10000].map(ms => Math.ceil(ms/stepMs));
+  const same = (a,b) => a[0] === b[0] && a[1] === b[1];
+  const posKey = ([x,y]) => y * width + x;
+  const distance = (a,b) => Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1]);
+  let recent = [], lastKeyTime = -Infinity, transitioning = false, arcade = null, best = 0;
+
+  function stepFrom([x,y], [dx,dy], leavingHouse = false) {
+    const next = [(x+dx+width)%width, y+dy];
+    const cell = maze[next[1]]?.[next[0]];
+    return cell && cell !== '#' && (leavingHouse || cell !== ' ' && cell !== '=') ? next : null;
+  }
+
+  function resetActors(game) {
+    game.player = game.playerFrom = playerHome;
+    game.direction = game.wanted = null;
+    game.ghosts = ghostHomes.map((home, index) => ({home, position:home, previous:null, from:home,
+      movedAt:0, releaseAt:releaseDelays[index], outside:false, index}));
+    game.ticks = game.power = 0;
+  }
+
+  function newGame() {
+    const pellets = new Map();
+    maze.forEach((line,y) => Array.from(line).forEach((cell,x) => {
+      if (cell === '.' || cell === 'o') pellets.set(posKey([x,y]), cell);
+    }));
+    const game = {pellets, score:0, lives:3, phase:'ready'};
+    resetActors(game);
+    return game;
+  }
+
+  function collide(game) {
+    const contact = game.ghosts.filter(ghost => ghost.outside && same(ghost.position, game.player));
+    if (!contact.length) return false;
+    if (game.power) {
+      for (const ghost of contact) {
+        ghost.releaseAt = game.ticks + releaseDelays[0];
+        ghost.outside = false;
+        ghost.position = ghost.from = ghost.home;
+        ghost.previous = null;
+        game.score += 200;
+      }
+      return false;
+    }
+    game.lives--;
+    game.phase = game.lives ? 'ready' : 'lost';
+    if (game.lives) resetActors(game);
+    return true;
+  }
+
+  function moveGhost(ghost, game) {
+    if (game.ticks < ghost.releaseAt || (game.ticks-ghost.releaseAt)%2) return;
+    let next;
+    if (ghost.outside) {
+      let choices = Object.values(moves).map(move => stepFrom(ghost.position,move)).filter(Boolean);
+      const forward = ghost.previous && choices.filter(pos => !same(pos,ghost.previous));
+      if (forward?.length) choices = forward;
+      choices.sort((a,b) => (distance(a,game.player)-distance(b,game.player)) * (game.power ? -1 : 1));
+      next = choices[0];
+    } else {
+      const dx = Math.sign(ghostDoor[0]-ghost.position[0]);
+      next = stepFrom(ghost.position,dx ? [dx,0] : [0,-1],true);
+    }
+    if (!next) return;
+    ghost.previous = ghost.from = ghost.position;
+    ghost.position = next;
+    ghost.movedAt = game.ticks;
+    ghost.outside ||= same(next,ghostExit);
+  }
+
+  function tick(game) {
+    if (game.phase !== 'playing') return;
+    game.ticks++;
+    if (game.power) game.power--;
+    if (game.wanted && stepFrom(game.player,game.wanted)) game.direction = game.wanted;
+    const next = game.direction && stepFrom(game.player,game.direction);
+    game.playerFrom = game.player;
+    if (next) game.player = next;
+    const key = posKey(game.player), pellet = game.pellets.get(key);
+    if (pellet) {
+      game.pellets.delete(key);
+      game.score += pellet === 'o' ? 50 : 10;
+      if (pellet === 'o') game.power = powerSteps;
+    }
+    if (!game.pellets.size) { game.phase = 'won'; return; }
+    if (collide(game)) return;
+    for (const ghost of game.ghosts) moveGhost(ghost,game);
+    collide(game);
+  }
+
+  function drawBoard() {
+    const board = document.createElement('canvas');
+    board.width = width*tile;
+    board.height = height*tile;
+    const ctx = board.getContext('2d');
+    ctx.fillStyle = '#080515';
+    ctx.fillRect(0,0,board.width,board.height);
+    ctx.fillStyle = '#180b2d';
+    ctx.beginPath();
+    maze.forEach((line,y) => Array.from(line).forEach((cell,x) => {
+      if (cell === '#') ctx.rect(x*tile,y*tile,tile,tile);
+    }));
+    ctx.fill();
+    const edge = (x1,y1,x2,y2) => {ctx.moveTo(x1*tile,y1*tile);ctx.lineTo(x2*tile,y2*tile);};
+    ctx.beginPath();
+    maze.forEach((line,y) => Array.from(line).forEach((cell,x) => {
+      if (cell !== '#') return;
+      if (maze[y-1]?.[x] && maze[y-1][x] !== '#') edge(x,y,x+1,y);
+      if (maze[y+1]?.[x] && maze[y+1][x] !== '#') edge(x,y+1,x+1,y+1);
+      if (line[x-1] && line[x-1] !== '#') edge(x,y,x,y+1);
+      if (line[x+1] && line[x+1] !== '#') edge(x+1,y,x+1,y+1);
+    }));
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#7134a2';
+    ctx.shadowColor = '#bb40ff';
+    ctx.shadowBlur = 11;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = '#eda6ff';
+    ctx.stroke();
+    ctx.beginPath();
+    edge(ghostDoor[0],ghostDoor[1]+.45,ghostDoor[0]+1,ghostDoor[1]+.45);
+    ctx.strokeStyle = '#9ff3ff';
+    ctx.stroke();
+    return board;
+  }
+
+  function interpolated(from, target, progress) {
+    const delta = target[0]-from[0];
+    const dx = Math.abs(delta)>1 ? -Math.sign(delta) : delta;
+    const x = from[0]+dx*progress;
+    return [x,from[1]+(target[1]-from[1])*progress];
+  }
+
+  function paint(canvas, board, game, progress) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const center = ([x,y]) => [(x+.5)*tile,(y+.5)*tile];
+    const circle = (x,y,r) => {ctx.beginPath(); ctx.arc(x,y,r,0,2*Math.PI); ctx.fill();};
+    const drawActor = (from,to,fraction,draw) => {
+      const pos = interpolated(from,to,fraction);
+      draw(...center(pos));
+      if (pos[0]<0 || pos[0]>width-1) draw(...center([pos[0]+(pos[0]<0 ? width : -width),pos[1]]));
+    };
+    ctx.drawImage(board,0,0);
+    const powerPellets = [];
+    ctx.fillStyle = '#58e9ff';
+    ctx.beginPath();
+    for (const [key,pellet] of game.pellets) {
+      const [x,y] = center([key%width,Math.floor(key/width)]);
+      if (pellet === 'o') powerPellets.push([x,y]);
+      else {ctx.moveTo(x+2.4,y); ctx.arc(x,y,2.4,0,2*Math.PI);}
+    }
+    ctx.fill();
+    ctx.fillStyle = '#fff3ff';
+    ctx.shadowBlur = 14;
+    ctx.shadowColor = '#ba6aff';
+    for (const [x,y] of powerPellets) circle(x,y,6);
+    ctx.shadowBlur = 0;
+    for (const ghost of game.ghosts) {
+      const fraction = Math.min(1,(game.ticks-ghost.movedAt+progress)/2);
+      drawActor(ghost.from,ghost.position,fraction,(x,y) => {
+        ctx.fillStyle = game.power && ghost.outside ? '#526eef' : colors[ghost.index];
+        ctx.beginPath();
+        ctx.arc(x,y-1,9,Math.PI,0);
+        ctx.lineTo(x+9,y+8); ctx.lineTo(x+5,y+5); ctx.lineTo(x+1,y+8);
+        ctx.lineTo(x-3,y+5); ctx.lineTo(x-9,y+8); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#fff';
+        circle(x-3,y-1,2.5); circle(x+3,y-1,2.5);
+        ctx.fillStyle = '#181c44';
+        circle(x-2.5,y-1,1.2); circle(x+3.5,y-1,1.2);
+      });
+    }
+    const [dx,dy] = game.direction || [1,0];
+    const angle = Math.atan2(dy,dx);
+    const mouth = .3+.17*Math.cos((game.ticks+progress)*Math.PI);
+    ctx.fillStyle = '#ffe45d';
+    drawActor(game.playerFrom,game.player,progress,(x,y) => {
+      ctx.beginPath(); ctx.moveTo(x,y);
+      ctx.arc(x,y,9.5,angle+mouth,angle+2*Math.PI-mouth);
+      ctx.closePath(); ctx.fill();
+    });
+  }
+
+  function openArcade() {
+    const previousFocus = document.activeElement;
+    const dialog = document.createElement('dialog');
+    dialog.className = 'visor-arcade';
+    dialog.setAttribute('aria-labelledby','arcade-title');
+    dialog.innerHTML = `
+      <div class="arcade-cabinet">
+        <header class="arcade-header">
+          <h2 id="arcade-title">PAC-MAN</h2>
+          <div class="arcade-actions">
+            <button type="button" data-restart>Reiniciar</button>
+            <button type="button" data-exit>Volver al visor</button>
+          </div>
+        </header>
+        <div class="arcade-score">
+          <span>Puntos <strong data-score>0</strong></span>
+          <span>Récord <strong data-best>0</strong></span>
+          <span>Vidas <strong data-lives>3</strong></span>
+        </div>
+        <div class="arcade-board">
+          <canvas width="${width*tile}" height="${height*tile}" tabindex="0" aria-label="Laberinto de Pac-Man"></canvas>
+          <p data-status role="status"></p>
+        </div>
+        <p class="arcade-guide">Flechas para moverte · Esc para volver al visor</p>
+      </div>`;
+    const get = selector => dialog.querySelector(selector);
+    const canvas = get('canvas'), status = get('[data-status]');
+    const board = canvas.getContext('2d') && drawBoard();
+    let game = newGame(), frameId, lastFrame = null, elapsed = 0;
+    const messages = {
+      ready:'Usa las flechas para empezar',
+      won:'¡Laberinto completo! Pulsa Enter para volver a jugar',
+      lost:'Fin del juego. Pulsa Enter para volver a jugar',
+    };
+    function updateScore() {
+      best = Math.max(best,game.score);
+      get('[data-score]').textContent = game.score;
+      get('[data-best]').textContent = best;
+      get('[data-lives]').textContent = game.lives;
+      const message = messages[game.phase] || '';
+      if (status.textContent !== message) status.textContent = message;
+      status.hidden = !message;
+    }
+    function restart() {
+      game = newGame(); elapsed = 0; updateScore(); canvas.focus();
+      if (board) paint(canvas,board,game,1);
+    }
+    get('[data-restart]').addEventListener('click',restart);
+    get('[data-exit]').addEventListener('click',() => dialog.close());
+    dialog.addEventListener('keydown',event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        dialog.close();
+        return;
+      }
+      const move = Object.hasOwn(moves,event.key) && moves[event.key];
+      if (event.key === 'Enter' && (game.phase === 'won' || game.phase === 'lost') && event.target === canvas) {
+        event.preventDefault(); restart();
+      } else if (move) {
+        event.preventDefault(); event.stopPropagation();
+        if (game.phase === 'ready' && stepFrom(game.player,move)) {
+          game.phase = 'playing'; elapsed = stepMs; canvas.focus();
+        }
+        game.wanted = move;
+      }
+    });
+    function animate(now) {
+      if (!document.hidden && game.phase === 'playing') {
+        elapsed += Math.min(now-(lastFrame??now),stepMs);
+        if (elapsed >= stepMs) {
+          elapsed -= stepMs;
+          tick(game);
+          updateScore();
+        }
+        if (board) paint(canvas,board,game,game.phase === 'playing' ? elapsed/stepMs : 1);
+      }
+      lastFrame = now;
+      frameId = requestAnimationFrame(animate);
+    }
+    dialog.addEventListener('close',() => {
+      cancelAnimationFrame(frameId);
+      dialog.remove();
+      arcade = null;
+      if (previousFocus?.isConnected) previousFocus.focus({preventScroll:true});
+    },{once:true});
+    document.body.append(dialog);
+    arcade = dialog;
+    dialog.showModal();
+    updateScore();
+    if (board) paint(canvas,board,game,1);
+    canvas.focus();
+    frameId = requestAnimationFrame(animate);
+  }
+
+  document.addEventListener('keydown',event => {
+    if (transitioning || arcade || event.repeat) return;
+    if (event.isComposing || event.altKey || event.ctrlKey || event.metaKey ||
+        event.target?.isContentEditable || event.target?.closest?.('input, textarea, select, [role="textbox"]')) {
+      recent = [];
+      return;
+    }
+    const now = performance.now();
+    if (now-lastKeyTime > 3500) recent = [];
+    lastKeyTime = now;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    recent = [...recent,key].slice(-sequence.length);
+    if (recent.length !== sequence.length || !recent.every((pressed,index) => pressed === sequence[index])) return;
+    event.preventDefault();
+    event.stopPropagation();
+    recent = [];
+    transitioning = true;
+    document.documentElement.classList.add('visor-transition');
+    setTimeout(() => {
+      document.documentElement.classList.remove('visor-transition');
+      transitioning = false;
+      openArcade();
+    },reducedMotion.matches ? 230 : 540);
+  },true);
+  window.addEventListener('blur',() => { recent = []; });
+})();

@@ -343,3 +343,51 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
 .terrain-imagery-credit { position: absolute; top: 16px; left: 18px; max-width: calc(100% - 100px); padding: 6px 9px; border-radius: 7px; background: #0d1d32de; color: #e7f1f5; font-size: 10px; line-height: 1.5; }
 .terrain-imagery-credit a { color: #b9f5e5; }
 #terrain-zoom-level { min-width: 42px; color: var(--muted); font-size: 12px; text-align: center; font-variant-numeric: tabular-nums; }
+
+.visor-transition body { animation: visor-distortion 540ms ease-out both; }
+.visor-transition body::after {
+  content: ""; position: fixed; inset: 0; z-index: 1000; pointer-events: none;
+  background: repeating-linear-gradient(0deg, #060b211f 0 2px, #80c6fd20 2px 5px);
+}
+@keyframes visor-distortion {
+  0%, 100% { filter: none; transform: none; }
+  27% { filter: hue-rotate(72deg) saturate(1.7); transform: translateX(4px) skewX(-.4deg); }
+  61% { filter: hue-rotate(225deg) saturate(1.3); transform: translateX(-3px) skewX(.3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visor-transition body { animation: none; filter: hue-rotate(44deg); }
+  .visor-transition body::after { display: none; }
+}
+
+.visor-arcade {
+  position: fixed; inset: 0; margin: 0; padding: clamp(14px, 3vw, 36px);
+  box-sizing: border-box; width: 100%; height: 100%; max-width: none; max-height: none;
+  border: 0; overflow: auto; overscroll-behavior: contain; color: #eef1ff;
+  background: radial-gradient(ellipse at 50% 0%, #291545, #080515 72%);
+}
+.visor-arcade::backdrop { background: #080a17; }
+.arcade-cabinet { width: min(100%, 900px); margin: auto; }
+.arcade-header, .arcade-score, .arcade-actions {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.arcade-header h2 { color: #ffe45d; font-size: clamp(24px, 5vw, 42px); letter-spacing: .06em; margin: 0; }
+.arcade-actions button {
+  color: #eef1ff; background: #1c2a51; border: 1px solid #526da3; border-radius: 8px;
+  padding: 7px 11px; font: inherit; font-size: 12px; cursor: pointer;
+}
+.arcade-actions button:hover { background: #314675; }
+.arcade-actions button:focus-visible, .arcade-board canvas:focus-visible { outline: 2px solid #ffe45d; outline-offset: 3px; }
+.arcade-score { margin: 14px 0 8px; font-size: 13px; color: #b9c6e4; font-variant-numeric: tabular-nums; }
+.arcade-score strong { margin-left: 4px; color: #fff; }
+.arcade-board { position: relative; margin: auto; width: min(100%, max(280px, calc((100dvh - 160px) * 29 / 17))); }
+.arcade-board canvas {
+  display: block; width: 100%; height: auto; border-radius: 8px;
+  box-shadow: 0 0 0 1px #7134a2, 0 0 38px #a63bff2c, 0 14px 50px #0008;
+}
+.arcade-board [data-status] {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: max-content; max-width: 80%; margin: 0; padding: 9px 14px;
+  color: #ffe45d; background: #0b1027f2; border: 1px solid #8ca4f0;
+  border-radius: 8px; text-align: center; pointer-events: none;
+}
+.arcade-guide { margin: 12px 0 0; color: #b9c6e4; font-size: 12px; text-align: center; }
