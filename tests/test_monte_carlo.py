@@ -1,6 +1,8 @@
 """Semilla, trazabilidad y reglas de agregación del lote E12."""
 
 from types import SimpleNamespace
+import shutil
+import subprocess
 
 import pytest
 
@@ -51,3 +53,40 @@ def test_sampler_is_repeatable_and_aggregation_requires_all_runs(tmp_path, monke
     mc.write_json(mc.result_path(lot, 1), row)
     with pytest.raises(ValueError, match="incompatible"):
         mc.aggregate(lot)
+
+
+def test_dashboard_keeps_monte_carlo_lots_separate_and_filters_runs():
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node opcional para verificar el visor")
+    app = (mc.ROOT / "web/app.js").read_text(encoding="utf-8")
+    source = app[app.index("const mcMetrics"):app.index("const e11Planes")]
+    setup = """
+const assert=require('node:assert/strict');
+function element(){return {children:[],classList:{toggle(){},add(){},remove(){}},value:'all',
+  append(...items){this.children.push(...items);},replaceChildren(){this.children=[];},setAttribute(){},addEventListener(){}};}
+const elements=new Map();
+const $=id=>{if(!elements.has(id))elements.set(id,element());return elements.get(id);};
+const document={createElement:element};
+const num=(value,n)=>value.toFixed(n);
+"""
+    checks = """
+const hash='a'.repeat(64);
+const stat=(limit,count)=>({threshold_c:limit,mean_c:40,percentiles_c:{p05:20,p50:40,p95:70},exceedances:count});
+const summary={manifest_sha256:hash,samples:2,any_exceedances:1,tmax_c:stat(70,1),delta_t_max_c:stat(20,0)};
+const run=(id,temp)=>({manifest_sha256:hash,sample_id:id,parameters:{placement_c:20,theta_inf_c:45,tau_h:30},
+  metrics:{tmax_c:temp,delta_t_max_c:20}});
+mcLot=mergeMonteCarlo(mcLot,[{name:'run.json',data:run(1,71)}]);
+mcLot=mergeMonteCarlo(mcLot,[{name:'aggregate.json',data:summary},{name:'run.json',data:run(0,70)}]);
+drawMonteCarlo();
+assert.equal($('mc-summary-rows').children.length,3);
+assert.match($('mc-status').textContent,/2 simulaciones.*2 corridas/);
+$('mc-filter').value='any';
+drawMonteCarlo();
+assert.equal($('mc-run-rows').children.length,1);
+assert.equal($('mc-run-rows').children[0].children[0].textContent,'1');
+assert.throws(()=>mergeMonteCarlo(mcLot,[{name:'otro.json',data:{...run(0,70),manifest_sha256:'b'.repeat(64)}}]),/otro lote/);
+assert.throws(()=>mergeMonteCarlo(mcLot,[{name:'fuera.json',data:run(2,70)}]),/fuera/);
+"""
+    subprocess.run([node, "-"], input=setup + source + checks, text=True, encoding="utf-8",
+                   check=True, timeout=20)

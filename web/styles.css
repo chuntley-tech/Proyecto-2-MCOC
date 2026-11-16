@@ -216,6 +216,12 @@ input[type=range] { cursor: pointer; accent-color: var(--blue); }
 .project-table th { color: var(--muted); font-weight: 600; font-size: 10px; background: #fafbfd; }
 .project-table tbody tr:hover { background: #f7f9ff; }
 .project-table tbody tr:last-child td { border-bottom: 0; }
+.mc-fraction { display: flex; align-items: center; gap: 8px; }
+.mc-fraction meter { width: 78px; accent-color: #b45309; }
+.mc-run-table { max-height: 420px; overflow: auto; }
+.mc-run-table thead th { position: sticky; top: 0; }
+.mc-exceeds, #mc-error { color: #9a3412; }
+#mc-status { overflow-wrap: anywhere; }
 .scope-note { font-size: 10px; line-height: 1.7; color: var(--muted); padding: 0 19px 18px; }
 footer { font-size: 9px; color: var(--muted); display: flex; justify-content: space-between; padding-top: 22px; gap: 12px; }
 .error { border: 1px solid #f0cdbf; background: #fff5f0; border-radius: 11px; padding: 13px 16px; margin-bottom: 15px; color: #a34a2e; font-size: 12px; }

@@ -493,7 +493,121 @@ for(const [id,hide] of [['show-all-pours',false],['hide-all-pours',true]])$(id).
   for(const input of $('pour-visibility-options').querySelectorAll('input'))input.checked=!hide;
   refreshPourVisibility();
 });
-const tabNames = ['laboratory', 'project', 'terrain', 'weather'];
+const tabNames = ['laboratory', 'project', 'terrain', 'weather', 'monte-carlo'];
+const mcMetrics = [
+  {key:'tmax_c', label:'Temperatura máxima', short:'T máx', limit:70},
+  {key:'delta_t_max_c', label:'Diferencial máximo', short:'ΔT máx', limit:20}
+];
+let mcLot = {hash:null,summary:null,runs:new Map()}, mcLoad = 0;
+
+function mergeMonteCarlo(lot, documents) {
+  const next={...lot, runs:new Map(lot.runs)};
+  const finite=Number.isFinite;
+  for(const {name, data:d} of documents){
+    const invalid=()=>{throw Error(`${name}: formato de resultado Monte Carlo inválido.`);};
+    if(typeof d?.manifest_sha256!=='string'||!/^[a-f0-9]{64}$/.test(d.manifest_sha256))invalid();
+    if(next.hash&&next.hash!==d.manifest_sha256)throw Error(`${name}: pertenece a otro lote. Pulsa Limpiar lote para cambiar de lote.`);
+    next.hash=d.manifest_sha256;
+    if('samples' in d){
+      if(!Number.isSafeInteger(d.samples)||d.samples<1)invalid();
+      const countOk=count=>Number.isSafeInteger(count)&&count>=0&&count<=d.samples;
+      if(!countOk(d.any_exceedances))invalid();
+      for(const {key} of mcMetrics){
+        const s=d[key], p=s?.percentiles_c;
+        if(![s?.threshold_c,s?.mean_c,p?.p05,p?.p50,p?.p95].every(finite)||
+           !countOk(s.exceedances)||s.exceedances>d.any_exceedances||p.p05>p.p50||p.p50>p.p95)invalid();
+      }
+      next.summary=d;
+    }else{
+      if(!Number.isSafeInteger(d.sample_id)||d.sample_id<0||
+        !['placement_c','theta_inf_c','tau_h'].every(key=>finite(d.parameters?.[key]))||
+        !mcMetrics.every(({key})=>finite(d.metrics?.[key])))invalid();
+      next.runs.set(d.sample_id,d);
+    }
+  }
+  if(next.summary&&Array.from(next.runs.keys()).some(id=>id>=next.summary.samples))
+    throw Error('Hay corridas con índices fuera del tamaño declarado por aggregate.json.');
+  return next;
+}
+
+function monteCarloRow(body,values) {
+  const row=document.createElement('tr');
+  for(const value of values){
+    const cell=document.createElement('td');
+    if(typeof value==='string')cell.textContent=value;else cell.append(value);
+    row.append(cell);
+  }
+  body.append(row);
+}
+
+function drawMonteCarlo() {
+  const {hash,summary,runs}=mcLot;
+  $('mc-clear').disabled=!hash;
+  $('mc-summary').classList.toggle('hidden',!summary);
+  $('mc-runs').classList.toggle('hidden',!runs.size);
+  $('mc-status').textContent=hash
+    ?`Lote ${hash.slice(0,12)} · ${summary?`${summary.samples} simulaciones`:'resumen pendiente'} · ${runs.size} corridas cargadas`
+    :'Selecciona los archivos del lote.';
+  const summaryRows=$('mc-summary-rows');
+  summaryRows.replaceChildren();
+  if(summary){
+    const frequency=count=>{
+      const group=document.createElement('span'), meter=document.createElement('meter');
+      group.className='mc-fraction';meter.max=summary.samples;meter.value=count;meter.setAttribute('aria-hidden','true');
+      group.append(meter,`${count}/${summary.samples} · ${num(100*count/summary.samples,1)} %`);
+      return group;
+    };
+    for(const {key,label} of mcMetrics){
+      const stat=summary[key];
+      monteCarloRow(summaryRows,[`${label} > ${num(stat.threshold_c,0)} °C`,frequency(stat.exceedances),
+        ...[stat.mean_c,stat.percentiles_c.p05,stat.percentiles_c.p50,stat.percentiles_c.p95].map(v=>`${num(v,2)} °C`)]);
+    }
+    monteCarloRow(summaryRows,['Cualquiera de los dos',frequency(summary.any_exceedances),'—','—','—','—']);
+  }
+  const filter=$('mc-filter').value, runRows=$('mc-run-rows');
+  runRows.replaceChildren();
+  let visible=0;
+  for(const row of Array.from(runs.values()).sort((a,b)=>a.sample_id-b.sample_id)){
+    const failed=mcMetrics.filter(({key,limit})=>row.metrics[key]>(summary?.[key].threshold_c??limit));
+    if(filter!=='all'&&!(filter==='any'?failed.length:filter==='pass'?!failed.length:failed.some(m=>m.key===filter)))continue;
+    visible++;
+    const status=document.createElement('span');
+    status.classList.toggle('mc-exceeds',failed.length>0);
+    status.textContent=failed.map(m=>m.short).join(' y ')||'Ninguno';
+    monteCarloRow(runRows,[String(row.sample_id),...['placement_c','theta_inf_c','tau_h'].map(key=>num(row.parameters[key],2)),
+      ...mcMetrics.map(({key})=>num(row.metrics[key],2)),status]);
+  }
+  $('mc-run-count').textContent=`${visible} de ${runs.size} cargadas${summary?' · '+summary.samples+' en el lote':' · umbrales E12 de 70 °C y 20 °C'}`;
+}
+
+$('mc-files').addEventListener('change',async event=>{
+  const files=Array.from(event.target.files), revision=++mcLoad;
+  if(!files.length)return;
+  event.target.value='';
+  const error=$('mc-error');
+  error.classList.add('hidden');
+  try{
+    const documents=await Promise.all(files.map(async file=>{
+      try{return {name:file.name,data:JSON.parse(await file.text())};}
+      catch{throw Error(`${file.name}: no se pudo leer como JSON.`);}
+    }));
+    if(revision!==mcLoad)return;
+    mcLot=mergeMonteCarlo(mcLot,documents);
+    drawMonteCarlo();
+  }catch(problem){
+    if(revision!==mcLoad)return;
+    error.textContent=problem.message;
+    error.classList.remove('hidden');
+  }
+});
+$('mc-filter').addEventListener('change',drawMonteCarlo);
+$('mc-clear').addEventListener('click',()=>{
+  mcLoad++;
+  mcLot={hash:null,summary:null,runs:new Map()};
+  $('mc-filter').value='all';
+  $('mc-error').classList.add('hidden');
+  drawMonteCarlo();
+});
 const e11Planes = {xz:[0,2,1], yz:[1,2,0], xy:[0,1,2]};
 const e11Curves = [
   ['núcleo','#dc2626'], ['superficie superior','#ea580c'], ['superficie lateral','#7c3aed'],

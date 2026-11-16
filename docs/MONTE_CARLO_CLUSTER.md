@@ -23,6 +23,14 @@ predeterminada es 336 h, y omitir `--coarsen` usa la resolución de E12.
 Cada lote requiere un directorio nuevo para el muestreo. El comando
 `run <lote> <índice>` permite repetir una tarea faltante.
 
+## Explorar en el visor HTML
+
+Abre `visor_termico.html` y entra en **Monte Carlo**. Carga `aggregate.json`
+para ver los percentiles y las frecuencias de superación. Puedes añadir los
+JSON que están dentro de `runs/` en el mismo paso o más tarde, y filtrar
+las corridas por cuál de los límites superan. Usa **Limpiar lote** para
+cambiar de manifiesto. La pestaña lee los resultados localmente.
+
 ## Slurm
 
 Ejecuta desde la raíz del proyecto, con el entorno Python activo y el

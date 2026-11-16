@@ -191,6 +191,7 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert 'source-example' not in text and 'source-activate' not in text
     assert 'id="tab-project"' in text and 'id="panel-project"' in text
     assert 'id="tab-terrain"' in text and 'id="terrain-beacon"' in text
+    assert 'id="tab-monte-carlo"' in text and 'id="mc-files"' in text
     embedded_relief = re.search(r'<script id="mcoc-terrain" type="application/json">(.*?)</script>', text, re.S)
     assert embedded_relief is not None
     terrain = json.loads(embedded_relief.group(1))

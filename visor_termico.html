@@ -225,6 +225,12 @@ input[type=range] { cursor: pointer; accent-color: var(--blue); }
 .project-table th { color: var(--muted); font-weight: 600; font-size: 10px; background: #fafbfd; }
 .project-table tbody tr:hover { background: #f7f9ff; }
 .project-table tbody tr:last-child td { border-bottom: 0; }
+.mc-fraction { display: flex; align-items: center; gap: 8px; }
+.mc-fraction meter { width: 78px; accent-color: #b45309; }
+.mc-run-table { max-height: 420px; overflow: auto; }
+.mc-run-table thead th { position: sticky; top: 0; }
+.mc-exceeds, #mc-error { color: #9a3412; }
+#mc-status { overflow-wrap: anywhere; }
 .scope-note { font-size: 10px; line-height: 1.7; color: var(--muted); padding: 0 19px 18px; }
 footer { font-size: 9px; color: var(--muted); display: flex; justify-content: space-between; padding-top: 22px; gap: 12px; }
 .error { border: 1px solid #f0cdbf; background: #fff5f0; border-radius: 11px; padding: 13px 16px; margin-bottom: 15px; color: #a34a2e; font-size: 12px; }
@@ -351,6 +357,7 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
     <button id="tab-project" role="tab" aria-selected="false" aria-controls="panel-project" tabindex="-1" type="button">Información del proyecto</button>
     <button id="tab-terrain" role="tab" aria-selected="false" aria-controls="panel-terrain" tabindex="-1" type="button">Terreno 3D</button>
     <button id="tab-weather" role="tab" aria-selected="false" aria-controls="panel-weather" tabindex="-1" type="button">Clima 3D · E11</button>
+    <button id="tab-monte-carlo" role="tab" aria-selected="false" aria-controls="panel-monte-carlo" tabindex="-1" type="button">Monte Carlo</button>
   </nav>
   <div class="workspace" id="panel-laboratory" role="tabpanel" aria-labelledby="tab-laboratory">
     <aside class="sidebar">
@@ -549,6 +556,37 @@ footer { font-size: 9px; color: var(--muted); display: flex; justify-content: sp
       <article class="card info-card"><h2>Vertidas y superficies temporales</h2><p>En modo simultáneo, variar solo la cantidad de capas conserva el problema térmico. En modo por etapas, cada capa entra en su instante y a su temperatura de colocación, con <strong>te = 0</strong>. El hormigón futuro permanece fuera del intercambio térmico.</p><p>Una superficie temporal recibe la condición principal mientras está expuesta. Al colocar la capa vecina pasa a ser una interfaz conductiva interna. El balance incluye la energía incorporada con el hormigón nuevo, además de la fuente y los bordes.</p><p>La colocación es instantánea por capa y el material es común. No se simulan llenado gradual, resistencia de junta ni viento, radiación o suelo reales. Ocultar una vertida es un filtro visual: conserva el cálculo, las estadísticas y la exportación completos.</p></article>
       <article class="card info-card"><h2>Cómo interpretar los resultados</h2><p>Dirichlet prescribe la temperatura en la <strong>cara</strong>; el centro de la celda puede tener otra temperatura. Neumann positivo aporta calor hacia el hormigón. Robin intercambia calor según la temperatura superficial y el ambiente; la condición de la base se configura por separado.</p><p>La máxima, mínima y media se calculan sobre el hormigón activo de cada instante. La sonda central corresponde a la posición indicada; muestra «—» antes de colocarse. Las curvas contienen estados guardados: su máximo no garantiza capturar el pico continuo entre ellos.</p><p>La voxelización clasifica centros, aproxima fronteras escalonadas y estima volumen como Nceldas · ΔxΔyΔz. Refinar la grilla ayuda a estudiar ese error. La estabilidad y un residuo energético pequeño verifican aspectos numéricos; la precisión física requiere propiedades, bordes y cinética contrastados con datos del caso.</p></article>
     </div>
+  </section>
+  <section id="panel-monte-carlo" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-monte-carlo">
+    <h1>Monte Carlo · Fundación G8</h1>
+    <p class="project-intro">Abre <code>aggregate.json</code> para ver el lote. Selecciona también los archivos JSON de <code>runs/</code> para explorar las corridas.</p>
+    <section class="card">
+      <div class="card-heading">
+        <div><h2>Resultados guardados</h2><p id="mc-status" role="status">Selecciona los archivos del lote.</p></div>
+        <div class="view-tools">
+          <label class="stacked">Archivos JSON<input id="mc-files" type="file" accept=".json,application/json" multiple></label>
+          <button id="mc-clear" class="secondary" type="button" disabled>Limpiar lote</button>
+        </div>
+      </div>
+      <p id="mc-error" class="scope-note hidden" role="alert"></p>
+    </section>
+    <section id="mc-summary" class="card height-card hidden">
+      <div class="card-heading"><div><h2>Frecuencia de superación</h2><p>Fracción de las simulaciones del lote que supera cada límite.</p></div></div>
+      <div class="table-scroll"><table class="project-table">
+        <thead><tr><th scope="col">Criterio</th><th scope="col">Superaciones</th><th scope="col">Media</th><th scope="col">P05</th><th scope="col">P50</th><th scope="col">P95</th></tr></thead>
+        <tbody id="mc-summary-rows"></tbody>
+      </table></div>
+    </section>
+    <section id="mc-runs" class="card height-card hidden">
+      <div class="card-heading">
+        <div><h2>Corridas individuales</h2><p id="mc-run-count"></p></div>
+        <label>Mostrar <select id="mc-filter"><option value="all">Todas</option><option value="any">Supera algún límite</option><option value="tmax_c">Supera temperatura máxima</option><option value="delta_t_max_c">Supera diferencial máximo</option><option value="pass">Dentro de ambos límites</option></select></label>
+      </div>
+      <div class="table-scroll mc-run-table"><table class="project-table">
+        <thead><tr><th scope="col">Muestra</th><th scope="col">Colocación [°C]</th><th scope="col">Elevación adiabática [°C]</th><th scope="col">τ hidratación [h]</th><th scope="col">T máx [°C]</th><th scope="col">ΔT máx [°C]</th><th scope="col">Supera</th></tr></thead>
+        <tbody id="mc-run-rows"></tbody>
+      </table></div>
+    </section>
   </section>
   <section id="panel-weather" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-weather">
     <h1>Clima y temperaturas · E11</h1>
@@ -1768,7 +1806,121 @@ for(const [id,hide] of [['show-all-pours',false],['hide-all-pours',true]])$(id).
   for(const input of $('pour-visibility-options').querySelectorAll('input'))input.checked=!hide;
   refreshPourVisibility();
 });
-const tabNames = ['laboratory', 'project', 'terrain', 'weather'];
+const tabNames = ['laboratory', 'project', 'terrain', 'weather', 'monte-carlo'];
+const mcMetrics = [
+  {key:'tmax_c', label:'Temperatura máxima', short:'T máx', limit:70},
+  {key:'delta_t_max_c', label:'Diferencial máximo', short:'ΔT máx', limit:20}
+];
+let mcLot = {hash:null,summary:null,runs:new Map()}, mcLoad = 0;
+
+function mergeMonteCarlo(lot, documents) {
+  const next={...lot, runs:new Map(lot.runs)};
+  const finite=Number.isFinite;
+  for(const {name, data:d} of documents){
+    const invalid=()=>{throw Error(`${name}: formato de resultado Monte Carlo inválido.`);};
+    if(typeof d?.manifest_sha256!=='string'||!/^[a-f0-9]{64}$/.test(d.manifest_sha256))invalid();
+    if(next.hash&&next.hash!==d.manifest_sha256)throw Error(`${name}: pertenece a otro lote. Pulsa Limpiar lote para cambiar de lote.`);
+    next.hash=d.manifest_sha256;
+    if('samples' in d){
+      if(!Number.isSafeInteger(d.samples)||d.samples<1)invalid();
+      const countOk=count=>Number.isSafeInteger(count)&&count>=0&&count<=d.samples;
+      if(!countOk(d.any_exceedances))invalid();
+      for(const {key} of mcMetrics){
+        const s=d[key], p=s?.percentiles_c;
+        if(![s?.threshold_c,s?.mean_c,p?.p05,p?.p50,p?.p95].every(finite)||
+           !countOk(s.exceedances)||s.exceedances>d.any_exceedances||p.p05>p.p50||p.p50>p.p95)invalid();
+      }
+      next.summary=d;
+    }else{
+      if(!Number.isSafeInteger(d.sample_id)||d.sample_id<0||
+        !['placement_c','theta_inf_c','tau_h'].every(key=>finite(d.parameters?.[key]))||
+        !mcMetrics.every(({key})=>finite(d.metrics?.[key])))invalid();
+      next.runs.set(d.sample_id,d);
+    }
+  }
+  if(next.summary&&Array.from(next.runs.keys()).some(id=>id>=next.summary.samples))
+    throw Error('Hay corridas con índices fuera del tamaño declarado por aggregate.json.');
+  return next;
+}
+
+function monteCarloRow(body,values) {
+  const row=document.createElement('tr');
+  for(const value of values){
+    const cell=document.createElement('td');
+    if(typeof value==='string')cell.textContent=value;else cell.append(value);
+    row.append(cell);
+  }
+  body.append(row);
+}
+
+function drawMonteCarlo() {
+  const {hash,summary,runs}=mcLot;
+  $('mc-clear').disabled=!hash;
+  $('mc-summary').classList.toggle('hidden',!summary);
+  $('mc-runs').classList.toggle('hidden',!runs.size);
+  $('mc-status').textContent=hash
+    ?`Lote ${hash.slice(0,12)} · ${summary?`${summary.samples} simulaciones`:'resumen pendiente'} · ${runs.size} corridas cargadas`
+    :'Selecciona los archivos del lote.';
+  const summaryRows=$('mc-summary-rows');
+  summaryRows.replaceChildren();
+  if(summary){
+    const frequency=count=>{
+      const group=document.createElement('span'), meter=document.createElement('meter');
+      group.className='mc-fraction';meter.max=summary.samples;meter.value=count;meter.setAttribute('aria-hidden','true');
+      group.append(meter,`${count}/${summary.samples} · ${num(100*count/summary.samples,1)} %`);
+      return group;
+    };
+    for(const {key,label} of mcMetrics){
+      const stat=summary[key];
+      monteCarloRow(summaryRows,[`${label} > ${num(stat.threshold_c,0)} °C`,frequency(stat.exceedances),
+        ...[stat.mean_c,stat.percentiles_c.p05,stat.percentiles_c.p50,stat.percentiles_c.p95].map(v=>`${num(v,2)} °C`)]);
+    }
+    monteCarloRow(summaryRows,['Cualquiera de los dos',frequency(summary.any_exceedances),'—','—','—','—']);
+  }
+  const filter=$('mc-filter').value, runRows=$('mc-run-rows');
+  runRows.replaceChildren();
+  let visible=0;
+  for(const row of Array.from(runs.values()).sort((a,b)=>a.sample_id-b.sample_id)){
+    const failed=mcMetrics.filter(({key,limit})=>row.metrics[key]>(summary?.[key].threshold_c??limit));
+    if(filter!=='all'&&!(filter==='any'?failed.length:filter==='pass'?!failed.length:failed.some(m=>m.key===filter)))continue;
+    visible++;
+    const status=document.createElement('span');
+    status.classList.toggle('mc-exceeds',failed.length>0);
+    status.textContent=failed.map(m=>m.short).join(' y ')||'Ninguno';
+    monteCarloRow(runRows,[String(row.sample_id),...['placement_c','theta_inf_c','tau_h'].map(key=>num(row.parameters[key],2)),
+      ...mcMetrics.map(({key})=>num(row.metrics[key],2)),status]);
+  }
+  $('mc-run-count').textContent=`${visible} de ${runs.size} cargadas${summary?' · '+summary.samples+' en el lote':' · umbrales E12 de 70 °C y 20 °C'}`;
+}
+
+$('mc-files').addEventListener('change',async event=>{
+  const files=Array.from(event.target.files), revision=++mcLoad;
+  if(!files.length)return;
+  event.target.value='';
+  const error=$('mc-error');
+  error.classList.add('hidden');
+  try{
+    const documents=await Promise.all(files.map(async file=>{
+      try{return {name:file.name,data:JSON.parse(await file.text())};}
+      catch{throw Error(`${file.name}: no se pudo leer como JSON.`);}
+    }));
+    if(revision!==mcLoad)return;
+    mcLot=mergeMonteCarlo(mcLot,documents);
+    drawMonteCarlo();
+  }catch(problem){
+    if(revision!==mcLoad)return;
+    error.textContent=problem.message;
+    error.classList.remove('hidden');
+  }
+});
+$('mc-filter').addEventListener('change',drawMonteCarlo);
+$('mc-clear').addEventListener('click',()=>{
+  mcLoad++;
+  mcLot={hash:null,summary:null,runs:new Map()};
+  $('mc-filter').value='all';
+  $('mc-error').classList.add('hidden');
+  drawMonteCarlo();
+});
 const e11Planes = {xz:[0,2,1], yz:[1,2,0], xy:[0,1,2]};
 const e11Curves = [
   ['núcleo','#dc2626'], ['superficie superior','#ea580c'], ['superficie lateral','#7c3aed'],
