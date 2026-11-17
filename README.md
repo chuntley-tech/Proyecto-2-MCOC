@@ -42,9 +42,8 @@ Abrir [visor_termico.html](visor_termico.html) con doble clic en un navegador
 moderno. Para compartirlo, basta copiar ese archivo: incluye la geometría y el
 cálculo local, sin instalar Python ni usar un servidor o Internet.
 
-El diseño conserva la distribución de controles y gráficos. La tipografía
-Inter de Google Fonts y su licencia están incluidas en el archivo portátil,
-por lo que tampoco necesitan conexión a Internet.
+El diseño conserva la distribución de controles y gráficos. El visor usa la
+tipografía del sistema, disponible también sin Internet.
 
 Permite cambiar parámetros, calcular temperaturas, girar el modelo 3D, abrir
 cortes, recorrer el tiempo y consultar gráficos en 1D, 2D y 3D. Los ensayos son

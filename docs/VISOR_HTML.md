@@ -8,9 +8,8 @@ gráficos, cálculo térmico y geometría voxelizada: no requiere Python, Blende
 Node, un servidor ni conexión a Internet. No depende de una ruta de este equipo.
 
 La presentación mantiene los paneles y gráficos en sus ubicaciones originales,
-con una cabecera, botones y tarjetas renovados. Usa Inter de Google Fonts,
-distribuida con licencia SIL OFL 1.1. La fuente y su licencia están incrustadas
-en el HTML: la tipografía también funciona sin Internet. El CSS contempla
+con una cabecera, botones y tarjetas renovados. Usa la tipografía del sistema.
+El CSS contempla
 estados de foco, hover, deshabilitado y la preferencia de movimiento reducido.
 
 El cálculo se ejecuta en un Web Worker del navegador. La vista 3D usa WebGL2;

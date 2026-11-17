@@ -236,12 +236,8 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
     assert base64.b64decode(texture.group(1)) == (ROOT/"web/terrain_g8.jpg").read_bytes()
     assert 'Contains modified Copernicus Sentinel data 2016' in text
     assert 'id="foundation_geometry"' in text and 'id="pour_count"' in text
-    # La fuente de Google Fonts y su licencia viajan dentro del único HTML.
-    embedded_font=re.search(r'data:font/ttf;base64,([A-Za-z0-9+/=]+)',text)
-    assert embedded_font is not None
-    assert base64.b64decode(embedded_font.group(1)) == (ROOT/"web/fonts/Inter-Variable.ttf").read_bytes()
-    assert 'id="mcoc-font-license"' in text and 'SIL OPEN FONT LICENSE' in text
-    assert "font-src data:" in text
+    assert "font-src 'none'" in text and "system-ui" in text
+    assert "@font-face" not in text and "data:font/" not in text
     assert output.stat().st_size < 5_100_000  # Incluye la campaña ampliada y sus figuras.
 
 

@@ -23,8 +23,7 @@ EXAMPLE_ROUTE = re.compile(r"/api/examples/(weather|monte-carlo)")
 ASSETS = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
           "/terrain.js": ("terrain.js", "text/javascript"), "/terrain_g8.json": ("terrain_g8.json", "application/json"),
           "/terrain_g8.jpg": ("terrain_g8.jpg", "image/jpeg"),
-          "/styles.css": ("styles.css", "text/css"), "/visor_termico.html": ("../visor_termico.html", "text/html"),
-          "/fonts/Inter-Variable.ttf": ("fonts/Inter-Variable.ttf", "font/ttf")}
+          "/styles.css": ("styles.css", "text/css"), "/visor_termico.html": ("../visor_termico.html", "text/html")}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -41,8 +40,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
-        policy = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; font-src data:; connect-src 'none'; frame-ancestors 'none'"
-                  if portable else "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'")
+        policy = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; font-src 'none'; connect-src 'none'; frame-ancestors 'none'"
+                  if portable else "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'self'; frame-ancestors 'none'")
         self.send_header("Content-Security-Policy", policy)
         if compressed:
             self.send_header("Content-Encoding", "gzip")

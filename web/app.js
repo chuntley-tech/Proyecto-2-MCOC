@@ -266,7 +266,7 @@ function heatmap(id,primary=false) {
     im.data.set([...rgb,255],offset);
   }
   pctx.putImageData(im,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(pixels,box.x,box.y,box.w,box.h);
-  const ink=primary?'#a4b4c7':'#62738b';ctx.font='10px Inter, system-ui, sans-serif';ctx.fillStyle=ink;
+  const ink=primary?'#a4b4c7':'#62738b';ctx.font='10px system-ui, sans-serif';ctx.fillStyle=ink;
   ctx.strokeStyle=primary?'#496079':'#d8e0ea';ctx.strokeRect(box.x,box.y,box.w,box.h);
   for(let n=0;n<=4;n++) {
     const f=n/4;
@@ -286,7 +286,7 @@ function lineChart(id,series,xs,options={}) {
   const pad=Math.max(0.5,(hi-lo)*0.12);lo-=pad;hi+=pad;
   if(options.minY!==undefined)lo=options.minY;
   const end=Math.max(xs.at(-1),1e-9), tx=x=>box.x+x/end*box.w, ty=t=>box.y+(hi-t)/(hi-lo)*box.h;
-  ctx.font='10px Inter, system-ui, sans-serif';
+  ctx.font='10px system-ui, sans-serif';
   for(let i=0;i<=4;i++) {const f=i/4,y=box.y+f*box.h;ctx.strokeStyle=dark?'#30465d':'#edf0f5';ctx.beginPath();ctx.moveTo(box.x,y);ctx.lineTo(w-18,y);ctx.stroke();ctx.fillStyle=ink;ctx.textAlign='right';ctx.fillText(num(hi-f*(hi-lo),1),box.x-7,y+3);ctx.textAlign='center';ctx.fillText(num(f*end,options.xDecimals??1),tx(f*end),box.y+box.h+17);}
   for(const s of series) {ctx.strokeStyle=s.color;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dashed?[6,4]:[]);ctx.beginPath();let connected=false;s.values.forEach((v,i)=>{if(!Number.isFinite(v)){connected=false;return;}if(connected)ctx.lineTo(tx(xs[i]),ty(v));else ctx.moveTo(tx(xs[i]),ty(v));connected=true;});ctx.stroke();ctx.setLineDash([]);
     if(options.frame!==undefined&&Number.isFinite(s.values[options.frame])){ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(tx(xs[options.frame]),ty(s.values[options.frame]),4,0,2*Math.PI);ctx.fill();}}
@@ -773,7 +773,7 @@ function e11DrawSlice(index) {
     ctx.strokeStyle='#142337';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x,y,radius,0,2*Math.PI);ctx.stroke();
     ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
   }
-  ctx.fillStyle='#62738b';ctx.font='12px Inter, system-ui, sans-serif';ctx.textAlign='center';
+  ctx.fillStyle='#62738b';ctx.font='12px system-ui, sans-serif';ctx.textAlign='center';
   ctx.fillText(`${'XYZ'[u]} [m] · ${num(origin[u],2)} a ${num(origin[u]+shape[u]*spacing[u],2)}`,w/2,h-5);
   ctx.save();ctx.translate(12,h/2);ctx.rotate(-Math.PI/2);
   ctx.fillText(`${'XYZ'[v]} [m] · ${num(origin[v],2)} a ${num(origin[v]+shape[v]*spacing[v],2)}`,0,0);ctx.restore();

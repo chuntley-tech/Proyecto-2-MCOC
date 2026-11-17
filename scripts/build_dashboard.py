@@ -41,12 +41,10 @@ def build(output):
     pack = json.dumps(build_pack(), ensure_ascii=False, separators=(",", ":"), allow_nan=False).replace("<", "\\u003c")
     html = (web/"index.html").read_text(encoding="utf-8")
     css = (web/"styles.css").read_text(encoding="utf-8")
-    font = base64.b64encode((web/"fonts/Inter-Variable.ttf").read_bytes()).decode("ascii")
-    css = css.replace("/fonts/Inter-Variable.ttf", "data:font/ttf;base64,"+font)
     html = html.replace('<link rel="stylesheet" href="/styles.css">', '<style>\n'+css+'\n</style>')
     html = html.replace('<script src="/app.js" defer></script>', '')
     html = html.replace('<script src="/terrain.js" defer></script>', '')
-    policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; font-src data:; connect-src 'none'; base-uri 'none'; object-src 'none'"
+    policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data: blob:; font-src 'none'; connect-src 'none'; base-uri 'none'; object-src 'none'"
     html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="'+policy+'">')
     html = html.replace('href="/"', 'href="#"')
     worker = (web/"solver_worker.js").read_text(encoding="utf-8").replace('</script', '<\\/script')
@@ -59,8 +57,6 @@ def build(output):
                 '<script id="mcoc-terrain" type="application/json">'+relief+'</script>\n'
                 '<script id="mcoc-texture" type="text/plain">'+texture+'</script>\n'
                 '<script>\n'+terrain+'\n'+app+'\n</script>')
-    license_text = (web/"fonts/OFL.txt").read_text(encoding="utf-8").replace("<", "\\u003c")
-    embedded += '\n<script id="mcoc-font-license" type="text/plain">'+license_text+'</script>'
     for key, path in EXAMPLES.items():
         compressed = base64.b64encode(gzip.compress(path.read_bytes(), mtime=0)).decode("ascii")
         embedded += f'\n<script id="mcoc-example-{key}" type="text/plain">{compressed}</script>'
