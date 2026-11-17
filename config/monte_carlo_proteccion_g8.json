@@ -1,0 +1,5 @@
+{
+  "extends": "monte_carlo_final_g8.json",
+  "candidate_campaign": "final_g8_proteccion.json",
+  "end_h": 2640
+}

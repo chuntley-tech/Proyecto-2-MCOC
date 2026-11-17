@@ -28,6 +28,27 @@ independiente con `python -m scripts.final_mc confirm "$ROOT/confirm" --shortlis
 Ejecutarlo y agregarlo con los mismos comandos. El JSON fija la semilla
 de confirmación.
 
+## Comprobación de S7
+
+S7 conserva su IFC, colocación nominal a 16 °C y retiro completo al día
+105. El lote usa las distribuciones y las dos semillas del Monte Carlo
+final con horizonte de 110 días. El criterio exige que la cota superior
+del IC bilateral del 95 % para la unión sea estrictamente menor que 5 %.
+
+```sh
+CONFIG=config/monte_carlo_proteccion_g8.json
+BASE=results/final/g8_20261119_mc/s7_base
+CONFIRM=results/final/g8_20261119_mc/s7_confirm
+python -m scripts.final_mc sample "$BASE" --config "$CONFIG"
+python -m scripts.final_campaign local "$BASE" --workers 8
+python -m scripts.final_mc aggregate "$BASE"
+# Si S7 cumple en el lote base:
+python -m scripts.final_mc confirm "$CONFIRM" --config "$CONFIG" --plan S7
+python -m scripts.final_campaign local "$CONFIRM" --workers 8
+python -m scripts.final_mc aggregate "$CONFIRM"
+python -m scripts.build_dashboard
+```
+
 ## Job array y agregación en Slurm
 
 Después de preparar el lote, ejecutar desde la raíz del repositorio.

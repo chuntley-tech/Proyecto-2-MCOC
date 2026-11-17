@@ -1,0 +1,97 @@
+{
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "original_matches": true,
+  "source": "data/hydration/source_terms.txt",
+  "hydration_audit": {
+    "M1_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 88.148347776,
+      "header_heat_mj_m3": 88.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.135648
+    },
+    "M2_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 95.71522170599998,
+      "header_heat_mj_m3": 95.7,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 94.14901087199999,
+      "header_heat_mj_m3": 94.1,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_SS": {
+      "record_end_h": 240.333,
+      "record_samples": 1443,
+      "record_heat_mj_m3": 100.166110776,
+      "header_heat_mj_m3": 100.2,
+      "initial_model_heat_mj_m3": 0.0,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M1_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 61.21202113799998,
+      "header_heat_mj_m3": 61.2,
+      "initial_model_heat_mj_m3": 0.033875999999999996,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M2_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 82.44622566,
+      "header_heat_mj_m3": 82.4,
+      "initial_model_heat_mj_m3": 0.162756,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M3_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.288830276,
+      "header_heat_mj_m3": 73.3,
+      "initial_model_heat_mj_m3": 0.070992,
+      "tail_model_heat_mj_m3": 0.0
+    },
+    "M4_22A": {
+      "record_end_h": 163.0,
+      "record_samples": 979,
+      "record_heat_mj_m3": 73.62834362999999,
+      "header_heat_mj_m3": 73.6,
+      "initial_model_heat_mj_m3": 0.170316,
+      "tail_model_heat_mj_m3": 0.0
+    }
+  },
+  "batches": [
+    {
+      "name": "s7_base",
+      "seed": 20261119,
+      "n": 100,
+      "curves": [
+        "M1_SS",
+        "M2_SS",
+        "M3_SS",
+        "M4_SS"
+      ],
+      "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956"
+    },
+    {
+      "name": "s7_confirm",
+      "seed": 20261219,
+      "n": 100,
+      "curves": [
+        "M1_SS",
+        "M2_SS",
+        "M3_SS",
+        "M4_SS"
+      ],
+      "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956"
+    }
+  ]
+}

@@ -20,10 +20,19 @@ FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_proteccion"
 if not (FINAL_BUNDLE / "verification.json").is_file():
     FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_ampliada"
 FINAL_MC = mc.ROOT / "results/final/g8_20261119_mc/base31/comparison.json"
+PROTECTION_MC = mc.ROOT / "results/final/g8_20261119_mc/s7_confirm/comparison.json"
 
 
 def final_example():
     """Empaqueta la campaña verificada y sus figuras para ambas versiones del visor."""
+    if PROTECTION_MC.is_file():
+        folder = PROTECTION_MC.parent.parent / "s7_figures"
+        figures = {label: base64.b64encode((folder / f"{name}.png").read_bytes()).decode("ascii")
+                   for name, label in (("hidratacion", "Fuente de calor de las probetas"),
+                                       ("maximos", "Máximos por simulación S7"),
+                                       ("riesgo", "Riesgo conjunto e intervalo de confianza"))
+                   if (folder / f"{name}.png").is_file()}
+        return {"campaign":mc.read_json(PROTECTION_MC),"figures":figures}
     if FINAL_MC.is_file():
         return {"campaign":mc.read_json(FINAL_MC),"figures":{}}
     comparison = FINAL_BUNDLE / "comparison.json"

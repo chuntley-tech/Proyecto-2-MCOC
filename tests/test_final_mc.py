@@ -83,3 +83,21 @@ def test_volume_partition_and_richardson():
     fit = final_mc_refinement.richardson([24.,21.,20.25])
     assert fit == pytest.approx({"order":2.,"extrapolated_c":20.})
     assert final_mc_refinement.richardson([22.,20.,22.])["extrapolated_c"] is None
+
+
+def test_protection_mc_preserves_s7_nominal_and_uses_independent_seed(tmp_path, monkeypatch):
+    settings = final_mc.read_settings(final_mc.CONFIG.with_name("monte_carlo_proteccion_g8.json"))
+    monkeypatch.setattr(final_campaign,"resolve_campaign",lambda config:config)
+    monkeypatch.setattr(final_mc,"complete_members",lambda config,hours: (["","_member01"],165,[]))
+    monkeypatch.setattr(final_campaign,"weather_snapshot",lambda folder:({"sha256":"clima"},{}))
+    monkeypatch.setattr(final_campaign,"voxels",lambda mesh:(None,None,None,"ifc"))
+    main, confirm = tmp_path/"main", tmp_path/"confirm"
+    assert final_mc.prepare(main,settings,"sample",size=3)==3
+    assert final_mc.prepare(confirm,{**settings,"confirm_ids":["S7"]},"confirm",size=3)==3
+    first = monte_carlo.read_json(main/"manifest.json")
+    second = monte_carlo.read_json(confirm/"manifest.json")
+    assert first["config"]["max_hours"]==2640
+    assert first["config"]["plans"][0]["placement_c"]==16
+    assert {row["plan"] for row in first["jobs"]}=={"S7"}
+    assert all(14 <= row["placement_c"] <= 18 for row in first["jobs"])
+    assert first["seed"]!=second["seed"] and first["jobs"]!=second["jobs"]

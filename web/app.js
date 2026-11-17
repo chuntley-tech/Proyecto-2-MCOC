@@ -987,6 +987,17 @@ function drawPlanScenarios(){
 
 function showPlans(bundle){
   const campaign=bundle.campaign;
+  $('plans-figures').replaceChildren(...Object.entries(bundle.figures||{}).map(([label,data])=>{
+    const figure=document.createElement('figure'), img=document.createElement('img');
+    figure.className='card plans-figure';
+    img.alt=label;
+    img.loading='lazy';
+    img.src='data:image/png;base64,'+data;
+    const caption=document.createElement('figcaption');
+    caption.textContent=label;
+    figure.append(img,caption);
+    return figure;
+  }));
   if(campaign?.format==='mcoc-monte-carlo-v1'&&Array.isArray(campaign.plans)&&campaign.plans.length){
     plansCampaign=campaign;
     $('plans-results').classList.add('hidden');
@@ -1017,15 +1028,6 @@ function showPlans(bundle){
   const selector=$('plan-choice');
   selector.replaceChildren(...campaign.plans.map(plan=>new Option(`${plan.id} · ${plan.label}`,plan.id)));
   selector.value=campaign.selected||campaign.plans.reduce((a,b)=>a.max_delta_c<=b.max_delta_c?a:b).id;
-  $('plans-figures').replaceChildren(...Object.entries(bundle.figures||{}).map(([label,data])=>{
-    const figure=document.createElement('figure'), img=document.createElement('img');
-    figure.className='card plans-figure';
-    img.alt=label;
-    img.loading='lazy';
-    img.src='data:image/png;base64,'+data;
-    figure.append(img);
-    return figure;
-  }));
   const evidence=campaign.verification;
   $('plans-verification').classList.toggle('hidden',!evidence);
   $('plans-verification-rows').replaceChildren();

@@ -15,6 +15,14 @@ from weather.series import HOUR, from_open_meteo, to_epoch
 CONFIG = campaign.ROOT / "config/monte_carlo_final_g8.json"
 
 
+def read_settings(path):
+    settings = io.read_json(path)
+    parent = settings.pop("extends", None)
+    if parent:
+        return {**io.read_json(path.parent/parent), **settings}
+    return settings
+
+
 def complete_members(config, minimum_hours):
     """Exige datos de aire, viento y radiación en una ventana horaria desde t₀."""
     meta, payload = campaign.weather_snapshot(config["weather_snapshot"])
@@ -140,12 +148,16 @@ def _job(plan, realization, settings, index=0):
 
 
 def prepare(out, settings, phase, shortlist=None, variant="base", size=None):
-    config = io.read_json(campaign.CONFIG)
+    candidate = settings.get("candidate_campaign")
+    config = io.read_json(campaign.CONFIG.parent/candidate if candidate else campaign.CONFIG)
     refs = [plan for plan in config["plans"] if plan["id"] in {"C","C3"}]
     if phase == "screen":
         config["plans"] = grid_plans(settings) + refs
     else:
-        config["plans"] = [plan for plan in shortlist if phase != "confirm" or plan["id"] in settings["confirm_ids"]]
+        options = shortlist if shortlist is not None else config["plans"]
+        config["plans"] = [plan for plan in options if phase != "confirm" or plan["id"] in settings["confirm_ids"]]
+        for plan in config["plans"]:
+            plan.setdefault("placement_c", config["placement_c"])
     config.update(weather_snapshot=settings["weather_snapshot"], report_21d=True,
                   max_hours=settings["end_h"], dt_s=settings["dt_s"], mix={**settings["mix"]},
                   hydration_reference_c=settings["hydration_reference_c"])
@@ -221,7 +233,7 @@ def aggregate(out):
         final = metrics(chosen)
         summaries.append({**plan,"statistics":{"day14":metrics(chosen,"baseline"),
                                                "day21":metrics(chosen,"day21"), "final":final},
-                          "feasible":len(chosen)>=100 and not final["open_horizons"] and final["joint"]["ci95"][1]<=.05})
+                          "feasible":len(chosen)>=100 and not final["open_horizons"] and final["joint"]["ci95"][1]<.05})
     summaries.sort(key=lambda plan:(plan["duration_h"],plan["statistics"]["final"]["joint"]["ci95"][1],plan["id"]))
     selected = next((p["id"] for p in summaries if p["feasible"]),None)
     best = min(summaries,key=lambda p:(p["statistics"]["final"]["joint"]["p"],
@@ -254,10 +266,10 @@ def main():
     if args.action=="aggregate":
         print("Selección:",aggregate(args.output))
         return
-    settings = io.read_json(args.config)
+    settings = read_settings(args.config)
     shortlist = io.read_json(args.shortlist) if args.shortlist else None
-    if args.action!="screen" and not shortlist:
-        parser.error("--shortlist es requerido para Muestreo y Confirmación")
+    if args.action!="screen" and not shortlist and "candidate_campaign" not in settings:
+        parser.error("--shortlist es requerido si el JSON no define una campaña candidata")
     if args.action=="confirm":
         if not args.plan:
             parser.error("--plan es requerido para la confirmación")

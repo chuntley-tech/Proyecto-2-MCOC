@@ -279,6 +279,34 @@ bloque. Esta comprobación lleva peso cero en la probabilidad principal.
 Los cuatro casos cerraron y el diferencial máximo se mantuvo en 17,81 °C.
 [Comprobación de los ciclos completos](../results/final/g8_20261119_proteccion/cierre_bloque72.csv)
 
+### Monte Carlo de S7 con confirmación independiente
+
+El lote base y el lote de confirmación usaron 100 realizaciones cada
+uno, con semillas 20261119 y 20261219. Se conservaron los 31 miembros
+del ensamble y las distribuciones de calor, colocación y suelo del
+Monte Carlo final. El horizonte llega a 2640 h, cinco días después
+del retiro completo. Los 200 horizontes se cerraron.
+
+| Lote | Fallas conjuntas | IC bilateral 95 % | T máxima absoluta [°C] | ΔT máxima [°C] | ΔT p95 [°C] |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Base | 0/100 | 0–3,62 % | 62,91 | 19,59 | 18,72 |
+| Confirmación | 0/100 | 0–3,62 % | 62,74 | 19,08 | 18,03 |
+
+S7 satisface el criterio de cota superior menor que 5 % en ambos
+lotes en la malla de 0,50 × 0,50 × 0,55 m. La duración de colocación
+es 12,11 h y las mantas se retiran por completo el día 105.
+El resultado está condicionado por la subbase térmica propuesta
+y por la persistencia meteorológica que completa el período posterior
+a las primeras 165 h del pronóstico.
+[Lote base](../results/final/g8_20261119_mc/s7_base/comparison.json) ·
+[Confirmación](../results/final/g8_20261119_mc/s7_confirm/comparison.json)
+
+La muestra 46 del lote base tuvo el mayor diferencial de ambos lotes.
+Al repetirla en 0,25 × 0,25 × 0,275 m con paso máximo de 600 s, se
+obtuvo 60,93 °C de máxima y 19,71 °C de diferencial. La comprobación
+en malla fina corresponde a esa realización.
+[Refinamiento de la muestra 46](../results/final/g8_20261119_mc/s7_base/refinement_46.json)
+
 ## Monte Carlo unificado E13/E14
 
 El lote usa el mismo solver, IFC, suelo, protecciones, activación
@@ -322,7 +350,7 @@ Las 435 h posteriores a la ventana común se modelan por persistencia.
 Un horizonte abierto impide declarar cumplimiento. Se reportan p05,
 p50, p95, conteos enteros e IC bilaterales exactos de Clopper–Pearson
 del 95 % para ambas marginales y la unión. La decisión exige una cota
-superior del IC de unión ≤ 5 % y al menos 100 corridas.
+superior del IC de unión menor que 5 % y al menos 100 corridas.
 [Comandos locales y Slurm](MONTE_CARLO_CLUSTER.md)
 
 ### Resultados del lote base

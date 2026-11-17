@@ -1,0 +1,344 @@
+{
+  "format": "mcoc-monte-carlo-v1",
+  "manifest_sha256": "835f1cf3ea7deb17d7b9e8cc29591ca5a39f26d125248fd85bf2d8e4335db7a0",
+  "phase": "confirm",
+  "variant": "base",
+  "seed": 20261219,
+  "selected": "S7",
+  "best_relative": "S7",
+  "plans": [
+    {
+      "id": "S7",
+      "label": "Una vertida con subbase térmica y retiro escalonado",
+      "fractions": [
+        0,
+        1
+      ],
+      "start_h": [
+        0
+      ],
+      "strip_h": 72,
+      "top_remove_h": 2520,
+      "side_blanket": true,
+      "subbase_r_m2k_w": 2.5,
+      "blanket_stages": [
+        [
+          0,
+          0.175
+        ],
+        [
+          840,
+          0.115
+        ],
+        [
+          1440,
+          0.06
+        ],
+        [
+          1920,
+          0.025
+        ],
+        [
+          2280,
+          0.009
+        ],
+        [
+          2520,
+          0
+        ]
+      ],
+      "blanket_core_stages": [
+        [
+          0,
+          0.045
+        ],
+        [
+          840,
+          0.035
+        ],
+        [
+          1440,
+          0.02
+        ],
+        [
+          1920,
+          0.0125
+        ],
+        [
+          2280,
+          0.00625
+        ],
+        [
+          2520,
+          0
+        ]
+      ],
+      "placement_c": 16,
+      "schedule": [
+        {
+          "layer": 1,
+          "start_h": 0.0,
+          "finish_h": 12.110312587494652,
+          "duration_h": 12.110312587494652,
+          "volume_m3": 484.4125034997861
+        }
+      ],
+      "duration_h": 12.110312587494652,
+      "statistics": {
+        "day14": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 45.685911859496514,
+            "p50": 52.838913601175165,
+            "p95": 59.27571260549485
+          },
+          "delta": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 8.54077125855368,
+            "p50": 10.78150412401806,
+            "p95": 13.142444417785544
+          },
+          "joint": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ]
+          },
+          "open_horizons": null
+        },
+        "day21": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 45.685911859496514,
+            "p50": 52.838913601175165,
+            "p95": 59.27571260549485
+          },
+          "delta": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 8.72950234520561,
+            "p50": 11.04586220112293,
+            "p95": 13.625189385424841
+          },
+          "joint": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ]
+          },
+          "open_horizons": null
+        },
+        "final": {
+          "tmax": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 45.685911859496514,
+            "p50": 52.838913601175165,
+            "p95": 59.27571260549485
+          },
+          "delta": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ],
+            "p05": 14.785098653786672,
+            "p50": 16.479363163562027,
+            "p95": 18.030457080102217
+          },
+          "joint": {
+            "failures": 0,
+            "n": 100,
+            "p": 0.0,
+            "ci95": [
+              0.0,
+              0.03621669264517642
+            ]
+          },
+          "open_horizons": 0
+        }
+      },
+      "feasible": true
+    }
+  ],
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 2640,
+    "dt_s": 1200,
+    "verification_refinements": "combined",
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 16,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "S7",
+        "label": "Una vertida con subbase térmica y retiro escalonado",
+        "fractions": [
+          0,
+          1
+        ],
+        "start_h": [
+          0
+        ],
+        "strip_h": 72,
+        "top_remove_h": 2520,
+        "side_blanket": true,
+        "subbase_r_m2k_w": 2.5,
+        "blanket_stages": [
+          [
+            0,
+            0.175
+          ],
+          [
+            840,
+            0.115
+          ],
+          [
+            1440,
+            0.06
+          ],
+          [
+            1920,
+            0.025
+          ],
+          [
+            2280,
+            0.009
+          ],
+          [
+            2520,
+            0
+          ]
+        ],
+        "blanket_core_stages": [
+          [
+            0,
+            0.045
+          ],
+          [
+            840,
+            0.035
+          ],
+          [
+            1440,
+            0.02
+          ],
+          [
+            1920,
+            0.0125
+          ],
+          [
+            2280,
+            0.00625
+          ],
+          [
+            2520,
+            0
+          ]
+        ],
+        "placement_c": 16,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 12.110312587494652,
+            "duration_h": 12.110312587494652,
+            "volume_m3": 484.4125034997861
+          }
+        ],
+        "duration_h": 12.110312587494652
+      }
+    ],
+    "assumptions": "Una bomba, caudal, colocación a 16 °C, resistencias y protecciones son hipótesis docentes. La subbase requiere revisión estructural, disponibilidad de material y caracterización térmica. La meteorología se completa por persistencia después de las horas disponibles del ensamble.",
+    "report_21d": true,
+    "mix": {
+      "density_kg_m3": 2476,
+      "specific_heat_j_kgk": 1023,
+      "conductivity_w_mk": 2.2
+    },
+    "hydration_reference_c": 20,
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "common_forecast_hours": 165
+  },
+  "weather_members": [
+    "",
+    "_member01",
+    "_member02",
+    "_member03",
+    "_member04",
+    "_member05",
+    "_member06",
+    "_member07",
+    "_member08",
+    "_member09",
+    "_member10",
+    "_member11",
+    "_member12",
+    "_member13",
+    "_member14",
+    "_member15",
+    "_member16",
+    "_member17",
+    "_member18",
+    "_member19",
+    "_member20",
+    "_member21",
+    "_member22",
+    "_member23",
+    "_member24",
+    "_member25",
+    "_member26",
+    "_member27",
+    "_member28",
+    "_member29",
+    "_member30"
+  ],
+  "common_forecast_hours": 165,
+  "weather_sha256": "426d1b2272ae95f3cd38066c66d3bb1f50cbafedc4918b63a6ab5d6b61d25edf",
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "code_sha256": "fce10cb6104a61a61d3ff2e4c3b74e0f2c555e9717f46f40a326cf766dd04c2b",
+  "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44"
+}
