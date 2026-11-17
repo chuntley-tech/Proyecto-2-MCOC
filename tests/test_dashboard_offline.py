@@ -221,6 +221,22 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
                 np.testing.assert_allclose(coarse["grid_spacing_m"], np.array(fine["grid_spacing_m"])*2)
                 assert evidence["change_delta_c"] == fine["delta"]["value_c"] - coarse["delta"]["value_c"]
                 assert 'id="plans-convergence"' in text
+                if bundle.get("alternative"):
+                    alternative = bundle["alternative"]
+                    assert alternative["plan"] == "S8-staged-3600h"
+                    assert alternative["environment"]["insulation"]["conductivity_w_mk"] == .042
+                    assert alternative["config"]["plans"][0]["top_remove_h"] == 3600
+                    for result in alternative["refinements"]:
+                        assert result["hours"] == 3768 and result["closed"]
+                    assert 'id="plans-alternative"' in text
+                if bundle.get("s8_mc"):
+                    lots = bundle["s8_mc"]["lots"]
+                    assert len(lots) == 2 and lots[0]["seed"] != lots[1]["seed"]
+                    for lot in lots:
+                        assert lot["statistics"]["final"]["joint"]["n"] == 100
+                        assert lot["statistics"]["final"]["open_horizons"] > 0
+                        assert not lot["feasible"]
+                    assert 'id="s8-mc-results"' in text
                 if "studies" in evidence:
                     spatial = evidence["studies"]["spatial"]["rows"]
                     temporal = evidence["studies"]["temporal"]["rows"]

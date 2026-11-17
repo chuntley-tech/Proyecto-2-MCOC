@@ -1,0 +1,90 @@
+{
+  "start_utc": "2026-11-19T11:00:00Z",
+  "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+  "weather_sensitivity": true,
+  "hours": 336,
+  "max_hours": 3768,
+  "dt_s": 1200,
+  "verification_refinements": "combined",
+  "offset_h": 2,
+  "tail_h": 24,
+  "activation_energy_j_mol": 0,
+  "placement_c": 16,
+  "pump_count": 1,
+  "flow_m3_h_per_pump": 40,
+  "minimum_wait_h": 6,
+  "plans": [
+    {
+      "id": "S8-staged-3600h",
+      "label": "S8-staged-3600h",
+      "fractions": [
+        0,
+        1
+      ],
+      "start_h": [
+        0
+      ],
+      "strip_h": 72,
+      "top_remove_h": 3600,
+      "side_blanket": true,
+      "subbase_r_m2k_w": 2.6666666666666665,
+      "blanket_stages": [
+        [
+          0,
+          0.2
+        ],
+        [
+          840,
+          0.15
+        ],
+        [
+          1440,
+          0.1
+        ],
+        [
+          1920,
+          0.05
+        ],
+        [
+          3600,
+          0
+        ]
+      ],
+      "blanket_core_stages": [
+        [
+          0,
+          0.05
+        ],
+        [
+          1920,
+          0.05
+        ],
+        [
+          3600,
+          0
+        ]
+      ],
+      "placement_c": 16,
+      "schedule": [
+        {
+          "layer": 1,
+          "start_h": 0.0,
+          "finish_h": 12.110312587494652,
+          "duration_h": 12.110312587494652,
+          "volume_m3": 484.4125034997861
+        }
+      ],
+      "duration_h": 12.110312587494652
+    }
+  ],
+  "assumptions": "Una bomba, caudal, colocación a 16 °C, resistencias y protecciones son hipótesis docentes. La subbase requiere revisión estructural, disponibilidad de material y caracterización térmica. La meteorología se completa por persistencia después de las horas disponibles del ensamble.",
+  "report_21d": true,
+  "mix": {
+    "density_kg_m3": 2476,
+    "specific_heat_j_kgk": 1023,
+    "conductivity_w_mk": 2.2
+  },
+  "hydration_reference_c": 20,
+  "start_local": "2026-11-19T08:00:00-03:00",
+  "common_forecast_hours": 165
+}

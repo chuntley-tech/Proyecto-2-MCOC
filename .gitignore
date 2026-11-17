@@ -78,6 +78,7 @@ results/monte_carlo/
 results/visor_python/
 results/final/*/runs/
 results/final/g8_20261119_mc/*/runs/
+results/final/s8_mc/*/runs/
 /results/final/g8_20261119_mc/base/
 /results/final/g8_20261119_mc/curves/
 results/final/g8/

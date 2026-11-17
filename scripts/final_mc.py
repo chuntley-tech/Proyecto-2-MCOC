@@ -182,7 +182,7 @@ def prepare(out, settings, phase, shortlist=None, variant="base", size=None):
     jobs = [_job(plan,sample,settings,i) for plan in config["plans"] for i,sample in enumerate(samples)]
     metadata, _ = campaign.weather_snapshot(config["weather_snapshot"])
     manifest = {"phase":phase, "variant":variant, "seed":seed, "settings":settings, "config":config,
-                "environment":io.read_json(campaign.ROOT/"config/environment_g8.json"), "jobs":jobs,
+                "environment":io.read_json(campaign.ROOT/"config"/settings.get("environment_config", "environment_g8.json")), "jobs":jobs,
                 "weather_members":members, "excluded_weather_members":excluded, "common_forecast_hours":common,
                 "hydration_audit":audit, "weather_sha256":metadata["sha256"],
                 "source_sha256":io.digest(campaign.SOURCE), "ifc_sha256":campaign.voxels(1)[3],

@@ -291,6 +291,24 @@
         <p>La subbase de R'' = 2,5 m²·K/W necesita verificación estructural y geotécnica, incluyendo cargas cíclicas y deformaciones. El modelo representa su resistencia térmica sin capacidad térmica propia. La simulación mantiene 165 h de pronóstico y completa el resto mediante persistencia.</p>
       </details>
     </section>
+    <section id="plans-alternative" class="card height-card hidden">
+      <div class="card-heading"><div><h2>Alternativa S8 · protección con capas comerciales</h2><p>Escenario crítico 46 de S7 · pendiente de validación física y Monte Carlo propio</p></div></div>
+      <div class="table-scroll"><table class="project-table">
+        <thead><tr><th>Celda x × y × z [mm]</th><th>T máxima [°C]</th><th>ΔT máximo [°C]</th><th>Margen hasta 20 °C</th><th>Horizonte</th><th>Estado del horizonte</th></tr></thead>
+        <tbody id="plans-alternative-rows"></tbody>
+      </table></div>
+      <p class="scope-note">Se proponen mantas periféricas de 200, 150, 100 y 50 mm, cambiadas en los días 35, 60 y 80. La cubierta central mantiene 50 mm. Ambas se retiran el día 150 y se simula hasta el día 157. Conductividad de servicio supuesta de las mantas 0,042 W/(m·K). Subbase propuesta de 120 mm con λ = 0,045 W/(m·K), pendiente de aprobación estructural y geotécnica. La colocación dura 12,11 h.</p>
+      <p class="scope-note" id="plans-alternative-status"></p>
+      <div id="s8-mc-results" class="hidden">
+        <div class="card-heading"><div><h2>Monte Carlo propio de S8</h2><p>Resultados condicionados al horizonte de 157 días y a la malla base</p></div></div>
+        <div class="table-scroll"><table class="project-table">
+          <thead><tr><th>Lote</th><th>Semilla</th><th>Fallas conjuntas</th><th>IC 95 %</th><th>ΔT máximo [°C]</th><th>Horizontes abiertos</th><th>Estado</th></tr></thead>
+          <tbody id="s8-mc-rows"></tbody>
+        </table></div>
+        <p class="scope-note" id="s8-extended-result"></p>
+      </div>
+      <p class="scope-note">El diferencial aumenta de 15,602 a 15,638 y a 17,049 °C al refinar. El último cambio supera al anterior, por lo que la convergencia espacial del diferencial sigue pendiente. La candidata mantiene margen en las tres mallas evaluadas.</p>
+    </section>
     <section class="charts height-card" id="plans-figures"></section>
     <details class="card python-job">
       <summary>Importar otra comparación</summary>

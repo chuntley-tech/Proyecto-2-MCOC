@@ -40,9 +40,18 @@ def final_example():
             if plot_path.is_file():
                 figures["Refinamiento espacial y temporal de S7"] = base64.b64encode(plot_path.read_bytes()).decode("ascii")
         sensitivity = refined.parent / "mesh_2_dt_600_2026-11-17T1622Z_ensemble.json"
+        alternative = mc.ROOT / "results/final/s8_candidates/summary.json"
+        alternative_plot = alternative.parent / "refinement.png"
+        if alternative.is_file() and alternative_plot.is_file():
+            figures["Alternativa S8 · comparación de mallas"] = base64.b64encode(alternative_plot.read_bytes()).decode("ascii")
+        s8_mc = mc.ROOT / "results/final/s8_mc/summary.json"
+        if s8_mc.is_file():
+            figures["S8 · Monte Carlo con horizontes abiertos"] = base64.b64encode((s8_mc.parent/"monte_carlo.png").read_bytes()).decode("ascii")
         return {"campaign":mc.read_json(PROTECTION_MC), "figures":figures,
                 "convergence":mc.read_json(evidence) if evidence.is_file() else None,
-                "weather_sensitivity":mc.read_json(sensitivity) if sensitivity.is_file() else None}
+                "weather_sensitivity":mc.read_json(sensitivity) if sensitivity.is_file() else None,
+                "alternative":mc.read_json(alternative) if alternative.is_file() else None,
+                "s8_mc":mc.read_json(s8_mc) if s8_mc.is_file() else None}
     if FINAL_MC.is_file():
         return {"campaign":mc.read_json(FINAL_MC),"figures":{}}
     comparison = FINAL_BUNDLE / "comparison.json"

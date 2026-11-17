@@ -1,0 +1,9 @@
+{
+  "extends": "monte_carlo_final_g8.json",
+  "candidate_campaign": "final_g8_s8.json",
+  "environment_config": "environment_s8.json",
+  "end_h": 3768,
+  "dt_s": 600,
+  "weather_snapshot": "data/weather/2026-11-17T1622Z_ensemble",
+  "minimum_common_forecast_hours": 336
+}

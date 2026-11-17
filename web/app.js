@@ -987,6 +987,30 @@ function drawPlanScenarios(){
 
 function showPlans(bundle){
   const campaign=bundle.campaign;
+  const alternative=bundle.alternative;
+  $('plans-alternative').classList.toggle('hidden',!alternative);
+  $('plans-alternative-rows').replaceChildren();
+  if(alternative){
+    for(const row of alternative.refinements){
+      monteCarloRow($('plans-alternative-rows'),[row.spacing_m.map(value=>num(value*1000,1)).join(' × '),
+        num(row.tmax_c,3),num(row.delta_c,3),num(20-row.delta_c,3)+' °C',
+        num(row.hours/24,0)+' días',row.closed?'Cerrado':'Abierto']);
+    }
+    $('plans-alternative-status').textContent=alternative.scope+' '+alternative.properties_status;
+  }
+  $('s8-mc-results').classList.toggle('hidden',!bundle.s8_mc);
+  $('s8-mc-rows').replaceChildren();
+  if(bundle.s8_mc){
+    for(const lot of bundle.s8_mc.lots){
+      const stats=lot.statistics.final;
+      monteCarloRow($('s8-mc-rows'),[lot.name,lot.seed,`${stats.joint.failures}/${stats.joint.n}`,
+        stats.joint.ci95.map(percent).join('–'),num(lot.max_delta_c,3),stats.open_horizons,
+        lot.feasible?'Cumple en el lote':'Cumplimiento integral pendiente']);
+    }
+    const refined=bundle.s8_mc.refined.row;
+    $('s8-extended-result').textContent=`Muestra 30 del lote base ampliada a ${num(refined.hours/24,0)} días y refinada a 250 mm: ΔT ${num(refined.delta.value_c,3)} °C, horizonte ${refined.horizon_open?'abierto':'cerrado'}. Los horizontes abiertos de los lotes impiden aceptar el cumplimiento integral. Convergencia espacial y validación de obra pendientes.`;
+    $('plans-alternative-status').textContent=bundle.s8_mc.scope+' '+bundle.s8_mc.validation;
+  }
   const convergence=bundle.convergence;
   const hasConvergence=campaign?.plans?.some(plan=>plan.id===convergence?.plan)&&
     convergence?.source_sha256===campaign?.source_sha256;

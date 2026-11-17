@@ -1,0 +1,315 @@
+{
+  "row": {
+    "plan": "S8-staged-3600h",
+    "curve": "M2_SS",
+    "climate": {
+      "member": "_member04",
+      "id": "_member04"
+    },
+    "heat_factor": 0.9951417747415711,
+    "soil_c": 9.687987519059629,
+    "placement_c": 16.350470246578134,
+    "sample_id": 4,
+    "mesh": 2,
+    "dt": 600,
+    "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+    "weather_sha256": "09e1c88b25d5c25c379ae2d147bf617c53c1bee6863887aa3efadc3b73d3d825",
+    "hours": 5760,
+    "baseline": {
+      "tmax": {
+        "value_c": 53.63313592612801,
+        "time_h": 166.0,
+        "cell": [
+          20,
+          20,
+          7
+        ],
+        "xyz_m": [
+          8.75,
+          8.75,
+          1.9250000139077503
+        ]
+      },
+      "delta": {
+        "value_c": 9.561407194808304,
+        "time_h": 285.0,
+        "hot": {
+          "value_c": 52.588110948159006,
+          "time_h": 285.0,
+          "cell": [
+            20,
+            20,
+            7
+          ],
+          "xyz_m": [
+            8.75,
+            8.75,
+            1.9250000139077503
+          ]
+        },
+        "surface": {
+          "value_c": 43.0267037533507,
+          "time_h": 285.0,
+          "cell": [
+            14,
+            18,
+            9
+          ],
+          "xyz_m": [
+            5.75,
+            7.75,
+            3.2750000238418577
+          ],
+          "face": "z+"
+        },
+        "profile_mm_c": [
+          [
+            0,
+            42.703094982961034
+          ],
+          [
+            25.0,
+            43.0267037533507
+          ],
+          [
+            275.00000198682153,
+            46.26279148296551
+          ]
+        ]
+      }
+    },
+    "tmax": {
+      "value_c": 53.63313592612801,
+      "time_h": 166.0,
+      "cell": [
+        20,
+        20,
+        7
+      ],
+      "xyz_m": [
+        8.75,
+        8.75,
+        1.9250000139077503
+      ]
+    },
+    "delta": {
+      "value_c": 16.335313554116695,
+      "time_h": 3954.0,
+      "hot": {
+        "value_c": 35.067310282333196,
+        "time_h": 3954.0,
+        "cell": [
+          20,
+          20,
+          9
+        ],
+        "xyz_m": [
+          8.75,
+          8.75,
+          3.0250000218550364
+        ]
+      },
+      "surface": {
+        "value_c": 18.7319967282165,
+        "time_h": 3954.0,
+        "cell": [
+          28,
+          3,
+          4
+        ],
+        "xyz_m": [
+          12.975,
+          0.25,
+          0.27500000198682173
+        ],
+        "face": "x+"
+      },
+      "profile_mm_c": [
+        [
+          0,
+          17.934157365338578
+        ],
+        [
+          25.0,
+          18.7319967282165
+        ],
+        [
+          250.0,
+          25.912550994117794
+        ]
+      ]
+    },
+    "horizon_open": false,
+    "weather_hours": {
+      "ensemble": 373,
+      "persistencia": 5387
+    },
+    "grid_spacing_m": [
+      0.5,
+      0.5,
+      0.550000003973643
+    ],
+    "steps": 34563,
+    "dt_mean_s": 599.9479211873969,
+    "run_seconds": 143.2020524999989,
+    "max_saved_interval_s": 20693366.75670729,
+    "energy_error_relative": 1.9987794335903763e-16,
+    "day21": {
+      "tmax": {
+        "value_c": 53.63313592612801,
+        "time_h": 166.0,
+        "cell": [
+          20,
+          20,
+          7
+        ],
+        "xyz_m": [
+          8.75,
+          8.75,
+          1.9250000139077503
+        ]
+      },
+      "delta": {
+        "value_c": 9.561407194808304,
+        "time_h": 285.0,
+        "hot": {
+          "value_c": 52.588110948159006,
+          "time_h": 285.0,
+          "cell": [
+            20,
+            20,
+            7
+          ],
+          "xyz_m": [
+            8.75,
+            8.75,
+            1.9250000139077503
+          ]
+        },
+        "surface": {
+          "value_c": 43.0267037533507,
+          "time_h": 285.0,
+          "cell": [
+            14,
+            18,
+            9
+          ],
+          "xyz_m": [
+            5.75,
+            7.75,
+            3.2750000238418577
+          ],
+          "face": "z+"
+        },
+        "profile_mm_c": [
+          [
+            0,
+            42.703094982961034
+          ],
+          [
+            25.0,
+            43.0267037533507
+          ],
+          [
+            275.00000198682153,
+            46.26279148296551
+          ]
+        ]
+      }
+    },
+    "voxel_pour_volumes_m3": [
+      485.10000350475315
+    ]
+  },
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "weather_snapshot": "data/weather/2026-11-17T1622Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 5760,
+    "dt_s": 600,
+    "verification_refinements": "combined",
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 16,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "S8-staged-3600h",
+        "label": "S8-staged-3600h",
+        "fractions": [
+          0,
+          1
+        ],
+        "start_h": [
+          0
+        ],
+        "strip_h": 72,
+        "top_remove_h": 3600,
+        "side_blanket": true,
+        "subbase_r_m2k_w": 2.6666666666666665,
+        "blanket_stages": [
+          [
+            0,
+            0.2
+          ],
+          [
+            840,
+            0.15
+          ],
+          [
+            1440,
+            0.1
+          ],
+          [
+            1920,
+            0.05
+          ],
+          [
+            3600,
+            0
+          ]
+        ],
+        "blanket_core_stages": [
+          [
+            0,
+            0.05
+          ],
+          [
+            1920,
+            0.05
+          ],
+          [
+            3600,
+            0
+          ]
+        ],
+        "placement_c": 16,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 12.110312587494652,
+            "duration_h": 12.110312587494652,
+            "volume_m3": 484.4125034997861
+          }
+        ],
+        "duration_h": 12.110312587494652
+      }
+    ],
+    "assumptions": "Una bomba, caudal, colocación a 16 °C, resistencias y protecciones son hipótesis docentes. La subbase requiere revisión estructural, disponibilidad de material y caracterización térmica. La meteorología se completa por persistencia después de las horas disponibles del ensamble.",
+    "report_21d": true,
+    "mix": {
+      "density_kg_m3": 2476,
+      "specific_heat_j_kgk": 1023,
+      "conductivity_w_mk": 2.2
+    },
+    "hydration_reference_c": 20,
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "common_forecast_hours": 373
+  },
+  "original_manifest_sha256": "817f41db32829e516795c58075f69997677d12f495411c747caa3b510bf4a94f"
+}

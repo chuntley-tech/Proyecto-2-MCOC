@@ -101,3 +101,17 @@ def test_protection_mc_preserves_s7_nominal_and_uses_independent_seed(tmp_path, 
     assert {row["plan"] for row in first["jobs"]}=={"S7"}
     assert all(14 <= row["placement_c"] <= 18 for row in first["jobs"])
     assert first["seed"]!=second["seed"] and first["jobs"]!=second["jobs"]
+
+
+def test_s8_mc_keeps_its_material_environment(tmp_path, monkeypatch):
+    settings = final_mc.read_settings(final_mc.CONFIG.with_name("monte_carlo_s8.json"))
+    monkeypatch.setattr(final_campaign, "resolve_campaign", lambda config: config)
+    monkeypatch.setattr(final_mc, "complete_members", lambda config, hours: (["_member01"], 373, []))
+    monkeypatch.setattr(final_campaign, "weather_snapshot", lambda folder: ({"sha256":"clima"}, {}))
+    monkeypatch.setattr(final_campaign, "voxels", lambda mesh: (None, None, None, "ifc"))
+    final_mc.prepare(tmp_path/"s8", settings, "sample", size=1)
+    manifest = monte_carlo.read_json(tmp_path/"s8/manifest.json")
+    assert manifest["environment"]["insulation"]["conductivity_w_mk"] == .042
+    assert manifest["config"]["plans"][0]["subbase_r_m2k_w"] == pytest.approx(.12/.045)
+    assert manifest["config"]["max_hours"] == 3768
+    assert manifest["common_forecast_hours"] == 373

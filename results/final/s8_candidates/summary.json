@@ -1,0 +1,400 @@
+{
+  "plan": "S8-staged-3600h",
+  "sample_id": 46,
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 3768,
+    "dt_s": 1200,
+    "verification_refinements": "combined",
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 16,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "S8-staged-3600h",
+        "label": "S8-staged-3600h",
+        "fractions": [
+          0,
+          1
+        ],
+        "start_h": [
+          0
+        ],
+        "strip_h": 72,
+        "top_remove_h": 3600,
+        "side_blanket": true,
+        "subbase_r_m2k_w": 2.6666666666666665,
+        "blanket_stages": [
+          [
+            0,
+            0.2
+          ],
+          [
+            840,
+            0.15
+          ],
+          [
+            1440,
+            0.1
+          ],
+          [
+            1920,
+            0.05
+          ],
+          [
+            3600,
+            0
+          ]
+        ],
+        "blanket_core_stages": [
+          [
+            0,
+            0.05
+          ],
+          [
+            1920,
+            0.05
+          ],
+          [
+            3600,
+            0
+          ]
+        ],
+        "placement_c": 16,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 12.110312587494652,
+            "duration_h": 12.110312587494652,
+            "volume_m3": 484.4125034997861
+          }
+        ],
+        "duration_h": 12.110312587494652
+      }
+    ],
+    "assumptions": "Una bomba, caudal, colocación a 16 °C, resistencias y protecciones son hipótesis docentes. La subbase requiere revisión estructural, disponibilidad de material y caracterización térmica. La meteorología se completa por persistencia después de las horas disponibles del ensamble.",
+    "report_21d": true,
+    "mix": {
+      "density_kg_m3": 2476,
+      "specific_heat_j_kgk": 1023,
+      "conductivity_w_mk": 2.2
+    },
+    "hydration_reference_c": 20,
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "common_forecast_hours": 165
+  },
+  "environment": {
+    "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+    "site": {
+      "latitude": -41.222539,
+      "longitude": -73.295603,
+      "source": "config/case_g8.json (punto meteorológico docente, Llanquihue)"
+    },
+    "construction": {
+      "start_local": "2026-11-27T04:00",
+      "timezone": "America/Santiago",
+      "start_utc": "2026-11-27T07:00Z",
+      "days_after_start": 14,
+      "note": "Inicio tomado del ejemplo de la guía G08. Se supone hora local de Chile (UTC−3 en noviembre, horario de verano)."
+    },
+    "weather": {
+      "snapshot_root": "data/weather",
+      "decision_time_utc": null,
+      "tail_method": "auto",
+      "note": "decision_time_utc = null usa la hora actual como corte. Si falta parte del pronóstico al final, auto usa reanálisis del mismo sitio descargado al corte o persistencia. Cada hora queda marcada."
+    },
+    "convection": {
+      "h_a_w_m2k": 5.7,
+      "h_b_w_m2k_per_m_s": 3.8,
+      "wind_height_m": 2.0,
+      "wind_exponent": 0.14,
+      "source": "Correlación de Jürges/McAdams h = 5,7 + 3,8 v (superficies exteriores); perfil de viento potencial con exponente 1/7 para terreno abierto."
+    },
+    "solar": {
+      "absorptance_concrete": 0.65,
+      "absorptance_formwork": 0.6,
+      "top_factor": 1.0,
+      "side_factor": 0.35,
+      "source": "Absortancia típica de hormigón gris 0,6–0,7 (supuesto). Factor lateral 0,35: fracción aproximada de radiación global sobre cara vertical (supuesto docente, sin cálculo de geometría solar)."
+    },
+    "formwork": {
+      "thickness_m": 0.018,
+      "conductivity_w_mk": 0.13,
+      "strip_after_h": 72,
+      "source": "Terciado fenólico 18 mm, k ≈ 0,13 W/(m·K) (valor típico). Retiro a las 72 h: supuesto E10 para la propiedad RetiroMoldaje_h propuesta en la guía G02."
+    },
+    "insulation": {
+      "thickness_m": 0.025,
+      "conductivity_w_mk": 0.042,
+      "on_top_from_h": 0.0,
+      "source": "Manta de curado/aislante 25 mm, k ≈ 0,04 W/(m·K) (valor típico de espuma/fibra). Supuesto de diseño, no especificación del proyecto."
+    },
+    "soil": {
+      "depth_m": 2.2,
+      "margin_m": 1.5,
+      "conductivity_w_mk": 1.39,
+      "density_kg_m3": 1800.0,
+      "specific_heat_j_kgk": 1273.0,
+      "deep_temperature_c": 10.0,
+      "source": "k, ρ, cp: Ju y Lei (2019), guía de difusión §31. Temperatura profunda 10 °C: SUPUESTO (orden de la media anual del aire en Llanquihue), no medido."
+    },
+    "concrete": {
+      "conductivity_w_mk": 2.2,
+      "density_kg_m3": 2400.0,
+      "specific_heat_j_kgk": 900.0,
+      "placement_c": 16.0,
+      "qmax_w_m3": 1300.0,
+      "hydration_duration_s": 172800.0,
+      "source": "Mismos valores sintéticos de construction_g8.json; colocación 16 °C del ejemplo G08. No calibrado."
+    },
+    "demo_section": {
+      "half_width_m": 9.0,
+      "height_m": 3.3,
+      "spacing_m": [
+        0.5,
+        0.275
+      ],
+      "dt_s": 600.0,
+      "note": "Sección vertical 2D x–z por el eje de la fundación, mitad por simetría. Es una sección rectangular simplificada para mostrar las condiciones de borde; la geometría completa está en el modelo 3D."
+    }
+  },
+  "screen": [
+    {
+      "plan": "S8-100mm-2520h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.791154979046645,
+      "delta_c": 22.268356271163807,
+      "delta_time_h": 1028.0,
+      "closed": true,
+      "hours": 2688,
+      "energy_error_relative": 1.6315818134838078e-15
+    },
+    {
+      "plan": "S8-100mm-3600h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.791154979046645,
+      "delta_c": 22.268356271163807,
+      "delta_time_h": 1028.0,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 2.4643022625942477e-16
+    },
+    {
+      "plan": "S8-150mm-2520h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.792329537390216,
+      "delta_c": 21.32917966003186,
+      "delta_time_h": 1148.0,
+      "closed": true,
+      "hours": 2688,
+      "energy_error_relative": 6.950609598059042e-16
+    },
+    {
+      "plan": "S8-150mm-3600h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.792329537390216,
+      "delta_c": 21.32917966003186,
+      "delta_time_h": 1148.0,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 7.372271729505668e-16
+    },
+    {
+      "plan": "S8-200mm-2520h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.79296418607988,
+      "delta_c": 20.901610807338724,
+      "delta_time_h": 1196.0,
+      "closed": true,
+      "hours": 2688,
+      "energy_error_relative": 1.1543927681876628e-15
+    },
+    {
+      "plan": "S8-200mm-3600h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.79296418607988,
+      "delta_c": 20.901610807338724,
+      "delta_time_h": 1196.0,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 2.6987742529684026e-15
+    },
+    {
+      "plan": "S8-50mm-2520h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.78824614888002,
+      "delta_c": 26.949485657578734,
+      "delta_time_h": 572.0,
+      "closed": true,
+      "hours": 2688,
+      "energy_error_relative": 2.1244822500756136e-15
+    },
+    {
+      "plan": "S8-50mm-3600h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.78824614888002,
+      "delta_c": 26.949485657578734,
+      "delta_time_h": 572.0,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 3.7183135054300124e-15
+    },
+    {
+      "plan": "S8-staged-2520h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.79296418607988,
+      "delta_c": 21.722792609833498,
+      "delta_time_h": 2588.0,
+      "closed": true,
+      "hours": 2688,
+      "energy_error_relative": 2.2527108927277217e-16
+    },
+    {
+      "plan": "S8-staged-3600h",
+      "mesh": 0.5,
+      "spacing_m": [
+        0.125,
+        0.125,
+        0.1320000009536743
+      ],
+      "tmax_c": 61.01519125704012,
+      "delta_c": 17.048918116205904,
+      "delta_time_h": 3621.5,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 2.3225000209448516e-15
+    },
+    {
+      "plan": "S8-staged-3600h",
+      "mesh": 1.0,
+      "spacing_m": [
+        0.25,
+        0.25,
+        0.2750000019868215
+      ],
+      "tmax_c": 60.96172541398318,
+      "delta_c": 15.638296099794182,
+      "delta_time_h": 3645.5,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 1.207223423947183e-15
+    },
+    {
+      "plan": "S8-staged-3600h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.79296418607988,
+      "delta_c": 15.601996169729548,
+      "delta_time_h": 3668.0,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 1.2124884921313976e-15
+    }
+  ],
+  "refinements": [
+    {
+      "plan": "S8-staged-3600h",
+      "mesh": 2,
+      "spacing_m": [
+        0.5,
+        0.5,
+        0.550000003973643
+      ],
+      "tmax_c": 60.79296418607988,
+      "delta_c": 15.601996169729548,
+      "delta_time_h": 3668.0,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 1.2124884921313976e-15
+    },
+    {
+      "plan": "S8-staged-3600h",
+      "mesh": 1.0,
+      "spacing_m": [
+        0.25,
+        0.25,
+        0.2750000019868215
+      ],
+      "tmax_c": 60.96172541398318,
+      "delta_c": 15.638296099794182,
+      "delta_time_h": 3645.5,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 1.207223423947183e-15
+    },
+    {
+      "plan": "S8-staged-3600h",
+      "mesh": 0.5,
+      "spacing_m": [
+        0.125,
+        0.125,
+        0.1320000009536743
+      ],
+      "tmax_c": 61.01519125704012,
+      "delta_c": 17.048918116205904,
+      "delta_time_h": 3621.5,
+      "closed": true,
+      "hours": 3768,
+      "energy_error_relative": 2.3225000209448516e-15
+    }
+  ],
+  "scope": "Escenario crítico de S7, con clima original y persistencia. Los lotes Monte Carlo propios se presentan por separado.",
+  "properties_status": "Selección propuesta a partir de fichas, pendiente de validación de obra."
+}
