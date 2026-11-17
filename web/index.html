@@ -268,6 +268,29 @@
         </details>
       </section>
     </div>
+    <section id="plans-convergence" class="card height-card hidden">
+      <h2>Convergencia del caso S7 · verificación disponible</h2>
+      <p id="plans-convergence-case"></p>
+      <div class="table-scroll"><table class="project-table">
+        <thead><tr><th>Cálculo</th><th>Celda x × y × z [mm]</th><th>Δt máximo [s]</th><th>T máxima [°C]</th><th>ΔT máximo [°C]</th><th>Instante de ΔT [días]</th><th>Horizonte [días]</th><th>Residuo energético relativo</th></tr></thead>
+        <tbody id="plans-convergence-rows"></tbody>
+      </table></div>
+      <p id="plans-convergence-change"></p>
+      <p>La temperatura a 25 mm bajo las caras exteriores se reconstruye linealmente con el flujo de borde y la temperatura del centro de celda. Esa profundidad está por debajo del tamaño de las celdas utilizadas.</p>
+      <p id="plans-convergence-method">Se refinaron simultáneamente la malla y el paso temporal en una realización. Para establecer el orden de convergencia faltan al menos tres niveles y estudios que separen el refinamiento espacial del temporal. El máximo puede cambiar de ubicación e instante al refinar.</p>
+      <p>La estimación Monte Carlo corresponde a la malla base. Esta comprobación del escenario crítico aporta evidencia de sensibilidad numérica. El cumplimiento probabilístico con malla fina queda pendiente.</p>
+      <details id="plans-weather-refresh" class="hidden">
+        <summary>Open-Meteo · pronóstico del 17 de noviembre</summary>
+        <p id="plans-weather-refresh-result"></p>
+        <p>El ensamble GFS tiene 31 miembros con temperatura a 2 m, viento a 10 m y radiación de onda corta durante los primeros 14 días, del 19 de noviembre a las 08:00 al 3 de diciembre a las 08:00 de Santiago. Este ensayo cambia el clima de la muestra 46 con la malla base y un paso máximo de 600 s. El Monte Carlo mantiene el pronóstico original.</p>
+      </details>
+      <details>
+        <summary>Propiedades reales y factibilidad constructiva · validación pendiente</summary>
+        <p>La revisión de docs identifica k = 2,2 W/(m·K) y las propiedades del suelo como referencias del caso docente. La densidad 2476 kg/m³ y el calor específico 1023 J/(kg·K) provienen de la cabecera de las fuentes de probetas. Falta confirmar su correspondencia con la mezcla de obra y contrastar temperaturas con mediciones independientes.</p>
+        <p>S7 requiere una bomba con caudal útil sostenido de 40 m³/h durante aproximadamente 12,11 h, colocación nominal a 16 °C, protección periférica equivalente a 175 mm y central de 45 mm con k = 0,04 W/(m·K), y retiro total al día 105. Faltan fichas de materiales seleccionados y confirmación de suministro, montaje y operación.</p>
+        <p>La subbase de R'' = 2,5 m²·K/W necesita verificación estructural y geotécnica, incluyendo cargas cíclicas y deformaciones. El modelo representa su resistencia térmica sin capacidad térmica propia. La simulación mantiene 165 h de pronóstico y completa el resto mediante persistencia.</p>
+      </details>
+    </section>
     <section class="charts height-card" id="plans-figures"></section>
     <details class="card python-job">
       <summary>Importar otra comparación</summary>

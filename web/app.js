@@ -953,7 +953,7 @@ function drawPlansMC(){
     const row=plan.statistics[period];
     monteCarloRow(rows,[plan.id,num(plan.duration_h,2),num(row.tmax.p95,2),num(row.delta.p95,2),
       risk(row.tmax),risk(row.delta),risk(row.joint),row.open_horizons??'—',
-      plan.feasible?'Cumple en el lote':'Sin cumplimiento demostrado']);
+      plan.feasible?'Cumple en el lote · malla base':'Sin cumplimiento demostrado']);
   }
 }
 
@@ -987,6 +987,46 @@ function drawPlanScenarios(){
 
 function showPlans(bundle){
   const campaign=bundle.campaign;
+  const convergence=bundle.convergence;
+  const hasConvergence=campaign?.plans?.some(plan=>plan.id===convergence?.plan)&&
+    convergence?.source_sha256===campaign?.source_sha256;
+  $('plans-convergence').classList.toggle('hidden',!hasConvergence);
+  $('plans-convergence-rows').replaceChildren();
+  const weather=bundle.weather_sensitivity?.row;
+  const hasWeather=hasConvergence&&weather?.sample_id===convergence.sample_id;
+  $('plans-weather-refresh').classList.toggle('hidden',!hasWeather);
+  if(hasWeather){
+    $('plans-weather-refresh-result').textContent=`T máxima ${num(weather.tmax.value_c,3)} °C · ΔT máximo ${num(weather.delta.value_c,3)} °C · ${weather.weather_hours.ensemble} h de pronóstico y ${weather.weather_hours.persistencia} h de persistencia en los 110 días simulados.`;
+  }
+  if(hasConvergence){
+    $('plans-convergence-case').textContent=`Plan ${convergence.plan} · muestra ${convergence.sample_id} del lote base · ${convergence.curve} · clima ${convergence.member}. Mayor diferencial del lote base.`;
+    const studyRows=convergence.studies
+      ? Object.entries(convergence.studies).flatMap(([name,study])=>study.rows.map(row=>({...row,label:name==='spatial'?'Espacial':'Temporal'})))
+      : convergence.rows;
+    for(const row of studyRows){
+      monteCarloRow($('plans-convergence-rows'),[row.label,
+        row.grid_spacing_m.map(value=>num(value*1000,1)).join(' × '),num(row.dt,0),
+        num(row.tmax.value_c,3),num(row.delta.value_c,3),num(row.delta.time_h/24,2),
+        num(row.hours/24,0),row.energy_error_relative.toExponential(2)]);
+    }
+    $('plans-convergence-change').textContent=`Cambio refinada − base: T máxima ${num(convergence.change_tmax_c,3)} °C; ΔT máximo ${num(convergence.change_delta_c,3)} °C. Margen refinado hasta 20 °C: ${num(convergence.refined_margin_delta_c,3)} °C. Orden de convergencia pendiente de determinar.`;
+    $('plans-convergence-method').textContent='Refinamiento conjunto de malla y tiempo con dos niveles. El orden de convergencia sigue pendiente y el máximo puede cambiar de ubicación e instante.';
+    if(convergence.studies){
+      const descriptions=[];
+      for(const [name,study] of Object.entries(convergence.studies)){
+        const estimates=Object.entries(study.estimates).map(([metric,result])=>
+          `${metric==='tmax'?'T máxima':'ΔT máximo'}: cambio final ${num(result.last_change_c,4)} °C, `+
+          (result.order===null?`orden indeterminado (${result.reason.toLowerCase()})`:`orden aparente ${num(result.order,2)}`));
+        descriptions.push(`${name==='spatial'?'Espacial, Δt máximo 600 s':'Temporal, malla 500 × 500 × 550 mm'}. ${estimates.join('. ')}`);
+      }
+      $('plans-convergence-method').textContent=descriptions.join(' · ')+'. Órdenes calculados sobre máximos globales. Los cambios de geometría voxelizada, activación y ubicación del máximo limitan la interpretación de Richardson.';
+      const margin=convergence.fine_margin_delta_c;
+      const difference=margin<0?`Exceso sobre 20 °C ${num(-margin,4)} °C`:`Margen hasta 20 °C ${num(margin,4)} °C`;
+      $('plans-convergence-change').textContent=convergence.fine_delta_c===null
+        ? 'Tercer nivel espacial pendiente de resultado.'
+        : `Malla fina de 125 × 125 × 132 mm. ΔT máximo ${num(convergence.fine_delta_c,4)} °C. ${difference}.`;
+    }
+  }
   $('plans-figures').replaceChildren(...Object.entries(bundle.figures||{}).map(([label,data])=>{
     const figure=document.createElement('figure'), img=document.createElement('img');
     figure.className='card plans-figure';
@@ -1003,8 +1043,11 @@ function showPlans(bundle){
     $('plans-results').classList.add('hidden');
     $('plans-mc-results').classList.remove('hidden');
     $('plans-status').textContent=campaign.selected
-      ? `Plan ${campaign.selected}: cumple en el lote ${campaign.phase==='confirm'?'de confirmación':'evaluado'}.`
+      ? `Plan ${campaign.selected}: cumple en el lote ${campaign.phase==='confirm'?'de confirmación':'evaluado'} con malla base. Validación física y constructiva pendiente.`
       : `Sin plan factible demostrado. Mejor alternativa relativa: ${campaign.best_relative}.`;
+    if(hasConvergence&&convergence.fine_delta_c>20){
+      $('plans-status').textContent=`S7 · La verificación fina alcanza ${num(convergence.fine_delta_c,3)} °C de diferencial y supera 20 °C. El riesgo bajo 5 % se estimó solo en la malla base. La validación física y constructiva sigue pendiente.`;
+    }
     $('plans-mc-label').textContent=`Semilla ${campaign.seed} · ${campaign.weather_members.length} miembros · ${campaign.common_forecast_hours} h de pronóstico común`;
     drawPlansMC();
     return;

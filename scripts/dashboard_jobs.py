@@ -32,7 +32,17 @@ def final_example():
                                        ("maximos", "Máximos por simulación S7"),
                                        ("riesgo", "Riesgo conjunto e intervalo de confianza"))
                    if (folder / f"{name}.png").is_file()}
-        return {"campaign":mc.read_json(PROTECTION_MC),"figures":figures}
+        evidence = PROTECTION_MC.parent.parent / "s7_base/convergence.json"
+        refined = mc.ROOT / "results/final/s7_convergence/summary.json"
+        if refined.is_file():
+            evidence = refined
+            plot_path = refined.parent / "convergence.png"
+            if plot_path.is_file():
+                figures["Refinamiento espacial y temporal de S7"] = base64.b64encode(plot_path.read_bytes()).decode("ascii")
+        sensitivity = refined.parent / "mesh_2_dt_600_2026-11-17T1622Z_ensemble.json"
+        return {"campaign":mc.read_json(PROTECTION_MC), "figures":figures,
+                "convergence":mc.read_json(evidence) if evidence.is_file() else None,
+                "weather_sensitivity":mc.read_json(sensitivity) if sensitivity.is_file() else None}
     if FINAL_MC.is_file():
         return {"campaign":mc.read_json(FINAL_MC),"figures":{}}
     comparison = FINAL_BUNDLE / "comparison.json"

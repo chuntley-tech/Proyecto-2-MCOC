@@ -212,7 +212,26 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
             assert campaign["format"] == "mcoc-monte-carlo-v1"
             assert 'id="plans-mc-period"' in text
             if comparison == PROTECTION_MC:
-                assert len(bundle["figures"]) == 3
+                assert len(bundle["figures"]) >= 3
+                evidence = bundle["convergence"]
+                assert evidence["plan"] == "S7" and evidence["sample_id"] == 46
+                assert evidence["source_sha256"] == campaign["source_sha256"]
+                coarse, fine = evidence["rows"]
+                assert coarse["dt"] == 2*fine["dt"]
+                np.testing.assert_allclose(coarse["grid_spacing_m"], np.array(fine["grid_spacing_m"])*2)
+                assert evidence["change_delta_c"] == fine["delta"]["value_c"] - coarse["delta"]["value_c"]
+                assert 'id="plans-convergence"' in text
+                if "studies" in evidence:
+                    spatial = evidence["studies"]["spatial"]["rows"]
+                    temporal = evidence["studies"]["temporal"]["rows"]
+                    assert len(spatial) in (2, 3) and len(temporal) == 3
+                    assert {row["dt"] for row in spatial} == {600}
+                    assert [row["dt"] for row in temporal] == [1200, 600, 300]
+                    if len(spatial) == 3:
+                        np.testing.assert_allclose(spatial[-1]["grid_spacing_m"], [.125, .125, .132])
+                        assert evidence["fine_margin_delta_c"] == 20-spatial[-1]["delta"]["value_c"]
+                    else:
+                        assert evidence["fine_margin_delta_c"] is None
                 for data in bundle["figures"].values():
                     assert base64.b64decode(data).startswith(b"\x89PNG\r\n\x1a\n")
         else:

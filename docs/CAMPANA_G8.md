@@ -307,6 +307,12 @@ obtuvo 60,93 °C de máxima y 19,71 °C de diferencial. La comprobación
 en malla fina corresponde a esa realización.
 [Refinamiento de la muestra 46](../results/final/g8_20261119_mc/s7_base/refinement_46.json)
 
+La comprobación adicional a 600 s llegó a **20,7783 °C** en la malla de
+125 × 125 × 132 mm. El diferencial supera el límite y su variación aumenta
+al pasar de la segunda a la tercera malla. El intervalo probabilístico
+anterior corresponde a la malla base. S7 queda pendiente de revisión antes
+de defender cumplimiento. Véase la [verificación y revisión de S7](S7_VALIDACION.md).
+
 ## Monte Carlo unificado E13/E14
 
 El lote usa el mismo solver, IFC, suelo, protecciones, activación
