@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-from scripts.dashboard_jobs import EXAMPLES, FINAL_BUNDLE, final_example
+from scripts.dashboard_jobs import EXAMPLES, final_example
 
 from thermal3d.dashboard import BOUNDS, ROOT, _grid, _identity, metadata
 
@@ -60,8 +60,9 @@ def build(output):
     for key, path in EXAMPLES.items():
         compressed = base64.b64encode(gzip.compress(path.read_bytes(), mtime=0)).decode("ascii")
         embedded += f'\n<script id="mcoc-example-{key}" type="text/plain">{compressed}</script>'
-    if (FINAL_BUNDLE / "comparison.json").is_file():
-        raw = json.dumps(final_example(), ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
+    plans = final_example()
+    if plans["s8_pours"] is not None:
+        raw = json.dumps(plans, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
         compressed = base64.b64encode(gzip.compress(raw, mtime=0)).decode("ascii")
         embedded += f'\n<script id="mcoc-example-plans" type="text/plain">{compressed}</script>'
     html = html.replace('</body>', embedded+'\n</body>')

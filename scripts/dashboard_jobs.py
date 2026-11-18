@@ -1,7 +1,6 @@
 """Trabajos locales del visor para E11 y Monte Carlo E12."""
 
 import importlib.util
-import base64
 from pathlib import Path
 import threading
 from types import SimpleNamespace
@@ -16,60 +15,27 @@ EXAMPLES = {
     "weather": mc.ROOT / "results/weather_3d/2026-11-12T0153Z_forecast/visor_e11.json",
     "monte-carlo": mc.ROOT / "results/examples/monte_carlo_g8.json",
 }
-FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_proteccion"
-if not (FINAL_BUNDLE / "verification.json").is_file():
-    FINAL_BUNDLE = mc.ROOT / "results/final/g8_20261119_ampliada"
-FINAL_MC = mc.ROOT / "results/final/g8_20261119_mc/base31/comparison.json"
-PROTECTION_MC = mc.ROOT / "results/final/g8_20261119_mc/s7_confirm/comparison.json"
+POUR_COMPARISON = mc.ROOT / "results/final/s8_pour_comparison"
 
 
 def final_example():
-    """Empaqueta la campaña verificada y sus figuras para ambas versiones del visor."""
-    if PROTECTION_MC.is_file():
-        folder = PROTECTION_MC.parent.parent / "s7_figures"
-        figures = {label: base64.b64encode((folder / f"{name}.png").read_bytes()).decode("ascii")
-                   for name, label in (("hidratacion", "Fuente de calor de las probetas"),
-                                       ("maximos", "Máximos por simulación S7"),
-                                       ("riesgo", "Riesgo conjunto e intervalo de confianza"))
-                   if (folder / f"{name}.png").is_file()}
-        evidence = PROTECTION_MC.parent.parent / "s7_base/convergence.json"
-        refined = mc.ROOT / "results/final/s7_convergence/summary.json"
-        if refined.is_file():
-            evidence = refined
-            plot_path = refined.parent / "convergence.png"
-            if plot_path.is_file():
-                figures["Refinamiento espacial y temporal de S7"] = base64.b64encode(plot_path.read_bytes()).decode("ascii")
-        sensitivity = refined.parent / "mesh_2_dt_600_2026-11-17T1622Z_ensemble.json"
-        alternative = mc.ROOT / "results/final/s8_candidates/summary.json"
-        alternative_plot = alternative.parent / "refinement.png"
-        if alternative.is_file() and alternative_plot.is_file():
-            figures["Alternativa S8 · comparación de mallas"] = base64.b64encode(alternative_plot.read_bytes()).decode("ascii")
-        s8_mc = mc.ROOT / "results/final/s8_mc/summary.json"
-        if s8_mc.is_file():
-            figures["S8 · Monte Carlo con horizontes abiertos"] = base64.b64encode((s8_mc.parent/"monte_carlo.png").read_bytes()).decode("ascii")
-        return {"campaign":mc.read_json(PROTECTION_MC), "figures":figures,
-                "convergence":mc.read_json(evidence) if evidence.is_file() else None,
-                "weather_sensitivity":mc.read_json(sensitivity) if sensitivity.is_file() else None,
-                "alternative":mc.read_json(alternative) if alternative.is_file() else None,
-                "s8_mc":mc.read_json(s8_mc) if s8_mc.is_file() else None}
-    if FINAL_MC.is_file():
-        return {"campaign":mc.read_json(FINAL_MC),"figures":{}}
-    comparison = FINAL_BUNDLE / "comparison.json"
-    campaign = mc.read_json(comparison)
-    figures = {}
-    for filename, label in (
-        ("duracion_riesgo", "Duración y riesgo conjunto"),
-        ("cronograma", "Cronograma de vertidas"),
-        ("hidratacion", "Curvas de hidratación"),
-        ("clima", "Historias meteorológicas"),
-        ("temperaturas_criticas", "Temperaturas críticas del escenario de verificación"),
-        ("cortes_tmax", "Cortes en la máxima temperatura"),
-        ("cortes_delta", "Cortes en el máximo diferencial"),
-    ):
-        path = FINAL_BUNDLE / "figures" / f"{filename}.png"
-        if path.is_file():
-            figures[label] = base64.b64encode(path.read_bytes()).decode("ascii")
-    return {"campaign":campaign,"figures":figures}
+    """Carga los diez planes y los datos de sus mallas para el visor."""
+    summary = POUR_COMPARISON / "summary.json"
+    if not summary.is_file():
+        return {"s8_pours": None}
+    manifest = mc.read_json(POUR_COMPARISON / "manifest.json")
+    config = manifest["config"]
+    return {"s8_pours": {
+        **mc.read_json(summary),
+        "mesh_levels": sorted({job["mesh"] for job in manifest["jobs"]}),
+        "start_utc": config["start_utc"],
+        "forecast_hours": config["common_forecast_hours"],
+        "member": manifest["jobs"][0]["climate"]["member"].removeprefix("_member"),
+        "pump_count": config["pump_count"],
+        "flow_m3_h_per_pump": config["flow_m3_h_per_pump"],
+    }}
+
+
 RUN_LOCK = threading.Lock()
 _jobs = {}
 _jobs_lock = threading.Lock()

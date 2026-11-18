@@ -1,0 +1,71 @@
+[
+  {
+    "grid_counts": [
+      24,
+      24,
+      6
+    ],
+    "voxel_face_comparison": {
+      "voxel_face_xyz_m": [
+        12.75,
+        0.375,
+        0.27500000198682173
+      ],
+      "nearest_component": "G8-BASE-01 - Zócalo octagonal",
+      "surface_distance_m": 0.24960869375885114,
+      "edge_distance_m": 0.3713886119588912,
+      "ifc_normal": [
+        0.7071067811865476,
+        -0.7071067811865476,
+        0.0
+      ],
+      "classification": "escalón voxelizado junto a cara oblicua"
+    }
+  },
+  {
+    "grid_counts": [
+      48,
+      48,
+      12
+    ],
+    "voxel_face_comparison": {
+      "voxel_face_xyz_m": [
+        12.75,
+        17.8125,
+        0.13750000099341086
+      ],
+      "nearest_component": "G8-BASE-01 - Zócalo octagonal",
+      "surface_distance_m": 0.11702617228637346,
+      "edge_distance_m": 0.1805585092793689,
+      "ifc_normal": [
+        0.7071067811865476,
+        0.7071067811865476,
+        0.0
+      ],
+      "classification": "escalón voxelizado junto a cara oblicua"
+    }
+  },
+  {
+    "grid_counts": [
+      96,
+      96,
+      24
+    ],
+    "voxel_face_comparison": {
+      "voxel_face_xyz_m": [
+        12.75,
+        17.90625,
+        1.0312500074505806
+      ],
+      "nearest_component": "G8-BASE-01 - Zócalo octagonal",
+      "surface_distance_m": 0.05073491155013462,
+      "edge_distance_m": 0.08544350604665762,
+      "ifc_normal": [
+        0.7071067811865476,
+        0.7071067811865476,
+        0.0
+      ],
+      "classification": "escalón voxelizado junto a cara oblicua"
+    }
+  }
+]

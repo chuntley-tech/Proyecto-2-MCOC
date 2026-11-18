@@ -182,6 +182,93 @@ def test_portable_nodal_endpoints_match_python(boundary,pack):
     np.testing.assert_allclose(portable["frames_c"],reference["frames_c"],rtol=0,atol=1.01e-5)
 
 
+def test_s8_ranking_uses_common_mesh_and_excludes_known_failures():
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node no está disponible")
+    app = (ROOT / "web/app.js").read_text(encoding="utf-8")
+    exceeds = re.search(r"^const s8Exceeds=.*$", app, re.MULTILINE)[0]
+    rank = app[app.index("function rankS8Pours("):app.index("function drawS8Chart(")]
+    subprocess.run([node, "-e", exceeds + "\n" + rank + """
+const assert=require('node:assert/strict');
+const mesh=(n,d,open=false)=>({mesh:n,delta:{value_c:d},tmax:{value_c:60},horizon_open:open});
+const plan=(id,duration_h,...meshes)=>({plan:{id,duration_h},meshes});
+const a=plan('A',12,mesh(24,16),mesh(48,15),mesh(96,19));
+const b=plan('B',12,mesh(24,16),mesh(48,16));
+const fast=plan('C',10,mesh(24,17),mesh(48,18),mesh(96,21));
+const open=plan('D',9,mesh(24,17),mesh(48,18,true));
+const data={mesh_levels:[24,48,96],plans:[b,fast,open,a]};
+assert.equal(rankS8Pours(data).best,a);
+assert.equal(rankS8Pours(data).common,48);
+b.meshes.push(mesh(96,18));
+open.meshes.push(mesh(96,18));
+assert.equal(rankS8Pours(data).best,b);
+assert.equal(rankS8Pours(data).common,96);
+"""], check=True)
+
+
+def test_s8_charts_plot_meshes_and_course_limits():
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node no está disponible")
+    app = (ROOT / "web/app.js").read_text(encoding="utf-8")
+    charts = app[app.index("function drawS8Chart("):app.index("function drawS8PoursTable(")]
+    subprocess.run([node, "-e", charts + """
+const assert=require('node:assert/strict');
+const element=()=>({children:[],style:{},setAttribute(){},append(...nodes){this.children.push(...nodes)}});
+const document={createElement:element,createTextNode:text=>text};
+const output={replaceChildren(...nodes){this.charts=nodes}};
+const $=()=>output;
+const num=(value,digits)=>value.toFixed(digits);
+const s8MeshNames=['Gruesa','Intermedia','Fina'];
+const mesh=(mesh,delta,tmax)=>({mesh,delta:{value_c:delta},tmax:{value_c:tmax}});
+const a={plan:{id:'S8-V01',duration_h:12.11},meshes:[mesh(24,16,57),mesh(48,17,58),mesh(96,19,59)]};
+const b={plan:{id:'S8-V02',duration_h:25},meshes:[mesh(24,24,61)]};
+const s8Pours={mesh_levels:[24,48,96],plans:[a,b],best:a};
+drawS8PoursCharts([a,b]);
+assert.equal(output.charts.length,3);
+const [[durationA],[deltaA,deltaB],[tmaxA]]=output.charts.map(chart=>
+  chart.children[2].children.map(row=>row.children[1].children));
+const barValue=bar=>bar.children[1].children[1];
+assert.deepEqual(durationA.map(barValue),['12.11']);
+assert.deepEqual(deltaA.map(barValue),['16.00','17.00','19.00']);
+assert.deepEqual(deltaB.map(barValue),['24.00','—','—']);
+assert.match(deltaB[0].children[1].className,/s8-over/);
+assert.equal(deltaA[0].children[0].children[1].style.left,'80%');
+assert.deepEqual(tmaxA.map(barValue),['57.00','58.00','59.00']);
+assert.equal(tmaxA[0].children[0].children[1].style.left,'87.5%');
+drawS8PoursCharts([a]);
+assert.ok(output.charts.every(chart=>chart.children[2].children.length===1));
+"""], check=True)
+
+
+def test_s8_spatial_charts_use_selected_plan_mesh_results():
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node no está disponible")
+    app = (ROOT / "web/app.js").read_text(encoding="utf-8")
+    spatial = app[app.index("function drawS8SpatialConvergence("):app.index("function drawS8PourDetail(")]
+    subprocess.run([node, "-e", spatial + """
+const assert=require('node:assert/strict');
+const s8Pours={mesh_levels:[24,48,96]};
+const elements={}, plots={};
+const $=id=>elements[id]??=( {clientWidth:300} );
+const num=(v,n)=>v.toFixed(n);
+const lineChart=(id,[series],indices,options)=>{plots[id]={values:series.values,indices,options}};
+const mesh=(mesh,tmax,delta)=>({mesh,dt:600,tmax:{value_c:tmax},delta:{value_c:delta}});
+drawS8SpatialConvergence({meshes:[mesh(96,57.48,16.65),mesh(24,57.29,15.89),mesh(48,57.45,15.47)],
+  apparent_convergence:{delta:{last_change_c:1.18,order:null,stable_sequence:false,target_c:.2}}});
+assert.deepEqual(plots['s8-spatial-tmax'].values,[57.29,57.45,57.48]);
+assert.deepEqual(plots['s8-spatial-delta'].values,[15.89,15.47,16.65]);
+assert.deepEqual(plots['s8-spatial-delta'].options.xTickLabels,['n=24','n=48','n=96']);
+assert.match(elements['s8-spatial-method'].textContent,/600 s/);
+assert.match(elements['s8-spatial-delta-result'].textContent,/Orden aparente indeterminado/);
+drawS8SpatialConvergence({meshes:[mesh(48,70,20)],apparent_convergence:{}});
+assert.deepEqual(plots['s8-spatial-delta'].values,[undefined,20,undefined]);
+assert.match(elements['s8-spatial-delta-result'].textContent,/tres mallas/);
+"""], check=True)
+
+
 def test_export_is_one_file_with_embedded_resources(tmp_path):
     output=build(tmp_path/"visor.html")
     text=output.read_text(encoding="utf-8")
@@ -200,65 +287,24 @@ def test_export_is_one_file_with_embedded_resources(tmp_path):
         assert gzip.decompress(base64.b64decode(example.group(1))) == path.read_bytes()
     assert 'id="tab-plans"' in text
     assert '<dialog' not in text and '<h2 id="arcade-title">' in text
-    from scripts.dashboard_jobs import FINAL_BUNDLE, FINAL_MC, PROTECTION_MC
-    comparison = PROTECTION_MC if PROTECTION_MC.is_file() else FINAL_MC
-    if comparison.is_file() or (FINAL_BUNDLE/"comparison.json").is_file():
+    from scripts.dashboard_jobs import POUR_COMPARISON
+    for retired_id in ("plans-convergence", "plans-alternative", "s8-aligned-results", "s8-mc-results", "plans-mc-results"):
+        assert f'id="{retired_id}"' not in text
+    assert 'id="s8-pours-charts"' in text
+    assert 'id="s8-spatial-tmax"' in text and 'id="s8-spatial-delta"' in text
+    comparison = POUR_COMPARISON / "summary.json"
+    if comparison.is_file():
         example = re.search(r'<script id="mcoc-example-plans" type="text/plain">([A-Za-z0-9+/=]+)</script>', text)
         assert example is not None
         bundle = json.loads(gzip.decompress(base64.b64decode(example.group(1))))
-        campaign = bundle["campaign"]
-        if comparison.is_file():
-            assert campaign == json.loads(comparison.read_text(encoding="utf-8"))
-            assert campaign["format"] == "mcoc-monte-carlo-v1"
-            assert 'id="plans-mc-period"' in text
-            if comparison == PROTECTION_MC:
-                assert len(bundle["figures"]) >= 3
-                evidence = bundle["convergence"]
-                assert evidence["plan"] == "S7" and evidence["sample_id"] == 46
-                assert evidence["source_sha256"] == campaign["source_sha256"]
-                coarse, fine = evidence["rows"]
-                assert coarse["dt"] == 2*fine["dt"]
-                np.testing.assert_allclose(coarse["grid_spacing_m"], np.array(fine["grid_spacing_m"])*2)
-                assert evidence["change_delta_c"] == fine["delta"]["value_c"] - coarse["delta"]["value_c"]
-                assert 'id="plans-convergence"' in text
-                if bundle.get("alternative"):
-                    alternative = bundle["alternative"]
-                    assert alternative["plan"] == "S8-staged-3600h"
-                    assert alternative["environment"]["insulation"]["conductivity_w_mk"] == .042
-                    assert alternative["config"]["plans"][0]["top_remove_h"] == 3600
-                    for result in alternative["refinements"]:
-                        assert result["hours"] == 3768 and result["closed"]
-                    assert 'id="plans-alternative"' in text
-                if bundle.get("s8_mc"):
-                    lots = bundle["s8_mc"]["lots"]
-                    assert len(lots) == 2 and lots[0]["seed"] != lots[1]["seed"]
-                    for lot in lots:
-                        assert lot["statistics"]["final"]["joint"]["n"] == 100
-                        assert lot["statistics"]["final"]["open_horizons"] > 0
-                        assert not lot["feasible"]
-                    assert 'id="s8-mc-results"' in text
-                if "studies" in evidence:
-                    spatial = evidence["studies"]["spatial"]["rows"]
-                    temporal = evidence["studies"]["temporal"]["rows"]
-                    assert len(spatial) in (2, 3) and len(temporal) == 3
-                    assert {row["dt"] for row in spatial} == {600}
-                    assert [row["dt"] for row in temporal] == [1200, 600, 300]
-                    if len(spatial) == 3:
-                        np.testing.assert_allclose(spatial[-1]["grid_spacing_m"], [.125, .125, .132])
-                        assert evidence["fine_margin_delta_c"] == 20-spatial[-1]["delta"]["value_c"]
-                    else:
-                        assert evidence["fine_margin_delta_c"] is None
-                for data in bundle["figures"].values():
-                    assert base64.b64decode(data).startswith(b"\x89PNG\r\n\x1a\n")
-        else:
-            assert campaign["format"] == "mcoc-final-v1"
-            manifest = json.loads((FINAL_BUNDLE/"manifest.json").read_text(encoding="utf-8"))
-            assert {plan["id"] for plan in campaign["plans"]} == {plan["id"] for plan in manifest["config"]["plans"]}
-            assert len(campaign["scenarios"]) == len(manifest["jobs"])
-            assert len(campaign["weather_sensitivity"]) == 3
-            assert all("baseline" in row and "profile_mm_c" in row["delta"] for row in campaign["scenarios"])
-            assert campaign["verification"]["metrics"]["combined"]["protection_samples"]
-            assert set(bundle["figures"]) >= {"Cronograma de vertidas", "Historias meteorológicas"}
+        assert set(bundle) == {"s8_pours"}
+        s8_pours = bundle["s8_pours"]
+        assert s8_pours["expected"] == 30
+        assert s8_pours["completed"] == sum(len(item["meshes"]) for item in s8_pours["plans"])
+        assert {item["plan"]["id"] for item in s8_pours["plans"]} == {f"S8-V{i:02d}" for i in range(1, 11)}
+        assert s8_pours["mesh_levels"] == [24, 48, 96]
+        assert s8_pours["member"] == "23"
+        assert 'id="s8-pours"' in text
     embedded_relief = re.search(r'<script id="mcoc-terrain" type="application/json">(.*?)</script>', text, re.S)
     assert embedded_relief is not None
     terrain = json.loads(embedded_relief.group(1))

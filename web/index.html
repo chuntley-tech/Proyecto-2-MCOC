@@ -224,96 +224,59 @@
   <section id="panel-plans" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-plans">
     <h1>Comparación de planes G8</h1>
     <p id="plans-status" class="project-intro" role="status">Cargando la campaña guardada…</p>
-    <section id="plans-mc-results" class="card hidden">
-      <div class="card-heading"><div><h2>Estimación Monte Carlo</h2><p id="plans-mc-label"></p></div>
-        <label>Horizonte <select id="plans-mc-period"><option value="final">Final</option><option value="day21">21 días</option><option value="day14">14 días</option></select></label>
+    <section id="s8-pours" class="card height-card hidden" aria-labelledby="s8-pours-title">
+      <div class="card-heading"><div><h2 id="s8-pours-title">¿Cuántas vertidas convienen?</h2><p id="s8-pours-progress" role="status"></p></div>
+        <button id="s8-pours-refresh" class="secondary" type="button">Actualizar resultados</button>
       </div>
-      <div class="table-scroll"><table class="project-table">
-        <thead><tr><th>Plan</th><th>Duración [h]</th><th>T máx p95 [°C]</th><th>ΔT p95 [°C]</th><th>T &gt; 70 °C · IC 95 %</th><th>ΔT &gt; 20 °C · IC 95 %</th><th>Unión · IC 95 %</th><th>Horizontes abiertos</th><th>Estado final</th></tr></thead>
-        <tbody id="plans-mc-rows"></tbody>
-      </table></div>
-      <p class="scope-note">Cumplimiento final con al menos 100 muestras, horizontes cerrados y cota superior del IC conjunto &lt; 5 %.</p>
-    </section>
-    <div id="plans-results" class="hidden">
-      <section class="card">
-        <div class="card-heading"><div><h2>Duración y riesgo térmico</h2><p id="plans-assumptions"></p></div></div>
-        <div class="table-scroll"><table class="project-table">
-          <thead><tr><th>Plan</th><th>Fin desde t₀ [h]</th><th>ΔT máx a 14 días [°C]</th><th>ΔT máx final [°C]</th><th>T &gt; 70 °C</th><th>ΔT &gt; 20 °C</th><th>Unión a 14 días</th><th>Unión final</th><th>Sensibilidad 8 curvas</th><th>Estado</th></tr></thead>
-          <tbody id="plans-rows"></tbody>
-        </table></div>
-        <p class="scope-note">La regla de selección es P(T &gt; 70 °C o ΔT &gt; 20 °C) ≤ 5 %. La duración termina al completar la última vertida.</p>
-        <p class="scope-note">El diferencial usa el máximo del hormigón colocado y la mínima temperatura reconstruida a 25 mm bajo las caras expuestas, ambos del mismo instante. El cálculo principal usa las cuatro curvas SS. La columna de sensibilidad incorpora las cuatro 22A.</p>
-      </section>
-      <section class="card height-card">
-        <div class="card-heading"><div><h2>Escenarios térmicos y cronograma</h2><p id="plan-schedule"></p></div><label>Plan <select id="plan-choice"></select></label></div>
-        <p class="scope-note" id="plan-weather-checks"></p>
-        <div class="table-scroll mc-run-table"><table class="project-table">
-          <thead><tr><th>Curva</th><th>Clima</th><th>Peso principal</th><th>T máx [°C]</th><th>t de T máx [h]</th><th>Ubicación T máx [m]</th><th>ΔT a 14 días [°C]</th><th>ΔT final [°C]</th><th>t de ΔT máx [h]</th><th>Ubicación mínima a 25 mm [m]</th><th>Horizonte [h]</th><th>Tras última vertida [h]</th><th>Relleno climático [h]</th><th>Falla</th></tr></thead>
-          <tbody id="plan-scenarios"></tbody>
-        </table></div>
-      </section>
-      <section id="plans-verification" class="card height-card hidden">
-        <div class="card-heading"><div><h2>Sensibilidad numérica</h2><p id="plans-verification-caption"></p></div></div>
-        <div class="table-scroll"><table class="project-table">
-          <thead><tr><th>Plan y escenario</th><th>Ensayo</th><th>Malla [m]</th><th>Δt máximo solicitado [s]</th><th>T máx [°C]</th><th>ΔT máx [°C]</th><th>Hora y cara de ΔT máx</th><th>Residuo energético</th></tr></thead>
-          <tbody id="plans-verification-rows"></tbody>
-        </table></div>
-        <details id="plans-protection-details">
-          <summary>Retiro de la manta y perfil a 25 mm</summary>
-          <div class="table-scroll"><table class="project-table">
-            <thead><tr><th>Plan</th><th>Hora desde t₀</th><th>Cara más fría</th><th>T máx [°C]</th><th>Mínima a 25 mm [°C]</th><th>ΔT [°C]</th></tr></thead>
-            <tbody id="plans-protection-rows"></tbody>
-          </table></div>
-          <p class="scope-note" id="plans-depth-profiles"></p>
-        </details>
-      </section>
-    </div>
-    <section id="plans-convergence" class="card height-card hidden">
-      <h2>Convergencia del caso S7 · verificación disponible</h2>
-      <p id="plans-convergence-case"></p>
-      <div class="table-scroll"><table class="project-table">
-        <thead><tr><th>Cálculo</th><th>Celda x × y × z [mm]</th><th>Δt máximo [s]</th><th>T máxima [°C]</th><th>ΔT máximo [°C]</th><th>Instante de ΔT [días]</th><th>Horizonte [días]</th><th>Residuo energético relativo</th></tr></thead>
-        <tbody id="plans-convergence-rows"></tbody>
-      </table></div>
-      <p id="plans-convergence-change"></p>
-      <p>La temperatura a 25 mm bajo las caras exteriores se reconstruye linealmente con el flujo de borde y la temperatura del centro de celda. Esa profundidad está por debajo del tamaño de las celdas utilizadas.</p>
-      <p id="plans-convergence-method">Se refinaron simultáneamente la malla y el paso temporal en una realización. Para establecer el orden de convergencia faltan al menos tres niveles y estudios que separen el refinamiento espacial del temporal. El máximo puede cambiar de ubicación e instante al refinar.</p>
-      <p>La estimación Monte Carlo corresponde a la malla base. Esta comprobación del escenario crítico aporta evidencia de sensibilidad numérica. El cumplimiento probabilístico con malla fina queda pendiente.</p>
-      <details id="plans-weather-refresh" class="hidden">
-        <summary>Open-Meteo · pronóstico del 17 de noviembre</summary>
-        <p id="plans-weather-refresh-result"></p>
-        <p>El ensamble GFS tiene 31 miembros con temperatura a 2 m, viento a 10 m y radiación de onda corta durante los primeros 14 días, del 19 de noviembre a las 08:00 al 3 de diciembre a las 08:00 de Santiago. Este ensayo cambia el clima de la muestra 46 con la malla base y un paso máximo de 600 s. El Monte Carlo mantiene el pronóstico original.</p>
-      </details>
-      <details>
-        <summary>Propiedades reales y factibilidad constructiva · validación pendiente</summary>
-        <p>La revisión de docs identifica k = 2,2 W/(m·K) y las propiedades del suelo como referencias del caso docente. La densidad 2476 kg/m³ y el calor específico 1023 J/(kg·K) provienen de la cabecera de las fuentes de probetas. Falta confirmar su correspondencia con la mezcla de obra y contrastar temperaturas con mediciones independientes.</p>
-        <p>S7 requiere una bomba con caudal útil sostenido de 40 m³/h durante aproximadamente 12,11 h, colocación nominal a 16 °C, protección periférica equivalente a 175 mm y central de 45 mm con k = 0,04 W/(m·K), y retiro total al día 105. Faltan fichas de materiales seleccionados y confirmación de suministro, montaje y operación.</p>
-        <p>La subbase de R'' = 2,5 m²·K/W necesita verificación estructural y geotécnica, incluyendo cargas cíclicas y deformaciones. El modelo representa su resistencia térmica sin capacidad térmica propia. La simulación mantiene 165 h de pronóstico y completa el resto mediante persistencia.</p>
-      </details>
-    </section>
-    <section id="plans-alternative" class="card height-card hidden">
-      <div class="card-heading"><div><h2>Alternativa S8 · protección con capas comerciales</h2><p>Escenario crítico 46 de S7 · pendiente de validación física y Monte Carlo propio</p></div></div>
-      <div class="table-scroll"><table class="project-table">
-        <thead><tr><th>Celda x × y × z [mm]</th><th>T máxima [°C]</th><th>ΔT máximo [°C]</th><th>Margen hasta 20 °C</th><th>Horizonte</th><th>Estado del horizonte</th></tr></thead>
-        <tbody id="plans-alternative-rows"></tbody>
-      </table></div>
-      <p class="scope-note">Se proponen mantas periféricas de 200, 150, 100 y 50 mm, cambiadas en los días 35, 60 y 80. La cubierta central mantiene 50 mm. Ambas se retiran el día 150 y se simula hasta el día 157. Conductividad de servicio supuesta de las mantas 0,042 W/(m·K). Subbase propuesta de 120 mm con λ = 0,045 W/(m·K), pendiente de aprobación estructural y geotécnica. La colocación dura 12,11 h.</p>
-      <p class="scope-note" id="plans-alternative-status"></p>
-      <div id="s8-mc-results" class="hidden">
-        <div class="card-heading"><div><h2>Monte Carlo propio de S8</h2><p>Resultados condicionados al horizonte de 157 días y a la malla base</p></div></div>
-        <div class="table-scroll"><table class="project-table">
-          <thead><tr><th>Lote</th><th>Semilla</th><th>Fallas conjuntas</th><th>IC 95 %</th><th>ΔT máximo [°C]</th><th>Horizontes abiertos</th><th>Estado</th></tr></thead>
-          <tbody id="s8-mc-rows"></tbody>
-        </table></div>
-        <p class="scope-note" id="s8-extended-result"></p>
+      <div class="s8-pours-body">
+        <div class="s8-pours-best" role="status"><h3 id="s8-pours-best-title"></h3><p id="s8-pours-best-reason"></p></div>
+        <p>Se prioriza terminar antes entre los planes que respetan 70 °C de temperatura máxima y 20 °C de diferencial en todas sus corridas disponibles, con los picos capturados. Si dos planes demoran lo mismo, gana el menor diferencial en la malla más fina disponible para los diez.</p>
+        <label>Mostrar <select id="s8-pours-filter"><option value="all">Todos los planes</option><option value="1">Una vertida</option><option value="2">Dos vertidas</option><option value="3">Tres vertidas</option></select></label>
+        <section class="s8-pours-charts" aria-labelledby="s8-charts-title">
+          <h3 id="s8-charts-title">Gráficos de comparación</h3>
+          <ul class="s8-chart-key" aria-label="Leyenda de los gráficos">
+            <li><span class="s8-key-mark s8-mesh-0" aria-hidden="true"></span>Malla gruesa</li>
+            <li><span class="s8-key-mark s8-mesh-1" aria-hidden="true"></span>Malla intermedia</li>
+            <li><span class="s8-key-mark s8-mesh-2" aria-hidden="true"></span>Malla fina</li>
+            <li><span class="s8-key-line" aria-hidden="true"></span>Límite térmico</li>
+            <li><span aria-hidden="true">★</span> Mejor opción</li>
+          </ul>
+          <div id="s8-pours-charts" class="s8-chart-grid"></div>
+        </section>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Comparación de los planes S8 por malla">
+          <table class="project-table"><thead id="s8-pours-head"></thead><tbody id="s8-pours-rows"></tbody></table>
+        </div>
+        <p>ΔT es la mayor diferencia simultánea entre el hormigón más caliente y el punto más frío estimado a 25 mm bajo una superficie expuesta.</p>
+        <div class="s8-pours-detail">
+          <h3>Detalle del plan</h3>
+          <label>Plan <select id="s8-pours-choice"></select></label>
+          <p id="s8-pours-context"></p>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Cronograma de colocación">
+            <table class="project-table"><thead><tr><th scope="col">Vertida</th><th scope="col">Inicio (Santiago)</th><th scope="col">Fin (Santiago)</th><th scope="col">Volumen (m³)</th><th scope="col">Aire al inicio (°C)</th></tr></thead><tbody id="s8-pours-schedule"></tbody></table>
+          </div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Resultados térmicos del plan">
+            <table class="project-table"><thead><tr><th scope="col">Malla</th><th scope="col">Celda x × y × z (mm)</th><th scope="col">T máxima (°C)</th><th scope="col">ΔT máximo (°C)</th><th scope="col">Día de ΔT máx.</th><th scope="col">Estado</th></tr></thead><tbody id="s8-pours-meshes"></tbody></table>
+          </div>
+          <section class="s8-pours-spatial" aria-labelledby="s8-spatial-title">
+            <h4 id="s8-spatial-title">Convergencia espacial</h4>
+            <p id="s8-spatial-method"></p>
+            <div class="s8-chart-grid">
+              <figure class="s8-chart">
+                <figcaption><strong>Temperatura máxima</strong></figcaption>
+                <div class="s8-spatial-stage"><canvas id="s8-spatial-tmax" aria-hidden="true"></canvas></div>
+                <p id="s8-spatial-tmax-result"></p>
+              </figure>
+              <figure class="s8-chart">
+                <figcaption><strong>Diferencial térmico máximo</strong></figcaption>
+                <div class="s8-spatial-stage"><canvas id="s8-spatial-delta" aria-hidden="true"></canvas></div>
+                <p id="s8-spatial-delta-result"></p>
+              </figure>
+            </div>
+          </section>
+        </div>
+        <p id="s8-pours-scope"></p>
       </div>
-      <p class="scope-note">El diferencial aumenta de 15,602 a 15,638 y a 17,049 °C al refinar. El último cambio supera al anterior, por lo que la convergencia espacial del diferencial sigue pendiente. La candidata mantiene margen en las tres mallas evaluadas.</p>
     </section>
-    <section class="charts height-card" id="plans-figures"></section>
-    <details class="card python-job">
-      <summary>Importar otra comparación</summary>
-      <label class="stacked">Archivo comparison.json<input id="plans-file" type="file" accept=".json,application/json"></label>
-    </details>
   </section>
   <section id="panel-monte-carlo" class="project-panel hidden" role="tabpanel" aria-labelledby="tab-monte-carlo">
     <h1>Monte Carlo · Fundación G8</h1>

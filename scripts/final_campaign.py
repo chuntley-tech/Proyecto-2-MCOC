@@ -209,8 +209,9 @@ def temperature_rising(history, horizon):
     return not prior.size or not last.size or np.any(last.max(axis=0) > prior.max(axis=0)+.05)
 
 
-def simulate(job, config, env, *, capture=False):
+def simulate(job, config, env, *, capture=False, voxel_loader=None, model_builder=None):
     began = perf_counter()
+    voxel_loader = voxel_loader or voxels
     plan = next(p for p in config["plans"] if p["id"] == job["plan"])
     if "placement_c" in job:
         plan = {**plan, "placement_c": job["placement_c"]}
@@ -243,7 +244,8 @@ def simulate(job, config, env, *, capture=False):
     protection_samples = []
 
     def run(hours):
-        model = weather_3d.build_model(env, series, start, hours, voxels=voxels(job["mesh"]))
+        builder = model_builder or weather_3d.build_model
+        model = builder(env, series, start, hours, voxels=voxel_loader(job["mesh"]))
         p, concrete = model["p"], model["grid"]["concrete"]
         monitor = CriticalTemperatures(concrete, model["origin_m"], p.spacing_m)
         placement = progressive_plan(model, plan, config)
@@ -311,7 +313,7 @@ def simulate(job, config, env, *, capture=False):
     if day21:
         row["day21"] = base[504]
     if day21:
-        row["voxel_pour_volumes_m3"] = reference_volumes(plan, config, voxels(job["mesh"]))
+        row["voxel_pour_volumes_m3"] = reference_volumes(plan, config, voxel_loader(job["mesh"]))
     if capture:
         row["protection_samples"] = protection_samples
         return row, model, monitor, critical_fields

@@ -1,0 +1,397 @@
+{
+  "row": {
+    "plan": "S8-staged-3600h",
+    "curve": "M3_SS",
+    "climate": {
+      "member": "_member23",
+      "id": "_member23"
+    },
+    "heat_factor": 1.1796711147279384,
+    "soil_c": 11.757438916875842,
+    "placement_c": 17.722724726127552,
+    "sample_id": 46,
+    "mesh": 48,
+    "dt": 300.0,
+    "ifc_sha256": "a5b877686490b2ff5db6a55cfb4b0c25262fbd7b400c3fd66118b373245f2e44",
+    "weather_sha256": "426d1b2272ae95f3cd38066c66d3bb1f50cbafedc4918b63a6ab5d6b61d25edf",
+    "hours": 3768,
+    "baseline": {
+      "tmax": {
+        "value_c": 60.959528441424105,
+        "time_h": 192.58333333333334,
+        "cell": [
+          27,
+          27,
+          13
+        ],
+        "xyz_m": [
+          8.8125,
+          8.8125,
+          1.5125000109275182
+        ]
+      },
+      "delta": {
+        "value_c": 13.084560255990837,
+        "time_h": 334.0,
+        "hot": {
+          "value_c": 59.20875930547799,
+          "time_h": 334.0,
+          "cell": [
+            27,
+            27,
+            13
+          ],
+          "xyz_m": [
+            8.8125,
+            8.8125,
+            1.5125000109275182
+          ]
+        },
+        "surface": {
+          "value_c": 46.12419904948715,
+          "time_h": 334.0,
+          "cell": [
+            20,
+            33,
+            19
+          ],
+          "xyz_m": [
+            6.1875,
+            11.0625,
+            3.275000023841858
+          ],
+          "face": "z+"
+        },
+        "profile_mm_c": [
+          [
+            0,
+            45.772697766689944
+          ],
+          [
+            25.0,
+            46.12419904948715
+          ],
+          [
+            137.50000099341077,
+            47.705954836042004
+          ]
+        ]
+      }
+    },
+    "tmax": {
+      "value_c": 60.959528441424105,
+      "time_h": 192.58333333333334,
+      "cell": [
+        27,
+        27,
+        13
+      ],
+      "xyz_m": [
+        8.8125,
+        8.8125,
+        1.5125000109275182
+      ]
+    },
+    "delta": {
+      "value_c": 15.578666613972125,
+      "time_h": 3644.0,
+      "hot": {
+        "value_c": 26.886477901256377,
+        "time_h": 3644.0,
+        "cell": [
+          27,
+          27,
+          18
+        ],
+        "xyz_m": [
+          8.8125,
+          8.8125,
+          2.8875000208616255
+        ]
+      },
+      "surface": {
+        "value_c": 11.307811287284252,
+        "time_h": 3644.0,
+        "cell": [
+          37,
+          51,
+          8
+        ],
+        "xyz_m": [
+          12.725,
+          17.8125,
+          0.13750000099341086
+        ],
+        "face": "x+"
+      },
+      "profile_mm_c": [
+        [
+          0,
+          10.559445355054208
+        ],
+        [
+          25.0,
+          11.307811287284252
+        ],
+        [
+          187.5,
+          16.17218984677955
+        ]
+      ]
+    },
+    "horizon_open": false,
+    "weather_hours": {
+      "ensemble": 165,
+      "persistencia": 3603
+    },
+    "grid_spacing_m": [
+      0.375,
+      0.375,
+      0.2750000019868215
+    ],
+    "steps": 45221,
+    "dt_mean_s": 299.9668295703324,
+    "run_seconds": 278.1425766000002,
+    "max_saved_interval_s": 13521685.267508421,
+    "energy_error_relative": 4.596076463883503e-15,
+    "day21": {
+      "tmax": {
+        "value_c": 60.959528441424105,
+        "time_h": 192.58333333333334,
+        "cell": [
+          27,
+          27,
+          13
+        ],
+        "xyz_m": [
+          8.8125,
+          8.8125,
+          1.5125000109275182
+        ]
+      },
+      "delta": {
+        "value_c": 13.426954439838987,
+        "time_h": 478.0,
+        "hot": {
+          "value_c": 56.95761603489981,
+          "time_h": 478.0,
+          "cell": [
+            27,
+            27,
+            13
+          ],
+          "xyz_m": [
+            8.8125,
+            8.8125,
+            1.5125000109275182
+          ]
+        },
+        "surface": {
+          "value_c": 43.53066159506082,
+          "time_h": 478.0,
+          "cell": [
+            20,
+            33,
+            19
+          ],
+          "xyz_m": [
+            6.1875,
+            11.0625,
+            3.275000023841858
+          ],
+          "face": "z+"
+        },
+        "profile_mm_c": [
+          [
+            0,
+            43.20167084821521
+          ],
+          [
+            25.0,
+            43.53066159506082
+          ],
+          [
+            137.50000099341077,
+            45.011119968938985
+          ]
+        ]
+      }
+    },
+    "voxel_pour_volumes_m3": [
+      482.3156284846366
+    ]
+  },
+  "config": {
+    "start_utc": "2026-11-19T11:00:00Z",
+    "weather_snapshot": "data/weather/2026-11-16T1645Z_ensemble",
+    "weather_sensitivity": true,
+    "hours": 336,
+    "max_hours": 3768,
+    "dt_s": 1200,
+    "verification_refinements": "combined",
+    "offset_h": 2,
+    "tail_h": 24,
+    "activation_energy_j_mol": 0,
+    "placement_c": 16,
+    "pump_count": 1,
+    "flow_m3_h_per_pump": 40,
+    "minimum_wait_h": 6,
+    "plans": [
+      {
+        "id": "S8-staged-3600h",
+        "label": "S8-staged-3600h",
+        "fractions": [
+          0,
+          1
+        ],
+        "start_h": [
+          0
+        ],
+        "strip_h": 72,
+        "top_remove_h": 3600,
+        "side_blanket": true,
+        "subbase_r_m2k_w": 2.6666666666666665,
+        "blanket_stages": [
+          [
+            0,
+            0.2
+          ],
+          [
+            840,
+            0.15
+          ],
+          [
+            1440,
+            0.1
+          ],
+          [
+            1920,
+            0.05
+          ],
+          [
+            3600,
+            0
+          ]
+        ],
+        "blanket_core_stages": [
+          [
+            0,
+            0.05
+          ],
+          [
+            1920,
+            0.05
+          ],
+          [
+            3600,
+            0
+          ]
+        ],
+        "placement_c": 16,
+        "schedule": [
+          {
+            "layer": 1,
+            "start_h": 0.0,
+            "finish_h": 12.110312587494652,
+            "duration_h": 12.110312587494652,
+            "volume_m3": 484.4125034997861
+          }
+        ],
+        "duration_h": 12.110312587494652
+      }
+    ],
+    "assumptions": "Una bomba, caudal, colocación a 16 °C, resistencias y protecciones son hipótesis docentes. La subbase requiere revisión estructural, disponibilidad de material y caracterización térmica. La meteorología se completa por persistencia después de las horas disponibles del ensamble.",
+    "report_21d": true,
+    "mix": {
+      "density_kg_m3": 2476,
+      "specific_heat_j_kgk": 1023,
+      "conductivity_w_mk": 2.2
+    },
+    "hydration_reference_c": 20,
+    "start_local": "2026-11-19T08:00:00-03:00",
+    "common_forecast_hours": 165
+  },
+  "environment": {
+    "data_status": "Configuración de entorno E10. Coordenadas del sitio desde case_g8.json. Propiedades de moldaje, aislación y suelo son valores de literatura/supuestos indicados en cada campo; el clima viene de un snapshot de Open-Meteo o, si no hay, de una serie SINTÉTICA marcada como tal.",
+    "site": {
+      "latitude": -41.222539,
+      "longitude": -73.295603,
+      "source": "config/case_g8.json (punto meteorológico docente, Llanquihue)"
+    },
+    "construction": {
+      "start_local": "2026-11-27T04:00",
+      "timezone": "America/Santiago",
+      "start_utc": "2026-11-27T07:00Z",
+      "days_after_start": 14,
+      "note": "Inicio tomado del ejemplo de la guía G08. Se supone hora local de Chile (UTC−3 en noviembre, horario de verano)."
+    },
+    "weather": {
+      "snapshot_root": "data/weather",
+      "decision_time_utc": null,
+      "tail_method": "auto",
+      "note": "decision_time_utc = null usa la hora actual como corte. Si falta parte del pronóstico al final, auto usa reanálisis del mismo sitio descargado al corte o persistencia. Cada hora queda marcada."
+    },
+    "convection": {
+      "h_a_w_m2k": 5.7,
+      "h_b_w_m2k_per_m_s": 3.8,
+      "wind_height_m": 2.0,
+      "wind_exponent": 0.14,
+      "source": "Correlación de Jürges/McAdams h = 5,7 + 3,8 v (superficies exteriores); perfil de viento potencial con exponente 1/7 para terreno abierto."
+    },
+    "solar": {
+      "absorptance_concrete": 0.65,
+      "absorptance_formwork": 0.6,
+      "top_factor": 1.0,
+      "side_factor": 0.35,
+      "source": "Absortancia típica de hormigón gris 0,6–0,7 (supuesto). Factor lateral 0,35: fracción aproximada de radiación global sobre cara vertical (supuesto docente, sin cálculo de geometría solar)."
+    },
+    "formwork": {
+      "thickness_m": 0.018,
+      "conductivity_w_mk": 0.13,
+      "strip_after_h": 72,
+      "source": "Terciado fenólico 18 mm, k ≈ 0,13 W/(m·K) (valor típico). Retiro a las 72 h: supuesto E10 para la propiedad RetiroMoldaje_h propuesta en la guía G02."
+    },
+    "insulation": {
+      "thickness_m": 0.025,
+      "conductivity_w_mk": 0.042,
+      "on_top_from_h": 0.0,
+      "source": "Manta de curado/aislante 25 mm, k ≈ 0,04 W/(m·K) (valor típico de espuma/fibra). Supuesto de diseño, no especificación del proyecto."
+    },
+    "soil": {
+      "depth_m": 2.2,
+      "margin_m": 1.5,
+      "conductivity_w_mk": 1.39,
+      "density_kg_m3": 1800.0,
+      "specific_heat_j_kgk": 1273.0,
+      "deep_temperature_c": 10.0,
+      "source": "k, ρ, cp: Ju y Lei (2019), guía de difusión §31. Temperatura profunda 10 °C: SUPUESTO (orden de la media anual del aire en Llanquihue), no medido."
+    },
+    "concrete": {
+      "conductivity_w_mk": 2.2,
+      "density_kg_m3": 2400.0,
+      "specific_heat_j_kgk": 900.0,
+      "placement_c": 16.0,
+      "qmax_w_m3": 1300.0,
+      "hydration_duration_s": 172800.0,
+      "source": "Mismos valores sintéticos de construction_g8.json; colocación 16 °C del ejemplo G08. No calibrado."
+    },
+    "demo_section": {
+      "half_width_m": 9.0,
+      "height_m": 3.3,
+      "spacing_m": [
+        0.5,
+        0.275
+      ],
+      "dt_s": 600.0,
+      "note": "Sección vertical 2D x–z por el eje de la fundación, mitad por simetría. Es una sección rectangular simplificada para mostrar las condiciones de borde; la geometría completa está en el modelo 3D."
+    }
+  },
+  "symmetry": "fixed",
+  "grid_counts": [
+    48,
+    48,
+    12
+  ],
+  "source_sha256": "182b4a500dd02060b89dc452f007a379c7ab6cdc569e67de59a04c00d3497956",
+  "code_sha256": "afd34deb35d337f80adfc59051e2ee7bb78f8a4be251f4225d327eed43d9c08a"
+}
